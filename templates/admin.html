@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>Admin & Receptionist Desk | BIG-L AUTOS</title>
+  <link rel="stylesheet" href="/static/css/style.css?v=4.1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+</head>
+
+<body class="theme-dark-green">
+
+  <!-- Clean Navbar -->
+  <header class="navbar">
+    <div class="container nav-inner">
+      <a href="/" class="brand-logo">
+        <div class="logo-symbol">
+          <svg viewBox="0 0 100 100" width="30" height="30">
+            <circle cx="50" cy="50" r="44" stroke="#ffffff" stroke-width="2.5" fill="none" opacity="0.9" />
+            <path d="M 28 26 L 28 72 L 72 72" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round"
+              stroke-linejoin="round" fill="none" />
+            <path d="M 33 62 C 36 54 44 48 54 48 C 63 48 70 53 74 62 L 75 66 L 32 66 Z" fill="none" stroke="#ffffff"
+              stroke-width="2.5" />
+            <circle cx="41" cy="66" r="3.5" fill="none" stroke="#ffffff" stroke-width="2" />
+            <circle cx="66" cy="66" r="3.5" fill="none" stroke="#ffffff" stroke-width="2" />
+            <path d="M 27 52 L 32 52 L 33 62" stroke="#ffffff" stroke-width="2" fill="none" />
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>BIG-L AUTOS</h1>
+        </div>
+      </a>
+
+      <div class="nav-actions">
+        <span class="admin-nav-user" style="font-size:12px; color:var(--mint); font-weight:700; background:rgba(34,197,94,0.1); border:1px solid rgba(34,197,94,0.25); padding:6px 12px; border-radius:100px; display:inline-flex; align-items:center;">
+          <span class="admin-user-full">Sarah Mitchell (Head Receptionist &amp; Admin)</span>
+          <span class="admin-user-short">Admin</span>
+        </span>
+        <button onclick="openModal('addCarModal')" class="btn btn-primary btn-sm">
+          + Add Car
+        </button>
+        <a href="/" class="btn btn-secondary btn-sm" target="_blank">Showroom</a>
+        <button onclick="handleLogout()" class="btn btn-soft-green btn-sm">Log Out</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Admin Body -->
+  <div class="container" style="padding-top: 24px; padding-bottom: 50px;">
+
+    <!-- Top Stats (Clean, No icons) -->
+    <div class="admin-stats-grid">
+      <div class="stat-card">
+        <div>
+          <div class="stat-card-val" id="statTotalCars">0</div>
+          <div class="stat-card-title">Total Cars Listed</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div>
+          <div class="stat-card-val" id="statAvailableCars">0</div>
+          <div class="stat-card-title">Available for Sale or Swap</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div>
+          <div class="stat-card-val" id="statActiveChats">0</div>
+          <div class="stat-card-title">Customer Inquiries</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div>
+          <div class="stat-card-val" id="statPendingRequests">0</div>
+          <div class="stat-card-title">Pending Evaluations</div>
+        </div>
+      </div>
+
+      <div class="stat-card" onclick="switchAdminTab('sellers')" style="cursor:pointer;">
+        <div>
+          <div class="stat-card-val" id="statPendingSellers" style="color:#f59e0b;">0</div>
+          <div class="stat-card-title">Pending Seller Approvals</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs for Admin Sections (No icons) -->
+    <div class="tab-switch responsive-tabs" style="max-width:680px; margin-bottom:24px;">
+      <button class="tab-btn active" id="adminTabInquiriesBtn" onclick="switchAdminTab('inquiries')">Customer Inquiries
+        Desk</button>
+      <button class="tab-btn" id="adminTabInventoryBtn" onclick="switchAdminTab('inventory')">Inventory
+        Management</button>
+      <button class="tab-btn" id="adminTabSwapBtn" onclick="switchAdminTab('swap')">Sell and Swap Reviews</button>
+      <button class="tab-btn" id="adminTabSellersBtn" onclick="switchAdminTab('sellers')" style="position:relative;">
+        Seller Profiles &amp; Access
+        <span id="pendingSellersBadge" style="display:none; position:absolute; top:-6px; right:-6px; background:#ef4444; color:#fff; font-size:10px; font-weight:800; border-radius:50%; width:18px; height:18px; line-height:18px; text-align:center;">0</span>
+      </button>
+    </div>
+
+    <!-- Tab 1: Receptionist Live Chat Desk (No icons, No green status pill) -->
+    <div id="adminInquiriesView">
+      <div class="dashboard-layout" id="adminInquiriesLayout" style="min-height: 600px; padding:0;">
+        <!-- Left: Customer Thread List -->
+        <aside id="adminInquiriesSidebar">
+          <div class="sidebar-card" style="padding:16px;">
+            <div style="margin-bottom:12px; padding-bottom:10px; border-bottom:1px solid var(--border-dark);">
+              <span
+                style="font-size:12px; font-weight:800; text-transform:uppercase; color:var(--mint); letter-spacing:0.5px;">Customer
+                Conversations</span>
+            </div>
+            <div class="chat-threads-list" id="adminChatsList">
+              <p style="color:var(--gray-text); font-size:13px; text-align:center; padding:20px;">Loading customer
+                chats...</p>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Right: Active Chat Window -->
+        <main id="adminInquiriesMain">
+          <div class="chat-window" id="adminChatWindow">
+            <div
+              style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:#cbd5e1; text-align:center; padding:30px;">
+              <h3 style="font-family:var(--font-heading); font-size:18px; color:#ffffff; font-weight:800; margin-bottom:6px;">
+                Receptionist Chat Center</h3>
+              <p style="font-size:13.5px; max-width:340px; color:#94a3b8; line-height:1.5;">Select a customer inquiry on the left to review their vehicle
+                interest and negotiate pricing in real-time.</p>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <!-- Tab 2: Inventory Management -->
+    <div id="adminInventoryView" style="display:none;">
+      <div
+        style="background:var(--bg-card); border:1px solid var(--border-dark); border-radius:var(--radius-md); padding:24px; box-shadow:var(--shadow-sm);">
+        <div class="admin-section-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
+          <div>
+            <h3 style="font-family:var(--font-heading); font-size:18px; font-weight:800; color:var(--white);">Showroom
+              Fleet Inventory</h3>
+            <p style="font-size:13px; color:var(--gray-text);">Manage vehicle listings, specifications, and availability
+              status.</p>
+          </div>
+          <button onclick="openModal('addCarModal')" class="btn btn-primary btn-sm">Upload New Car</button>
+        </div>
+
+        <div id="adminCarsList">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 3: Sell / Swap Submissions -->
+    <div id="adminSwapView" style="display:none;">
+      <div
+        style="background:var(--bg-card); border:1px solid var(--border-dark); border-radius:var(--radius-md); padding:24px; box-shadow:var(--shadow-sm);">
+        <div style="margin-bottom:20px;">
+          <h3 style="font-family:var(--font-heading); font-size:18px; font-weight:800; color:var(--white);">Customer
+            Sell & Swap Submissions</h3>
+          <p style="font-size:13px; color:var(--gray-text);">Customers who want to sell their car or swap it for an
+            existing inventory car.</p>
+        </div>
+
+        <div class="responsive-table-wrapper" style="overflow-x:auto; -webkit-overflow-scrolling:touch;">
+          <table style="width:100%; min-width:620px; border-collapse:collapse; text-align:left; font-size:13px;">
+            <thead>
+              <tr
+                style="background:rgba(0,0,0,0.3); border-bottom:1px solid var(--border-dark); color:var(--gray-text); font-weight:700;">
+                <th style="padding:12px 14px;">Type</th>
+                <th style="padding:12px 14px;">Customer</th>
+                <th style="padding:12px 14px;">Vehicle Offered</th>
+                <th style="padding:12px 14px;">Target Deal</th>
+                <th style="padding:12px 14px;">Status</th>
+                <th style="padding:12px 14px;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="adminSwapTableBody">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 4: Seller Profiles & Posting Approvals -->
+    <div id="adminSellersView" style="display:none;">
+      <div style="background:var(--bg-card); border:1px solid var(--border-dark); border-radius:var(--radius-md); padding:24px; box-shadow:var(--shadow-sm);">
+        <div class="admin-section-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
+          <div>
+            <h3 style="font-family:var(--font-heading); font-size:18px; font-weight:800; color:var(--white);">Seller Profile Approvals</h3>
+            <p style="font-size:13px; color:var(--gray-text);">Approve user profiles to grant direct car-posting access. Once approved, sellers post directly to the showroom without needing car-by-car approval.</p>
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+            <button onclick="filterAdminSellers('all')" id="sellersFilterAll" class="btn btn-primary btn-sm">All Customers</button>
+            <button onclick="filterAdminSellers('pending')" id="sellersFilterPending" class="btn btn-secondary btn-sm">Pending Review</button>
+            <button onclick="filterAdminSellers('approved')" id="sellersFilterApproved" class="btn btn-secondary btn-sm">Approved Sellers</button>
+            <button onclick="filterAdminSellers('not_approved')" id="sellersFilterNotApproved" class="btn btn-secondary btn-sm">Not Approved</button>
+            <button onclick="cleanAllNonAdminUsers()" class="btn btn-sm" style="background:#450a0a; color:#f87171; border:1px solid #991b1b; font-weight:700; margin-left:auto;">
+              Remove Everyone Except Admin
+            </button>
+          </div>
+        </div>
+
+        <div class="responsive-table-wrapper" style="overflow-x:auto; -webkit-overflow-scrolling:touch;">
+          <table style="width:100%; min-width:620px; border-collapse:collapse; text-align:left; font-size:13px;">
+            <thead>
+              <tr style="background:rgba(0,0,0,0.3); border-bottom:1px solid var(--border-dark); color:var(--gray-text); font-weight:700;">
+                <th style="padding:12px 14px;">Customer / User</th>
+                <th style="padding:12px 14px;">Contact Info</th>
+                <th style="padding:12px 14px;">Status / Date</th>
+                <th style="padding:12px 14px;">Showroom Cars</th>
+                <th style="padding:12px 14px;">Posting Permission</th>
+                <th style="padding:12px 14px; text-align:right;">Profile Action</th>
+              </tr>
+            </thead>
+            <tbody id="adminSellersTableBody">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+    <!-- Modal: Upload Car & Specifications (No icons) -->
+  <div class="modal-overlay" id="addCarModal">
+    <div class="modal-content" style="max-width: 680px;">
+      <div class="modal-header">
+        <div class="modal-title">
+          <h3>Upload New Car and Specifications</h3>
+          <p>Add vehicle details to BIG-L Autos inventory catalog</p>
+        </div>
+        <button class="btn-close-modal" onclick="closeModal('addCarModal')">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <form id="addCarForm" enctype="multipart/form-data">
+          <!-- Car Pictures Upload (Up to 5 Photos) -->
+          <div class="form-group"
+            style="background:rgba(0,0,0,0.35); padding:16px; border-radius:var(--radius-sm); border:1px dashed var(--border-dark);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+              <label class="form-label" style="font-weight:700; margin:0;">Vehicle Photos (Up to 5 Pictures)</label>
+              <span id="adminPhotoBadge" style="font-size:11px; font-weight:700; color:var(--mint); background:rgba(34,197,94,0.15); padding:2px 8px; border-radius:100px;">0 / 5 Selected</span>
+            </div>
+            <p style="font-size:12px; color:var(--gray-text); margin-bottom:10px;">Select up to 5 pictures from your computer or phone (Front, Side, Rear, Interior, Engine). Slot 1 is the primary showroom cover.</p>
+            
+            <input type="file" id="carImageFiles" name="image_files" accept="image/*" multiple class="form-input"
+              style="background:rgba(0,0,0,0.5); margin-bottom:8px;">
+            <div style="text-align:center; font-size:11.5px; color:var(--gray-text); margin:4px 0;">— OR paste up to 5 Image URLs (one per line or comma-separated) —
+            </div>
+            <textarea id="carImageUrls" name="image_urls" class="form-textarea" rows="2" style="font-size:12px; background:rgba(0,0,0,0.5);"
+              placeholder="https://images.unsplash.com/...&#10;https://images.unsplash.com/..."></textarea>
+
+            <div id="imagePreviewContainer" style="display:none; margin-top:12px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <span style="font-size:11px; font-weight:700; color:var(--mint);">5-Photo Gallery Preview:</span>
+                <span style="font-size:10px; color:#94a3b8;">★ Slot 1 is the Main Cover</span>
+              </div>
+              <div id="adminPhotoSlotsGrid" style="display:grid; grid-template-columns:repeat(5, 1fr); gap:8px;">
+                <!-- Populated dynamically by JS -->
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Full Listing Title</label>
+            <input type="text" name="title" class="form-input" placeholder="e.g. 2023 Mercedes-AMG GT R Coupe" required>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Make</label>
+              <input type="text" name="make" class="form-input" placeholder="e.g. Mercedes-Benz" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Model</label>
+              <input type="text" name="model" class="form-input" placeholder="e.g. AMG GT" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Year</label>
+              <input type="number" name="year" class="form-input" placeholder="2023" required min="1990" max="2027">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Asking Price (GH₵)</label>
+              <input type="number" name="price" class="form-input" placeholder="1650000" required step="0.01">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Current Mileage (km)</label>
+              <input type="number" name="mileage" class="form-input" placeholder="8400">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Transmission</label>
+              <select name="transmission" class="form-select">
+                <option value="Automatic">Automatic</option>
+                <option value="Manual">Manual</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Fuel Type</label>
+              <select name="fuel_type" class="form-select">
+                <option value="Petrol">Petrol</option>
+                <option value="Diesel">Diesel</option>
+                <option value="Hybrid">Hybrid</option>
+                <option value="Electric">Electric</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Body Style</label>
+              <select name="body_type" class="form-select">
+                <option value="Coupe">Coupe</option>
+                <option value="Sedan">Sedan</option>
+                <option value="SUV">SUV</option>
+                <option value="Hatchback">Hatchback</option>
+                <option value="Truck">Truck</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Exterior Color</label>
+              <input type="text" name="color" class="form-input" placeholder="e.g. Green Hell Magno">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Vehicle Condition</label>
+              <select name="condition" class="form-select">
+                <option value="Brand New">Brand New</option>
+                <option value="Foreign Used">Foreign Used</option>
+                <option value="Local Used">Local Used</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Key Features (comma-separated)</label>
+            <input type="text" name="features" class="form-input"
+              placeholder="e.g. Bi-Turbo V8, Ceramic Brakes, Track Pace, Burmester Audio">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Detailed Vehicle Description</label>
+            <textarea name="description" class="form-textarea" rows="3"
+              placeholder="Condition details, packages, inspection certification notes..."></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="width:100%; padding:14px; font-weight:800;">
+            Publish Vehicle to Showroom
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/js/app.js?v=4.1"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      initAdminPortal();
+      loadAdminSellers();
+    });
+
+    function switchAdminTab(view) {
+      if (typeof closeMobileAdminChatView === 'function') {
+        closeMobileAdminChatView();
+      }
+      const inq = document.getElementById('adminInquiriesView');
+      const inv = document.getElementById('adminInventoryView');
+      const swp = document.getElementById('adminSwapView');
+      const slr = document.getElementById('adminSellersView');
+
+      const btnInq = document.getElementById('adminTabInquiriesBtn');
+      const btnInv = document.getElementById('adminTabInventoryBtn');
+      const btnSwp = document.getElementById('adminTabSwapBtn');
+      const btnSlr = document.getElementById('adminTabSellersBtn');
+
+      inq.style.display = view === 'inquiries' ? 'block' : 'none';
+      inv.style.display = view === 'inventory' ? 'block' : 'none';
+      swp.style.display = view === 'swap'      ? 'block' : 'none';
+      if (slr) slr.style.display = view === 'sellers' ? 'block' : 'none';
+
+      btnInq.classList.toggle('active', view === 'inquiries');
+      btnInv.classList.toggle('active', view === 'inventory');
+      btnSwp.classList.toggle('active', view === 'swap');
+      if (btnSlr) btnSlr.classList.toggle('active', view === 'sellers');
+
+      if (view === 'sellers') loadAdminSellers();
+    }
+
+    /* ── Seller Profile Approvals JS ── */
+    let currentSellersFilter = 'all';
+
+    async function loadAdminSellers(filter = currentSellersFilter) {
+      currentSellersFilter = filter;
+      const tbody = document.getElementById('adminSellersTableBody');
+      if (!tbody) return;
+      tbody.innerHTML = '<tr><td colspan="6" style="padding:20px; text-align:center; color:var(--gray-text);">Loading profiles...</td></tr>';
+
+      try {
+        const res = await fetch('/api/admin/sellers?status=' + encodeURIComponent(filter));
+        const data = await res.json();
+        const sellers = data.sellers || [];
+
+        if (!sellers.length) {
+          tbody.innerHTML = '<tr><td colspan="6" style="padding:24px; text-align:center; color:var(--gray-text);">No user accounts found matching this filter.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = sellers.map(u => {
+          const isApproved = Boolean(u.can_post);
+          const isPending = !isApproved && u.seller_status === 'pending';
+          
+          let statusBadge = '';
+          if (isApproved) {
+            statusBadge = '<span style="color:#22c55e; font-weight:700; background:rgba(34,197,94,0.1); border:1px solid rgba(34,197,94,0.25); padding:4px 8px; border-radius:100px; font-size:11px;">✓ Approved Seller</span>';
+          } else if (isPending) {
+            statusBadge = '<span style="color:#f59e0b; font-weight:700; background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.25); padding:4px 8px; border-radius:100px; font-size:11px;">⏳ Awaiting Approval</span>';
+          } else {
+            statusBadge = '<span style="color:var(--gray-text); font-size:11px; padding:4px 8px;">Not Requested</span>';
+          }
+
+          let actionBtn = '';
+          if (!isApproved) {
+            actionBtn = `<button onclick="toggleSellerAccess(${u.id}, 'approve')" class="btn btn-primary btn-sm" style="font-weight:700;">✓ Approve Profile (Grant Posting)</button>`;
+          } else {
+            actionBtn = `<button onclick="toggleSellerAccess(${u.id}, 'revoke')" class="btn btn-secondary btn-sm" style="color:#ef4444; border-color:rgba(239,68,68,0.3);">Revoke Access</button>`;
+          }
+
+          return `
+            <tr style="border-bottom:1px solid var(--border-dark);">
+              <td style="padding:14px;">
+                <div style="font-weight:700; color:var(--white); font-size:14px;">${u.name}</div>
+                <div style="font-size:11px; color:var(--gray-text);">User #${u.id}</div>
+              </td>
+              <td style="padding:14px;">
+                <div style="color:var(--white);">${u.email}</div>
+                <div style="font-size:12px; color:var(--mint);">${u.phone || 'No phone'}</div>
+              </td>
+              <td style="padding:14px; font-size:12px; color:var(--gray-text);">
+                ${u.seller_requested_at ? '<span style="color:#f59e0b;">Requested: ' + u.seller_requested_at.substring(0, 10) + '</span>' : 'Joined: ' + (u.created_at || '').substring(0, 10)}
+              </td>
+              <td style="padding:14px; font-weight:700; color:var(--white);">
+                ${u.posted_cars_count || 0} cars
+              </td>
+              <td style="padding:14px;">
+                ${statusBadge}
+              </td>
+              <td style="padding:14px; text-align:right;">
+                ${actionBtn}
+              </td>
+            </tr>
+          `;
+        }).join('');
+
+        // Update pending count in stat card and badge
+        const pendingCount = sellers.filter(s => s.seller_status === 'pending' && !s.can_post).length;
+        const statEl = document.getElementById('statPendingSellers');
+        if (statEl) statEl.innerText = pendingCount;
+        const badge = document.getElementById('pendingSellersBadge');
+        if (badge) {
+          badge.textContent = pendingCount;
+          badge.style.display = pendingCount > 0 ? 'inline-block' : 'none';
+        }
+      } catch (err) {
+        tbody.innerHTML = '<tr><td colspan="6" style="padding:20px; text-align:center; color:#ef4444;">Failed to load seller profiles.</td></tr>';
+      }
+    }
+
+    function filterAdminSellers(filter) {
+      ['All','Pending','Approved','NotApproved'].forEach(s => {
+        const btn = document.getElementById('sellersFilter' + s);
+        if (btn) { btn.classList.remove('btn-primary'); btn.classList.add('btn-secondary'); }
+      });
+      const activeMap = {
+        'all': 'sellersFilterAll',
+        'pending': 'sellersFilterPending',
+        'approved': 'sellersFilterApproved',
+        'not_approved': 'sellersFilterNotApproved'
+      };
+      const activeBtn = document.getElementById(activeMap[filter]);
+      if (activeBtn) { activeBtn.classList.remove('btn-secondary'); activeBtn.classList.add('btn-primary'); }
+      loadAdminSellers(filter);
+    }
+
+    async function toggleSellerAccess(userId, action) {
+      const confirmMsg = action === 'approve'
+        ? 'Approve this user profile? They will immediately be able to post their cars directly to the showroom without needing further approval.'
+        : 'Revoke posting access for this user?';
+      if (!confirm(confirmMsg)) return;
+
+      try {
+        const res = await fetch(`/api/admin/sellers/${userId}/access`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message, 'success');
+          loadAdminSellers();
+          loadAdminStats();
+        } else {
+          showToast(data.error || 'Failed to update access', 'error');
+        }
+      } catch (e) {
+        showToast('Network error', 'error');
+      }
+    }
+  </script>
+</body>
+
+</html>
