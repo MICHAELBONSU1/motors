@@ -764,6 +764,8 @@ def list_chats():
                seller.name as seller_name, seller.email as seller_email, seller.phone as seller_phone, seller.role as seller_role,
                cars.title as car_title, cars.price as car_price, cars.year as car_year,
                cars.image_url as car_image, cars.status as car_status,
+               (SELECT id FROM messages WHERE chat_id = c.id ORDER BY id DESC LIMIT 1) as last_message_id,
+               (SELECT sender_id FROM messages WHERE chat_id = c.id ORDER BY id DESC LIMIT 1) as last_sender_id,
                (SELECT message FROM messages WHERE chat_id = c.id ORDER BY id DESC LIMIT 1) as last_message,
                (SELECT created_at FROM messages WHERE chat_id = c.id ORDER BY id DESC LIMIT 1) as last_message_time,
                (SELECT COUNT(*) FROM messages WHERE chat_id = c.id AND is_read = 0 AND sender_id != ?) as unread_count
@@ -784,6 +786,8 @@ def list_chats():
                seller.name as seller_name, seller.email as seller_email, seller.phone as seller_phone, seller.role as seller_role,
                cars.title as car_title, cars.price as car_price, cars.year as car_year,
                cars.image_url as car_image, cars.status as car_status,
+               (SELECT id FROM messages WHERE chat_id = c.id ORDER BY id DESC LIMIT 1) as last_message_id,
+               (SELECT sender_id FROM messages WHERE chat_id = c.id ORDER BY id DESC LIMIT 1) as last_sender_id,
                (SELECT message FROM messages WHERE chat_id = c.id ORDER BY id DESC LIMIT 1) as last_message,
                (SELECT created_at FROM messages WHERE chat_id = c.id ORDER BY id DESC LIMIT 1) as last_message_time,
                (SELECT COUNT(*) FROM messages WHERE chat_id = c.id AND is_read = 0 AND sender_id != ?) as unread_count
@@ -956,28 +960,6 @@ def send_chat_message(chat_id):
     cursor.execute("UPDATE chats SET updated_at = CURRENT_TIMESTAMP WHERE id = ?", (chat_id,))
     db.commit()
     msg_id = cursor.lastrowid
-
-    # Live receptionist auto-response (Sarah Mitchell) when chatting with the showroom desk
-    # Note: Skipped during automated unit tests to keep test assertions deterministic
-    if not app.config.get('TESTING') and sender_role == 'customer' and (not chat['seller_id'] or chat['seller_id'] == 1):
-        txt_lower = message_text.lower()
-        if any(w in txt_lower for w in ['price', 'lowest', 'last price', 'discount', 'cash', 'gh', 'negotiable', 'offer', 'cedi']):
-            sarah_reply = "Thank you for your offer! We are open to reasonable cash negotiations for serious buyers visiting our showroom at Somanya-Roundabout. Would you like to schedule an inspection and test drive to finalize the figures?"
-        elif any(w in txt_lower for w in ['swap', 'trade', 'exchange']):
-            sarah_reply = "We definitely welcome vehicle swaps! Please provide the year, make, model, and current mileage of your car (or submit it via the 'Sell and Swap Requests' tab), and our team will evaluate your vehicle against this car."
-        elif any(w in txt_lower for w in ['test drive', 'inspect', 'inspection', 'visit', 'view', 'location', 'where', 'address', 'tomorrow', 'today']):
-            sarah_reply = "You're very welcome to come inspect and test drive the vehicle! Our showroom is at Somanya-Roundabout (Mon-Sat, 8:00 AM - 5:30 PM). Would tomorrow work for your visit?"
-        elif any(w in txt_lower for w in ['available', 'still']):
-            sarah_reply = "Yes, this vehicle is currently available in our showroom! Would you like to reserve an inspection or discuss our cash buyout and swap terms?"
-        else:
-            sarah_reply = "Hello! Sarah Mitchell here from the BIG-L Autos receptionist desk. I've received your inquiry! Would you like to arrange a test drive at Somanya-Roundabout or discuss financing and swap terms?"
-
-        cursor.execute('''
-        INSERT INTO messages (chat_id, sender_id, sender_role, message)
-        VALUES (?, 1, 'admin', ?)
-        ''', (chat_id, sarah_reply))
-        cursor.execute("UPDATE chats SET updated_at = CURRENT_TIMESTAMP WHERE id = ?", (chat_id,))
-        db.commit()
 
     db.close()
 

@@ -15,6 +15,195 @@ let initialLoadDoneByChat = {};
 let activeRenderedChatId = null;
 let pendingInquiryCar = null;
 
+// ============================================================================
+// Real-Time Notification & Audio Alert System
+// Synthesized Web Audio Chime + Desktop OS Notifications + Background Tab Flashing
+// ============================================================================
+let audioCtx = null;
+let originalDocumentTitle = document.title || 'BIG L Autos';
+let tabFlashInterval = null;
+let knownLastMessageIdByChat = {};
+let hasInitialChatSyncDone = false;
+let adminPollingInterval = null;
+
+function getAudioContext() {
+  if (!audioCtx) {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (AudioContextClass) {
+      audioCtx = new AudioContextClass();
+    }
+  }
+  if (audioCtx && audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+  return audioCtx;
+}
+
+// Unlock audio context on user interaction
+['click', 'touchstart', 'keydown'].forEach(evt => {
+  window.addEventListener(evt, () => {
+    getAudioContext();
+  }, { once: false, passive: true });
+});
+
+function playMessageNotificationSound() {
+  try {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    if (ctx.state === 'suspended') {
+      ctx.resume();
+    }
+    const now = ctx.currentTime;
+
+    // First bell tone (A5 - 880Hz)
+    const osc1 = ctx.createOscillator();
+    const gain1 = ctx.createGain();
+    osc1.type = 'sine';
+    osc1.frequency.setValueAtTime(880, now);
+    gain1.gain.setValueAtTime(0.25, now);
+    gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+    osc1.connect(gain1);
+    gain1.connect(ctx.destination);
+    osc1.start(now);
+    osc1.stop(now + 0.35);
+
+    // Second bell tone (E6 - 1318.5Hz), slightly delayed for musical chime
+    const osc2 = ctx.createOscillator();
+    const gain2 = ctx.createGain();
+    osc2.type = 'sine';
+    osc2.frequency.setValueAtTime(1318.5, now + 0.08);
+    gain2.gain.setValueAtTime(0.32, now + 0.08);
+    gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.65);
+    osc2.connect(gain2);
+    gain2.connect(ctx.destination);
+    osc2.start(now + 0.08);
+    osc2.stop(now + 0.65);
+  } catch (err) {
+    console.warn('Audio notification error:', err);
+  }
+}
+window.playMessageNotificationSound = playMessageNotificationSound;
+
+function flashTabNotification(alertText) {
+  if (tabFlashInterval) clearInterval(tabFlashInterval);
+  if (!originalDocumentTitle) originalDocumentTitle = document.title || 'BIG L Autos';
+  let toggle = false;
+  tabFlashInterval = setInterval(() => {
+    document.title = toggle ? alertText : originalDocumentTitle;
+    toggle = !toggle;
+  }, 900);
+}
+
+function stopTabFlashing() {
+  if (tabFlashInterval) {
+    clearInterval(tabFlashInterval);
+    tabFlashInterval = null;
+  }
+  if (originalDocumentTitle) {
+    document.title = originalDocumentTitle;
+  }
+}
+
+window.addEventListener('focus', () => {
+  stopTabFlashing();
+});
+
+function updateNotificationButtonState() {
+  const adminBtn = document.getElementById('btnEnableNotifications');
+  const custBtn = document.getElementById('btnEnableCustNotifications');
+  if (!('Notification' in window)) {
+    if (adminBtn) adminBtn.style.display = 'none';
+    if (custBtn) custBtn.style.display = 'none';
+    return;
+  }
+
+  const perm = Notification.permission;
+  [adminBtn, custBtn].forEach(btn => {
+    if (!btn) return;
+    btn.style.display = 'inline-block';
+    if (perm === 'granted') {
+      btn.innerText = 'Alerts Active';
+      btn.style.borderColor = 'rgba(16,185,129,0.7)';
+      btn.style.color = '#34d399';
+      btn.title = 'Background push notifications are enabled';
+    } else if (perm === 'denied') {
+      btn.innerText = 'Alerts Blocked';
+      btn.style.borderColor = 'rgba(239,68,68,0.5)';
+      btn.style.color = '#f87171';
+      btn.title = 'Notifications are blocked in your browser settings';
+    } else {
+      btn.innerText = 'Enable Alerts';
+      btn.style.borderColor = 'rgba(16,185,129,0.35)';
+      btn.style.color = 'var(--mint)';
+      btn.title = 'Click to enable real-time notifications in background';
+    }
+  });
+}
+window.updateNotificationButtonState = updateNotificationButtonState;
+
+async function enableUserNotifications() {
+  if (!('Notification' in window)) {
+    showToast('Browser notifications are not supported on this device', 'info');
+    return;
+  }
+  try {
+    const perm = await Notification.requestPermission();
+    updateNotificationButtonState();
+    if (perm === 'granted') {
+      playMessageNotificationSound();
+      showToast('Notifications enabled! You will be alerted when new texts arrive.', 'success');
+      try {
+        new Notification('BIG L Autos Alerts Active', {
+          body: 'You will receive real-time notifications when customers text you.',
+          icon: '/static/img/favicon.ico'
+        });
+      } catch (err) {}
+    } else if (perm === 'denied') {
+      showToast('Notifications blocked in browser settings.', 'info');
+    }
+  } catch (err) {
+    console.error('Notification permission error:', err);
+  }
+}
+window.enableUserNotifications = enableUserNotifications;
+
+function triggerDesktopNotification(senderName, messageText, chatId) {
+  playMessageNotificationSound();
+
+  if (document.hidden) {
+    flashTabNotification(`🔔 New message from ${senderName}`);
+
+    if ('Notification' in window && Notification.permission === 'granted') {
+      try {
+        const notif = new Notification(`New message from ${senderName}`, {
+          body: messageText || 'Sent you a new message',
+          icon: '/static/img/favicon.ico',
+          tag: `chat-${chatId}`
+        });
+        notif.onclick = () => {
+          window.focus();
+          stopTabFlashing();
+          if (chatId) {
+            if (typeof selectAdminChat === 'function' && document.getElementById('adminChatWindow')) {
+              selectAdminChat(chatId, true);
+            } else if (typeof selectChat === 'function') {
+              selectChat(chatId, true);
+            }
+          }
+          notif.close();
+        };
+      } catch (e) {
+        console.warn('Desktop notification error:', e);
+      }
+    }
+  } else {
+    if (chatId && currentChatId != chatId) {
+      showToast(`New message from ${senderName}: ${(messageText || '').slice(0, 45)}`, 'success');
+    }
+  }
+}
+window.triggerDesktopNotification = triggerDesktopNotification;
+
 // Utility: Clean Toast notification (No icons)
 function showToast(message, type = 'success') {
   let container = document.getElementById('toastContainer');
@@ -374,7 +563,7 @@ function renderCarsGrid(cars) {
 
     const safeCar = encodeURIComponent(JSON.stringify(car));
     const isUserCar = Boolean(car.is_user_seller);
-    const chatBtnText = isUserCar ? 'Text Seller' : 'Text Receptionist';
+    const chatBtnText = 'Enquire Now';
     const sellerTag = isUserCar && car.seller_name ? `Listed by ${escapeHtml(car.seller_name)}` : '';
 
     return `
@@ -641,7 +830,7 @@ function openCarDetailsModal(safeCarEncoded) {
   const isUserCar = Boolean(car.is_user_seller);
   const negEl = document.getElementById('modalNegotiableText');
   if (negEl) {
-    negEl.innerText = isUserCar ? `Direct negotiation with seller (${car.seller_name || 'Owner'})` : 'Negotiable with receptionist';
+    negEl.innerText = isUserCar ? `Direct negotiation with seller (${car.seller_name || 'Owner'})` : 'Price Negotiable';
   }
 
   const featuresContainer = document.getElementById('modalCarFeatures');
@@ -653,7 +842,7 @@ function openCarDetailsModal(safeCarEncoded) {
 
   const textBtn = document.getElementById('modalTextReceptionistBtn');
   if (textBtn) {
-    textBtn.innerText = isUserCar ? `Text Seller (${car.seller_name || 'Owner'})` : 'Text Receptionist About This Car';
+    textBtn.innerText = 'Enquire Now';
     textBtn.onclick = () => {
       modal.classList.remove('active');
       handleCarInquiryClick(car.id, safeCarEncoded);
@@ -676,6 +865,8 @@ async function initCustomerDashboard() {
     return;
   }
 
+  updateNotificationButtonState();
+
   const greetingElem = document.getElementById('customerWelcomeName');
   if (greetingElem) greetingElem.innerText = currentUser.name;
 
@@ -685,7 +876,92 @@ async function initCustomerDashboard() {
   await loadCustomerChats(targetChatId);
   setupSellSwapForm();
 
-  startChatPolling();
+  startCustomerBackgroundPolling();
+}
+
+// Real-Time Background Synchronization for Admin and Customer
+async function checkBackgroundChats(isAdmin = false) {
+  try {
+    const res = await fetch('/api/chats');
+    if (!res.ok) return;
+    const data = await res.json();
+    const chats = data.chats || [];
+
+    for (const c of chats) {
+      const prevId = knownLastMessageIdByChat[c.id];
+      const currentLatestId = c.last_message_id;
+
+      if (currentLatestId) {
+        if (hasInitialChatSyncDone) {
+          if ((prevId === undefined || currentLatestId > prevId) && currentUser && c.last_sender_id !== currentUser.id) {
+            const senderLabel = isAdmin
+              ? (c.customer_name || 'Customer')
+              : (c.other_party_name || 'Sarah Mitchell (Receptionist)');
+            triggerDesktopNotification(senderLabel, c.last_message, c.id);
+          }
+        }
+        knownLastMessageIdByChat[c.id] = Math.max(knownLastMessageIdByChat[c.id] || 0, currentLatestId);
+      }
+
+      // Live update thread cards in DOM
+      if (isAdmin) {
+        updateAdminSidebarThreadPreview(c.id, c.last_message || 'Inquiry open');
+        const badge = document.querySelector(`#admin-thread-${c.id} .thread-unread-badge`);
+        if (badge) {
+          if (c.unread_count > 0) {
+            badge.textContent = `${c.unread_count} new`;
+            badge.style.display = 'inline-block';
+          } else {
+            badge.style.display = 'none';
+          }
+        }
+      } else {
+        updateSidebarThreadPreview(c.id, c.last_message || 'Inquiry open');
+        const badge = document.querySelector(`#thread-${c.id} .thread-unread-badge`);
+        if (badge) {
+          if (c.unread_count > 0) {
+            badge.textContent = `${c.unread_count}`;
+            badge.style.display = 'inline-block';
+          } else {
+            badge.style.display = 'none';
+          }
+        }
+      }
+    }
+
+    if (isAdmin) {
+      const container = document.getElementById('adminChatsList');
+      if (container && chats.length > container.querySelectorAll('.chat-thread-card').length) {
+        loadAdminChats();
+      }
+    } else {
+      const container = document.getElementById('customerChatsList');
+      if (container && chats.length > container.querySelectorAll('.chat-thread-card').length) {
+        loadCustomerChats(currentChatId);
+      }
+    }
+
+    hasInitialChatSyncDone = true;
+
+    // Refresh active open conversation
+    if (currentChatId) {
+      if (isAdmin && typeof loadAdminChatMessages === 'function') {
+        loadAdminChatMessages(currentChatId, true);
+      } else if (!isAdmin && typeof loadChatMessages === 'function') {
+        loadChatMessages(currentChatId, true);
+      }
+    }
+  } catch (err) {
+    console.warn('Background chat sync error:', err);
+  }
+}
+
+function startCustomerBackgroundPolling() {
+  if (chatPollingInterval) clearInterval(chatPollingInterval);
+  checkBackgroundChats(false);
+  chatPollingInterval = setInterval(() => {
+    checkBackgroundChats(false);
+  }, 3500);
 }
 
 function stopChatPolling() {
@@ -695,40 +971,14 @@ function stopChatPolling() {
   }
 }
 
-function startChatPolling() {
-  stopChatPolling();
-  chatPollingInterval = setInterval(() => {
-    if (currentChatId) {
-      loadChatMessages(currentChatId, true);
-    }
-  }, chatPollIntervalMs);
-}
-
-function adaptChatPolling(gotNewMessages) {
-  if (gotNewMessages) {
-    consecutiveEmptyPolls = 0;
-    if (chatPollIntervalMs !== 4000) {
-      chatPollIntervalMs = 4000;
-      startChatPolling();
-    }
-  } else {
-    consecutiveEmptyPolls++;
-    if (consecutiveEmptyPolls >= 2 && chatPollIntervalMs !== 10000) {
-      chatPollIntervalMs = 10000;
-      startChatPolling();
-    }
-  }
-}
-
-// Visibility API: pause polling when the tab/app is backgrounded to save mobile data & battery,
-// resume + refresh immediately when the user comes back.
+// Keep polling in background so user receives audio chime and desktop notification even when minimized!
 document.addEventListener('visibilitychange', () => {
-  if (document.hidden) {
-    stopChatPolling();
-  } else {
-    startChatPolling();
-    if (currentChatId) {
-      loadChatMessages(currentChatId, true);
+  if (!document.hidden) {
+    stopTabFlashing();
+    if (document.getElementById('adminChatWindow')) {
+      checkBackgroundChats(true);
+    } else if (document.getElementById('chatWindow')) {
+      checkBackgroundChats(false);
     }
   }
 });
@@ -754,7 +1004,7 @@ async function loadCustomerChats(selectChatId = null) {
         chatWindow.innerHTML = `
           <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:#cbd5e1; padding:30px; text-align:center;">
             <h3 style="font-size:18px; color:#ffffff; font-weight:800; margin-bottom:6px;">No Active Conversation</h3>
-            <p style="font-size:14px; max-width:340px; margin-bottom:20px; color:#94a3b8;">Browse our inventory, pick any car, and click <strong>"Text Receptionist"</strong> to discuss price, swap options, or arrange a test drive.</p>
+            <p style="font-size:14px; max-width:340px; margin-bottom:20px; color:#94a3b8;">Browse our inventory, pick any car, and click <strong>"Enquire Now"</strong> to discuss price, swap options, or arrange a test drive.</p>
             <a href="/" class="btn btn-primary btn-sm">Explore Inventory</a>
           </div>
         `;
@@ -785,7 +1035,7 @@ async function loadCustomerChats(selectChatId = null) {
             <div class="thread-subtitle">${escapeHtml(partyLabel)} • ${formatMoney(c.car_price)}</div>
             <div class="thread-preview">${escapeHtml(c.last_message || 'Inquiry created')}</div>
           </div>
-          ${c.unread_count > 0 ? `<span style="background:#10b981; color:#041009; font-size:10px; font-weight:800; padding:2px 7px; border-radius:10px;">${c.unread_count}</span>` : ''}
+          ${c.unread_count > 0 ? `<span class="thread-unread-badge" style="background:#10b981; color:#041009; font-size:10px; font-weight:800; padding:2px 7px; border-radius:10px;">${c.unread_count}</span>` : '<span class="thread-unread-badge" style="display:none; background:#10b981; color:#041009; font-size:10px; font-weight:800; padding:2px 7px; border-radius:10px;"></span>'}
         </div>
       `;
     }).join('');
@@ -1245,17 +1495,22 @@ async function initAdminPortal() {
     return;
   }
 
+  updateNotificationButtonState();
   loadAdminStats();
   loadAdminCars();
   loadAdminChats();
   loadAdminSwapRequests();
   setupAddCarForm();
 
-  setInterval(() => {
-    if (currentChatId) {
-      loadAdminChatMessages(currentChatId, true);
-    }
-  }, 4000);
+  startAdminBackgroundPolling();
+}
+
+function startAdminBackgroundPolling() {
+  if (adminPollingInterval) clearInterval(adminPollingInterval);
+  checkBackgroundChats(true);
+  adminPollingInterval = setInterval(() => {
+    checkBackgroundChats(true);
+  }, 3500);
 }
 
 async function loadAdminStats() {
@@ -1563,7 +1818,7 @@ async function loadAdminChats() {
             <span style="font-size:10px; font-weight:700; padding:2px 6px; border-radius:4px; ${c.is_user_seller ? 'background:rgba(245,158,11,0.2); color:#f59e0b;' : 'background:rgba(34,197,94,0.15); color:#22c55e;'}">
               ${c.is_user_seller ? 'Seller: ' + (c.seller_name || 'User') : 'Dealer Car'}
             </span>
-            ${c.unread_count > 0 ? `<span style="background:#10b981; color:#041009; font-size:10px; font-weight:800; padding:2px 7px; border-radius:10px;">${c.unread_count} new</span>` : ''}
+            ${c.unread_count > 0 ? `<span class="thread-unread-badge" style="background:#10b981; color:#041009; font-size:10px; font-weight:800; padding:2px 7px; border-radius:10px;">${c.unread_count} new</span>` : '<span class="thread-unread-badge" style="display:none; background:#10b981; color:#041009; font-size:10px; font-weight:800; padding:2px 7px; border-radius:10px;"></span>'}
           </div>
           <div class="thread-subtitle">${c.car_title}</div>
           <div class="thread-preview">${c.last_message || 'Inquiry open'}</div>
@@ -1605,8 +1860,9 @@ async function loadAdminChatMessages(chatId, isBackgroundPoll = false) {
     const chat = data.chat;
     const messages = data.messages || [];
 
-    if (!isBackgroundPoll) {
+    if (!isBackgroundPoll || activeRenderedChatId !== chatId) {
       renderAdminChatWindowFrame(chat);
+      activeRenderedChatId = chatId;
       renderAdminMessagesList(messages, chat, true);
     } else {
       renderAdminMessagesList(messages, chat, false);
@@ -1664,6 +1920,11 @@ function renderAdminChatWindowFrame(chat) {
 function renderAdminMessagesList(messages, chat, forceScroll = false) {
   const container = document.getElementById('adminMessagesContainer');
   if (!container) return;
+
+  const currentCount = container.querySelectorAll('.message-row').length;
+  if (!forceScroll && currentCount === messages.length) {
+    return;
+  }
 
   const wasAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 140;
 

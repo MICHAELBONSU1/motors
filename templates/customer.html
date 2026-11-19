@@ -37,6 +37,7 @@
       </a>
 
       <div class="nav-actions">
+        <button type="button" id="btnEnableCustNotifications" onclick="enableUserNotifications()" class="btn btn-secondary btn-sm" style="display:none; font-size:11px; padding:5px 9px;" title="Enable background message alerts">Enable Alerts</button>
         <a href="/" class="btn btn-secondary btn-sm">Showroom</a>
         <div id="navAuthArea">
           <button onclick="handleLogout()" class="btn btn-soft-green btn-sm">Log Out</button>
@@ -352,7 +353,7 @@
     </div>
   </div>
 
-  <script src="/static/js/app.js?v=4.2"></script>
+  <script src="/static/js/app.js?v=4.3"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       initCustomerDashboard();
