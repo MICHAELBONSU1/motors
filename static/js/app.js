@@ -1468,6 +1468,54 @@ function setupAddCarForm() {
   }
 }
 
+function escapeJs(str) {
+  if (!str) return '';
+  return String(str).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+}
+window.escapeJs = escapeJs;
+
+// Admin Delete Individual User Account
+async function deleteUserAccount(userId, userName, userEmail) {
+  if (!userId) return;
+  const nameStr = userName || `User #${userId}`;
+  const emailStr = userEmail ? ` (${userEmail})` : '';
+  const confirmed = confirm(
+    `Are you sure you want to permanently delete the account for:\n\n• ${nameStr}${emailStr}\n\nThis will permanently remove the user, all their chat messages, inquiries, and vehicle listings.\n\nThis action cannot be undone.`
+  );
+  if (!confirmed) return;
+
+  try {
+    const res = await fetch(`/api/admin/users/${userId}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      showToast(data.message || 'Account deleted successfully.', 'success');
+      if (typeof loadAdminSellers === 'function') loadAdminSellers();
+      if (typeof loadAdminChats === 'function') loadAdminChats();
+      if (typeof loadAdminStats === 'function') loadAdminStats();
+      if (window.currentChatCustomerId == userId) {
+        const chatWin = document.getElementById('adminChatWindow');
+        if (chatWin) {
+          chatWin.innerHTML = `
+            <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:#cbd5e1; text-align:center; padding:30px;">
+              <h3 style="font-family:var(--font-heading); font-size:18px; color:#ffffff; font-weight:800; margin-bottom:6px;">Receptionist Chat Center</h3>
+              <p style="font-size:13.5px; max-width:340px; color:#94a3b8; line-height:1.5;">Customer account deleted. Select another customer inquiry on the left.</p>
+            </div>
+          `;
+        }
+      }
+    } else {
+      showToast(data.error || 'Failed to delete account', 'error');
+    }
+  } catch (err) {
+    console.error('Delete account error:', err);
+    showToast('Network error while deleting account', 'error');
+  }
+}
+window.deleteUserAccount = deleteUserAccount;
+
 // Admin Clean Users Helper
 async function cleanAllNonAdminUsers() {
   if (!confirm("Are you sure you want to remove everyone from the system except the administrator?\n\nThis will permanently delete all customer/test accounts, chats, and submissions, keeping only Sarah (Head Receptionist & Admin).")) {
@@ -1573,6 +1621,8 @@ function renderAdminChatWindowFrame(chat) {
   const windowElem = document.getElementById('adminChatWindow');
   if (!windowElem) return;
 
+  window.currentChatCustomerId = chat.customer_id;
+
   const sellerBadge = chat.is_user_seller
     ? `<span style="font-size:11px; background:rgba(245,158,11,0.2); color:#f59e0b; padding:3px 8px; border-radius:100px; font-weight:700;">Seller: ${escapeHtml(chat.seller_name || 'User')}</span>`
     : `<span style="font-size:11px; background:rgba(34,197,94,0.15); color:#22c55e; padding:3px 8px; border-radius:100px; font-weight:700;">Dealership Vehicle</span>`;
@@ -1589,8 +1639,9 @@ function renderAdminChatWindowFrame(chat) {
           <p>${chat.car_title} • ${formatMoney(chat.car_price)} ${sellerBadge}</p>
         </div>
       </div>
-      <div>
+      <div style="display:flex; gap:6px; align-items:center;">
         <a href="tel:${chat.customer_phone}" class="btn btn-secondary btn-sm" style="font-size:11px; padding:5px 9px;">Call</a>
+        <button type="button" onclick="deleteUserAccount(${chat.customer_id}, '${escapeJs(chat.customer_name)}', '${escapeJs(chat.customer_email || '')}')" class="btn btn-sm" style="background:#450a0a; color:#f87171; border:1px solid #991b1b; font-size:11px; padding:5px 9px; font-weight:700; cursor:pointer;" title="Delete this customer's account">Delete Account</button>
       </div>
     </div>
 

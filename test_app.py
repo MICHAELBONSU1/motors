@@ -287,5 +287,65 @@ class BigLAutosTestCase(unittest.TestCase):
         self.assertEqual(final_msgs[1]['sender_name'], 'Kwame Seller')
         self.assertIn('available', final_msgs[1]['message'])
 
+    def test_admin_account_management_and_deletion(self):
+        # 1. Register a test customer
+        cust_email = f"delete_me_{int(time.time() * 1000)}@example.com"
+        reg_res = self.client.post('/api/auth/register', json={
+            'name': 'Test ToDelete',
+            'email': cust_email,
+            'phone': '0240009999',
+            'password': 'password123'
+        })
+        self.assertEqual(reg_res.status_code, 200)
+        cust_id = json.loads(reg_res.data)['user']['id']
+
+        # 2. Customer creates a chat inquiry
+        cars_res = self.client.get('/api/cars')
+        car_id = json.loads(cars_res.data)['cars'][0]['id']
+        inq_res = self.client.post('/api/inquiries/start', json={'car_id': car_id})
+        self.assertEqual(inq_res.status_code, 200)
+
+        # 3. Customer attempts to delete an account (must be 403 forbidden)
+        unauth_del = self.client.delete(f'/api/admin/users/{cust_id}')
+        self.assertEqual(unauth_del.status_code, 403)
+
+        # 4. Admin logs in
+        admin_login = self.client.post('/api/auth/login', json={'email': 'admin@biglautos.com', 'password': 'admin123'})
+        self.assertEqual(admin_login.status_code, 200)
+
+        # 5. Admin lists accounts via /api/admin/users
+        users_res = self.client.get('/api/admin/users')
+        self.assertEqual(users_res.status_code, 200)
+        users_data = json.loads(users_res.data)
+        self.assertIn('users', users_data)
+        user_ids = [u['id'] for u in users_data['users']]
+        self.assertIn(cust_id, user_ids)
+        self.assertIn(1, user_ids)
+
+        # 6. Admin searches for the user
+        search_res = self.client.get('/api/admin/users?q=ToDelete')
+        self.assertEqual(search_res.status_code, 200)
+        search_users = json.loads(search_res.data)['users']
+        self.assertEqual(len(search_users), 1)
+        self.assertEqual(search_users[0]['id'], cust_id)
+
+        # 7. Admin attempts to delete primary admin (id 1) - must be protected (403)
+        del_admin_res = self.client.delete('/api/admin/users/1')
+        self.assertEqual(del_admin_res.status_code, 403)
+        self.assertIn('protected', json.loads(del_admin_res.data)['error'].lower())
+
+        # 8. Admin deletes the customer account
+        del_res = self.client.delete(f'/api/admin/users/{cust_id}')
+        self.assertEqual(del_res.status_code, 200)
+        self.assertTrue(json.loads(del_res.data)['success'])
+
+        # 9. Verify user no longer exists in database
+        users_after = json.loads(self.client.get('/api/admin/users').data)['users']
+        self.assertNotIn(cust_id, [u['id'] for u in users_after])
+
+        # 10. Verify chats were cascaded
+        chats_after = json.loads(self.client.get('/api/chats').data)['chats']
+        self.assertNotIn(cust_id, [c['customer_id'] for c in chats_after])
+
 if __name__ == '__main__':
     unittest.main()

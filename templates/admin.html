@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
   <title>Admin & Receptionist Desk | BIG-L AUTOS</title>
-  <link rel="stylesheet" href="/static/css/style.css?v=4.1">
+  <link rel="stylesheet" href="/static/css/style.css?v=4.2">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -99,7 +99,7 @@
         Management</button>
       <button class="tab-btn" id="adminTabSwapBtn" onclick="switchAdminTab('swap')">Sell and Swap Reviews</button>
       <button class="tab-btn" id="adminTabSellersBtn" onclick="switchAdminTab('sellers')" style="position:relative;">
-        Seller Profiles &amp; Access
+        Account Management
         <span id="pendingSellersBadge" style="display:none; position:absolute; top:-6px; right:-6px; background:#ef4444; color:#fff; font-size:10px; font-weight:800; border-radius:50%; width:18px; height:18px; line-height:18px; text-align:center;">0</span>
       </button>
     </div>
@@ -189,35 +189,36 @@
       </div>
     </div>
 
-    <!-- Tab 4: Seller Profiles & Posting Approvals -->
+    <!-- Tab 4: Account Management & Permissions -->
     <div id="adminSellersView" style="display:none;">
       <div style="background:var(--bg-card); border:1px solid var(--border-dark); border-radius:var(--radius-md); padding:24px; box-shadow:var(--shadow-sm);">
         <div class="admin-section-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
           <div>
-            <h3 style="font-family:var(--font-heading); font-size:18px; font-weight:800; color:var(--white);">Seller Profile Approvals</h3>
-            <p style="font-size:13px; color:var(--gray-text);">Approve user profiles to grant direct car-posting access. Once approved, sellers post directly to the showroom without needing car-by-car approval.</p>
+            <h3 style="font-family:var(--font-heading); font-size:18px; font-weight:800; color:var(--white);">Account Management &amp; Permissions</h3>
+            <p style="font-size:13px; color:var(--gray-text);">Manage registered user accounts, delete individual accounts, and control showroom vehicle posting access.</p>
           </div>
           <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
-            <button onclick="filterAdminSellers('all')" id="sellersFilterAll" class="btn btn-primary btn-sm">All Customers</button>
+            <input type="text" id="adminUserSearchInput" class="form-input" placeholder="Search name, email, phone..." oninput="handleUserSearch(this.value)" style="max-width:240px; padding:7px 12px; font-size:12.5px; background:rgba(0,0,0,0.45); border-color:var(--border-dark);">
+            <button onclick="filterAdminSellers('all')" id="sellersFilterAll" class="btn btn-primary btn-sm">All Accounts</button>
             <button onclick="filterAdminSellers('pending')" id="sellersFilterPending" class="btn btn-secondary btn-sm">Pending Review</button>
             <button onclick="filterAdminSellers('approved')" id="sellersFilterApproved" class="btn btn-secondary btn-sm">Approved Sellers</button>
-            <button onclick="filterAdminSellers('not_approved')" id="sellersFilterNotApproved" class="btn btn-secondary btn-sm">Not Approved</button>
+            <button onclick="filterAdminSellers('not_approved')" id="sellersFilterNotApproved" class="btn btn-secondary btn-sm">Buyers Only</button>
             <button onclick="cleanAllNonAdminUsers()" class="btn btn-sm" style="background:#450a0a; color:#f87171; border:1px solid #991b1b; font-weight:700; margin-left:auto;">
-              Remove Everyone Except Admin
+              Purge All Non-Admin Accounts
             </button>
           </div>
         </div>
 
         <div class="responsive-table-wrapper" style="overflow-x:auto; -webkit-overflow-scrolling:touch;">
-          <table style="width:100%; min-width:620px; border-collapse:collapse; text-align:left; font-size:13px;">
+          <table style="width:100%; min-width:760px; border-collapse:collapse; text-align:left; font-size:13px;">
             <thead>
               <tr style="background:rgba(0,0,0,0.3); border-bottom:1px solid var(--border-dark); color:var(--gray-text); font-weight:700;">
-                <th style="padding:12px 14px;">Customer / User</th>
+                <th style="padding:12px 14px;">User Account</th>
                 <th style="padding:12px 14px;">Contact Info</th>
-                <th style="padding:12px 14px;">Status / Date</th>
-                <th style="padding:12px 14px;">Showroom Cars</th>
-                <th style="padding:12px 14px;">Posting Permission</th>
-                <th style="padding:12px 14px; text-align:right;">Profile Action</th>
+                <th style="padding:12px 14px;">Status / Joined</th>
+                <th style="padding:12px 14px;">Showroom Activity</th>
+                <th style="padding:12px 14px;">Posting Access</th>
+                <th style="padding:12px 14px; text-align:right;">Account Actions</th>
               </tr>
             </thead>
             <tbody id="adminSellersTableBody">
@@ -368,7 +369,7 @@
     </div>
   </div>
 
-  <script src="/static/js/app.js?v=4.1"></script>
+  <script src="/static/js/app.js?v=4.2"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       initAdminPortal();
@@ -402,73 +403,109 @@
       if (view === 'sellers') loadAdminSellers();
     }
 
-    /* ── Seller Profile Approvals JS ── */
+    /* ── User & Account Management JS ── */
     let currentSellersFilter = 'all';
+    let currentUserSearchQuery = '';
+    let userSearchDebounceTimer = null;
 
-    async function loadAdminSellers(filter = currentSellersFilter) {
+    function handleUserSearch(val) {
+      currentUserSearchQuery = (val || '').trim();
+      clearTimeout(userSearchDebounceTimer);
+      userSearchDebounceTimer = setTimeout(() => {
+        loadAdminSellers(currentSellersFilter, currentUserSearchQuery);
+      }, 250);
+    }
+
+    async function loadAdminSellers(filter = currentSellersFilter, query = currentUserSearchQuery) {
       currentSellersFilter = filter;
+      currentUserSearchQuery = query;
       const tbody = document.getElementById('adminSellersTableBody');
       if (!tbody) return;
-      tbody.innerHTML = '<tr><td colspan="6" style="padding:20px; text-align:center; color:var(--gray-text);">Loading profiles...</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="6" style="padding:24px; text-align:center; color:var(--gray-text);">Loading accounts...</td></tr>';
 
       try {
-        const res = await fetch('/api/admin/sellers?status=' + encodeURIComponent(filter));
+        const url = `/api/admin/users?status=${encodeURIComponent(filter)}&q=${encodeURIComponent(query)}`;
+        const res = await fetch(url);
         const data = await res.json();
-        const sellers = data.sellers || [];
+        const users = data.users || [];
 
-        if (!sellers.length) {
-          tbody.innerHTML = '<tr><td colspan="6" style="padding:24px; text-align:center; color:var(--gray-text);">No user accounts found matching this filter.</td></tr>';
+        if (!users.length) {
+          tbody.innerHTML = '<tr><td colspan="6" style="padding:28px; text-align:center; color:var(--gray-text);">No user accounts found matching this filter or search.</td></tr>';
           return;
         }
 
-        tbody.innerHTML = sellers.map(u => {
+        tbody.innerHTML = users.map(u => {
           const isApproved = Boolean(u.can_post);
           const isPending = !isApproved && u.seller_status === 'pending';
-          
+          const isAdmin = Boolean(u.is_primary_admin || u.role === 'admin');
+
+          let roleBadge = '';
+          if (isAdmin) {
+            roleBadge = '<span style="font-size:10px; font-weight:800; background:rgba(16,185,129,0.2); color:#34d399; border:1px solid rgba(52,211,153,0.3); padding:1px 6px; border-radius:4px; margin-left:6px; letter-spacing:0.4px;">ADMIN</span>';
+          } else {
+            roleBadge = '<span style="font-size:10px; font-weight:700; background:rgba(255,255,255,0.07); color:var(--gray-text); padding:1px 6px; border-radius:4px; margin-left:6px;">CUSTOMER</span>';
+          }
+
           let statusBadge = '';
-          if (isApproved) {
+          if (isAdmin) {
+            statusBadge = '<span style="color:#22c55e; font-weight:700; background:rgba(34,197,94,0.1); border:1px solid rgba(34,197,94,0.25); padding:4px 8px; border-radius:100px; font-size:11px;">Admin Console</span>';
+          } else if (isApproved) {
             statusBadge = '<span style="color:#22c55e; font-weight:700; background:rgba(34,197,94,0.1); border:1px solid rgba(34,197,94,0.25); padding:4px 8px; border-radius:100px; font-size:11px;">✓ Approved Seller</span>';
           } else if (isPending) {
             statusBadge = '<span style="color:#f59e0b; font-weight:700; background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.25); padding:4px 8px; border-radius:100px; font-size:11px;">⏳ Awaiting Approval</span>';
           } else {
-            statusBadge = '<span style="color:var(--gray-text); font-size:11px; padding:4px 8px;">Not Requested</span>';
+            statusBadge = '<span style="color:var(--gray-text); font-size:11px; padding:4px 8px;">Standard Buyer</span>';
           }
 
-          let actionBtn = '';
-          if (!isApproved) {
-            actionBtn = `<button onclick="toggleSellerAccess(${u.id}, 'approve')" class="btn btn-primary btn-sm" style="font-weight:700;">✓ Approve Profile (Grant Posting)</button>`;
+          let actionContent = '';
+          if (isAdmin) {
+            actionContent = '<span style="color:var(--mint); font-weight:800; font-size:11px; background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.3); padding:4px 10px; border-radius:100px;">Primary Admin (Protected)</span>';
           } else {
-            actionBtn = `<button onclick="toggleSellerAccess(${u.id}, 'revoke')" class="btn btn-secondary btn-sm" style="color:#ef4444; border-color:rgba(239,68,68,0.3);">Revoke Access</button>`;
+            let sellerBtn = '';
+            if (!isApproved) {
+              sellerBtn = `<button type="button" onclick="toggleSellerAccess(${u.id}, 'approve')" class="btn btn-primary btn-sm" style="font-weight:700; font-size:11.5px; padding:5px 9px; margin-right:6px;" title="Grant showroom car posting access">Approve Seller</button>`;
+            } else {
+              sellerBtn = `<button type="button" onclick="toggleSellerAccess(${u.id}, 'revoke')" class="btn btn-secondary btn-sm" style="color:#f59e0b; border-color:rgba(245,158,11,0.3); font-size:11.5px; padding:5px 9px; margin-right:6px;" title="Revoke posting access">Revoke Seller</button>`;
+            }
+
+            const deleteBtn = `<button type="button" onclick="deleteUserAccount(${u.id}, '${escapeJs(u.name)}', '${escapeJs(u.email)}')" class="btn btn-sm" style="background:#450a0a; color:#f87171; border:1px solid #991b1b; font-weight:700; font-size:11.5px; padding:5px 10px; cursor:pointer;" title="Permanently delete user account">Delete Account</button>`;
+
+            actionContent = `<div style="display:inline-flex; align-items:center; justify-content:flex-end;">${sellerBtn}${deleteBtn}</div>`;
           }
 
           return `
             <tr style="border-bottom:1px solid var(--border-dark);">
               <td style="padding:14px;">
-                <div style="font-weight:700; color:var(--white); font-size:14px;">${u.name}</div>
-                <div style="font-size:11px; color:var(--gray-text);">User #${u.id}</div>
+                <div style="display:flex; align-items:center;">
+                  <span style="font-weight:700; color:var(--white); font-size:14px;">${escapeHtml(u.name)}</span>
+                  ${roleBadge}
+                </div>
+                <div style="font-size:11px; color:var(--gray-text); margin-top:2px;">User ID: #${u.id}</div>
               </td>
               <td style="padding:14px;">
-                <div style="color:var(--white);">${u.email}</div>
-                <div style="font-size:12px; color:var(--mint);">${u.phone || 'No phone'}</div>
+                <div style="color:var(--white); font-size:13px;"><a href="mailto:${escapeHtml(u.email)}" style="color:var(--white); text-decoration:none;">${escapeHtml(u.email)}</a></div>
+                <div style="font-size:12px; color:var(--mint); margin-top:2px;"><a href="tel:${escapeHtml(u.phone || '')}" style="color:var(--mint); text-decoration:none;">${escapeHtml(u.phone || 'No phone recorded')}</a></div>
               </td>
               <td style="padding:14px; font-size:12px; color:var(--gray-text);">
-                ${u.seller_requested_at ? '<span style="color:#f59e0b;">Requested: ' + u.seller_requested_at.substring(0, 10) + '</span>' : 'Joined: ' + (u.created_at || '').substring(0, 10)}
+                ${u.seller_requested_at ? '<div style="color:#f59e0b; font-weight:600;">Req: ' + u.seller_requested_at.substring(0, 10) + '</div>' : ''}
+                <div>Joined: ${(u.created_at || '').substring(0, 10) || 'Active'}</div>
               </td>
-              <td style="padding:14px; font-weight:700; color:var(--white);">
-                ${u.posted_cars_count || 0} cars
+              <td style="padding:14px; font-size:12.5px;">
+                <div style="font-weight:700; color:var(--white);">${u.posted_cars_count || 0} cars listed</div>
+                <div style="font-size:11px; color:var(--gray-text);">${u.chats_count || 0} inquiry chats</div>
               </td>
               <td style="padding:14px;">
                 ${statusBadge}
               </td>
               <td style="padding:14px; text-align:right;">
-                ${actionBtn}
+                ${actionContent}
               </td>
             </tr>
           `;
         }).join('');
 
         // Update pending count in stat card and badge
-        const pendingCount = sellers.filter(s => s.seller_status === 'pending' && !s.can_post).length;
+        const pendingCount = data.pending_sellers || 0;
         const statEl = document.getElementById('statPendingSellers');
         if (statEl) statEl.innerText = pendingCount;
         const badge = document.getElementById('pendingSellersBadge');
@@ -477,7 +514,7 @@
           badge.style.display = pendingCount > 0 ? 'inline-block' : 'none';
         }
       } catch (err) {
-        tbody.innerHTML = '<tr><td colspan="6" style="padding:20px; text-align:center; color:#ef4444;">Failed to load seller profiles.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="padding:20px; text-align:center; color:#ef4444;">Failed to load accounts.</td></tr>';
       }
     }
 
@@ -494,7 +531,7 @@
       };
       const activeBtn = document.getElementById(activeMap[filter]);
       if (activeBtn) { activeBtn.classList.remove('btn-secondary'); activeBtn.classList.add('btn-primary'); }
-      loadAdminSellers(filter);
+      loadAdminSellers(filter, currentUserSearchQuery);
     }
 
     async function toggleSellerAccess(userId, action) {

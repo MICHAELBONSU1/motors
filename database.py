@@ -267,68 +267,66 @@ def init_db():
         ]
     }
 
-    # Check cars count
-    cursor.execute("SELECT COUNT(*) as count FROM cars")
-    count = cursor.fetchone()['count']
-    if count == 0:
-        seed_cars = [
-            (
-                "2023 Mercedes-AMG GT R Coupe",
-                "Mercedes-Benz", "AMG GT", 2023, 1650000, 8400,
-                "Automatic", "Petrol", "Coupe", "Green Hell Magno", "Brand New", "Available",
-                "Flagship Mercedes-AMG GT Coupe in signature metallic emerald green. Handcrafted 4.0L Bi-Turbo V8 engine, active aerodynamics, race interior, ceramic brakes.",
-                "Handcrafted Bi-Turbo V8, AMG Track Pace, Burmester High-End Surround, Ceramic Brakes",
-                "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=1200&q=80",
-                json.dumps(default_car_photos['Mercedes-AMG GT R Coupe'])
-            ),
-            (
-                "2023 Mercedes-Benz C-Class C300 AMG Line",
-                "Mercedes-Benz", "C300", 2023, 580000, 14200,
-                "Automatic", "Petrol", "Sedan", "Emerald Green", "Foreign Used", "Available",
-                "Flawlessly maintained executive sedan with AMG styling package, panoramic sunroof, ambient lighting, and Burmester sound system. Ready for delivery or swap.",
-                "Sunroof, Leather Seats, 360 Camera, Navigation, Apple CarPlay, Heated Seats",
-                "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?auto=format&fit=crop&w=1200&q=80",
-                json.dumps(default_car_photos['C300'])
-            ),
-            (
-                "2022 Toyota Land Cruiser Prado TX-L",
-                "Toyota", "Land Cruiser Prado", 2022, 920000, 26000,
-                "Automatic", "Diesel", "SUV", "Pearl White", "Foreign Used", "Available",
-                "Rugged luxury 7-seater SUV with full terrain select, cool box, keyless entry, leather interior, and exceptional fuel economy.",
-                "4x4, 7 Seats, Cool Box, Push Start, Alloy Wheels, Reverse Camera",
-                "https://images.unsplash.com/photo-1594502184342-2e12f877aa73?auto=format&fit=crop&w=1200&q=80",
-                json.dumps(default_car_photos['Land Cruiser Prado'])
-            ),
-            (
-                "2021 BMW 5 Series 530i M Sport",
-                "BMW", "5 Series", 2021, 540000, 31000,
-                "Automatic", "Petrol", "Sedan", "Alpine White", "Foreign Used", "Available",
-                "Dynamic executive sedan with aggressive M Sport package, adaptive LED headlights, digital cockpit, and immaculate maintenance history.",
-                "M-Sport Package, Digital Cockpit, Wireless Charging, Harman Kardon Audio",
-                "https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1200&q=80",
-                json.dumps(default_car_photos['5 Series'])
-            ),
-            (
-                "2024 Lexus RX 350 F Sport",
-                "Lexus", "RX 350", 2024, 980000, 5300,
-                "Automatic", "Hybrid", "SUV", "Deep Forest Green", "Brand New", "Available",
-                "The pinnacle of modern crossover elegance. Features Lexus Safety System+ 3.0, Mark Levinson audio, head-up display, and hybrid fuel efficiency.",
-                "Hybrid, Panoramic Roof, Heads-Up Display, Lane Assist, Ventilated Seats",
-                "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=1200&q=80",
-                json.dumps(default_car_photos['RX 350'])
-            ),
-            (
-                "2023 Range Rover Velar R-Dynamic",
-                "Land Rover", "Range Rover Velar", 2023, 860000, 18500,
-                "Automatic", "Petrol", "SUV", "Santorini Black", "Foreign Used", "Available",
-                "Sleek and revolutionary British SUV with flush deployable door handles, Touch Pro Duo touchscreen, Meridian 3D sound, and air suspension.",
-                "Air Suspension, Meridian Sound, Matrix LED, Panoramic Sunroof, AWD",
-                "https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=1200&q=80",
-                json.dumps(default_car_photos['Velar'])
-            )
-        ]
+    seed_cars = [
+        (
+            "2023 Mercedes-AMG GT R Coupe",
+            "Mercedes-Benz", "AMG GT", 2023, 1650000, 8400,
+            "Automatic", "Petrol", "Coupe", "Green Hell Magno", "Brand New", "Available",
+            "Flagship Mercedes-AMG GT Coupe in signature metallic emerald green. Handcrafted 4.0L Bi-Turbo V8 engine, active aerodynamics, race interior, ceramic brakes.",
+            "Handcrafted Bi-Turbo V8, AMG Track Pace, Burmester High-End Surround, Ceramic Brakes",
+            "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=1200&q=80",
+            json.dumps(default_car_photos['Mercedes-AMG GT R Coupe'])
+        ),
+        (
+            "2023 Mercedes-Benz C-Class C300 AMG Line",
+            "Mercedes-Benz", "C300", 2023, 580000, 14200,
+            "Automatic", "Petrol", "Sedan", "Emerald Green", "Foreign Used", "Available",
+            "Flawlessly maintained executive sedan with AMG styling package, panoramic sunroof, ambient lighting, and Burmester sound system. Ready for delivery or swap.",
+            "Sunroof, Leather Seats, 360 Camera, Navigation, Apple CarPlay, Heated Seats",
+            "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?auto=format&fit=crop&w=1200&q=80",
+            json.dumps(default_car_photos['C300'])
+        ),
+        (
+            "2022 Toyota Land Cruiser Prado TX-L",
+            "Toyota", "Land Cruiser Prado", 2022, 920000, 26000,
+            "Automatic", "Diesel", "SUV", "Pearl White", "Foreign Used", "Available",
+            "Rugged luxury 7-seater SUV with full terrain select, cool box, keyless entry, leather interior, and exceptional fuel economy.",
+            "4x4, 7 Seats, Cool Box, Push Start, Alloy Wheels, Reverse Camera",
+            "https://images.unsplash.com/photo-1594502184342-2e12f877aa73?auto=format&fit=crop&w=1200&q=80",
+            json.dumps(default_car_photos['Land Cruiser Prado'])
+        ),
+        (
+            "2021 BMW 5 Series 530i M Sport",
+            "BMW", "5 Series", 2021, 540000, 31000,
+            "Automatic", "Petrol", "Sedan", "Alpine White", "Foreign Used", "Available",
+            "Dynamic executive sedan with aggressive M Sport package, adaptive LED headlights, digital cockpit, and immaculate maintenance history.",
+            "M-Sport Package, Digital Cockpit, Wireless Charging, Harman Kardon Audio",
+            "https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1200&q=80",
+            json.dumps(default_car_photos['5 Series'])
+        ),
+        (
+            "2024 Lexus RX 350 F Sport",
+            "Lexus", "RX 350", 2024, 980000, 5300,
+            "Automatic", "Hybrid", "SUV", "Deep Forest Green", "Brand New", "Available",
+            "The pinnacle of modern crossover elegance. Features Lexus Safety System+ 3.0, Mark Levinson audio, head-up display, and hybrid fuel efficiency.",
+            "Hybrid, Panoramic Roof, Heads-Up Display, Lane Assist, Ventilated Seats",
+            "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=1200&q=80",
+            json.dumps(default_car_photos['RX 350'])
+        ),
+        (
+            "2023 Range Rover Velar R-Dynamic",
+            "Land Rover", "Range Rover Velar", 2023, 860000, 18500,
+            "Automatic", "Petrol", "SUV", "Santorini Black", "Foreign Used", "Available",
+            "Sleek and revolutionary British SUV with flush deployable door handles, Touch Pro Duo touchscreen, Meridian 3D sound, and air suspension.",
+            "Air Suspension, Meridian Sound, Matrix LED, Panoramic Sunroof, AWD",
+            "https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=1200&q=80",
+            json.dumps(default_car_photos['Velar'])
+        )
+    ]
 
-        for car in seed_cars:
+    for car in seed_cars:
+        cursor.execute("SELECT id FROM cars WHERE title = ?", (car[0],))
+        if not cursor.fetchone():
             cursor.execute('''
             INSERT INTO cars (title, make, model, year, price, mileage, transmission, fuel_type, body_type, color, condition, status, description, features, image_url, images)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)

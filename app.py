@@ -8,7 +8,6 @@ import sqlite3
 from flask import Flask, request, jsonify, render_template, redirect, url_for, session, send_from_directory
 from werkzeug.utils import secure_filename
 from database import get_db, hash_password, verify_password, init_db
-
 app = Flask(__name__)
 
 # Persistent secure secret key for cryptographic session integrity
@@ -1378,6 +1377,9 @@ def admin_stats():
     cursor.execute("SELECT COUNT(*) as pending_sellers FROM users WHERE seller_status = 'pending'")
     pending_sellers = cursor.fetchone()['pending_sellers']
 
+    cursor.execute("SELECT COUNT(*) as total_users FROM users")
+    total_users = cursor.fetchone()['total_users']
+
     db.close()
     return jsonify({
         'total_cars': total_cars,
@@ -1385,7 +1387,8 @@ def admin_stats():
         'total_chats': total_chats,
         'pending_requests': pending_requests,
         'total_customers': total_customers,
-        'pending_sellers': pending_sellers
+        'pending_sellers': pending_sellers,
+        'total_users': total_users
     })
 
 
@@ -1522,6 +1525,133 @@ def admin_manage_seller_access(target_user_id):
     db.commit()
     db.close()
     return jsonify({'success': True, 'message': msg})
+
+
+@app.route('/api/admin/users', methods=['GET'])
+def admin_list_users():
+    """Receptionist/Admin views all registered user accounts with activity stats and search/filtering."""
+    user = get_current_user()
+    if not is_admin_or_receptionist(user):
+        return jsonify({'error': 'Admin / Receptionist access required'}), 403
+
+    status_filter = request.args.get('status', 'all').strip().lower()
+    search_q = request.args.get('q', '').strip()
+
+    query = """
+    SELECT u.id, u.name, u.email, u.phone, u.role, u.can_post, u.seller_status, u.seller_requested_at, u.created_at,
+           (SELECT COUNT(*) FROM cars WHERE seller_id = u.id) as posted_cars_count,
+           (SELECT COUNT(*) FROM chats WHERE customer_id = u.id OR seller_id = u.id) as chats_count,
+           (SELECT COUNT(*) FROM swap_sell_requests WHERE user_id = u.id) as swap_requests_count
+    FROM users u
+    WHERE 1=1
+    """
+    params = []
+    if status_filter == 'pending':
+        query += " AND u.seller_status = 'pending' AND (u.can_post = 0 OR u.can_post IS NULL)"
+    elif status_filter == 'approved':
+        query += " AND u.can_post = 1"
+    elif status_filter == 'not_approved' or status_filter == 'buyer':
+        query += " AND (u.can_post = 0 OR u.can_post IS NULL) AND u.role = 'customer'"
+    elif status_filter == 'customer':
+        query += " AND u.role = 'customer'"
+    elif status_filter == 'admin':
+        query += " AND u.role IN ('admin', 'receptionist')"
+
+    if search_q:
+        query += " AND (u.name LIKE ? OR u.email LIKE ? OR u.phone LIKE ?)"
+        wildcard = f"%{search_q}%"
+        params.extend([wildcard, wildcard, wildcard])
+
+    query += " ORDER BY CASE WHEN u.id = 1 THEN 0 WHEN u.role IN ('admin', 'receptionist') THEN 1 WHEN u.seller_status = 'pending' THEN 2 ELSE 3 END, u.id DESC"
+
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute(query, params)
+    raw_users = cursor.fetchall()
+    users_list = []
+    for r in raw_users:
+        u_dict = dict(r)
+        u_dict['is_primary_admin'] = (u_dict['id'] == 1 or u_dict['role'] == 'admin')
+        users_list.append(u_dict)
+
+    # Summary metrics
+    cursor.execute("SELECT COUNT(*) FROM users")
+    total_users = cursor.fetchone()[0]
+    cursor.execute("SELECT COUNT(*) FROM users WHERE seller_status = 'pending' AND (can_post = 0 OR can_post IS NULL)")
+    pending_sellers = cursor.fetchone()[0]
+    cursor.execute("SELECT COUNT(*) FROM users WHERE can_post = 1")
+    approved_sellers = cursor.fetchone()[0]
+    cursor.execute("SELECT COUNT(*) FROM users WHERE role = 'customer'")
+    customer_count = cursor.fetchone()[0]
+
+    db.close()
+    return jsonify({
+        'users': users_list,
+        'total': total_users,
+        'customer_count': customer_count,
+        'pending_sellers': pending_sellers,
+        'approved_sellers': approved_sellers
+    })
+
+
+@app.route('/api/admin/users/<int:target_user_id>', methods=['DELETE', 'POST'])
+@app.route('/api/admin/users/<int:target_user_id>/delete', methods=['POST', 'DELETE'])
+def admin_delete_user(target_user_id):
+    """
+    Permanently deletes a single user account and cascades deletion of all their messages,
+    chats, listings, and trade-in evaluation requests. Strictly protects primary admin account.
+    """
+    user = get_current_user()
+    if not is_admin_or_receptionist(user):
+        return jsonify({'error': 'Admin / Receptionist access required'}), 403
+
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT id, name, email, role FROM users WHERE id = ?", (target_user_id,))
+    target = cursor.fetchone()
+    if not target:
+        db.close()
+        return jsonify({'error': 'User account not found'}), 404
+
+    target = dict(target)
+    # Strictly protect root admin account and administrative roles
+    if target['id'] == 1 or target['role'] in ('admin', 'receptionist') or target['id'] == user['id']:
+        db.close()
+        return jsonify({'error': 'The primary administrative account is protected and cannot be deleted.'}), 403
+
+    try:
+        # 1. Delete messages in chats where target user is customer or seller, or where target is sender
+        cursor.execute("""
+            DELETE FROM messages 
+            WHERE sender_id = ? 
+               OR chat_id IN (SELECT id FROM chats WHERE customer_id = ? OR seller_id = ?)
+        """, (target_user_id, target_user_id, target_user_id))
+
+        # 2. Delete chats
+        cursor.execute("DELETE FROM chats WHERE customer_id = ? OR seller_id = ?", (target_user_id, target_user_id))
+
+        # 3. Delete user listings and seller showroom cars
+        cursor.execute("DELETE FROM user_listings WHERE user_id = ?", (target_user_id,))
+        cursor.execute("DELETE FROM cars WHERE seller_id = ?", (target_user_id,))
+
+        # 4. Delete swap and sell valuation requests
+        cursor.execute("DELETE FROM swap_sell_requests WHERE user_id = ?", (target_user_id,))
+
+        # 5. Delete the user record
+        cursor.execute("DELETE FROM users WHERE id = ?", (target_user_id,))
+
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        db.close()
+        return jsonify({'error': f'Failed to delete user account: {str(e)}'}), 500
+
+    db.close()
+    return jsonify({
+        'success': True,
+        'message': f"Account for {target['name']} ({target['email']}) has been permanently deleted.",
+        'deleted_user_id': target_user_id
+    })
 
 
 @app.route('/api/admin/clean-users', methods=['POST'])
