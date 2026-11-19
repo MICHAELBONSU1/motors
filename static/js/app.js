@@ -122,6 +122,69 @@ async function registerServiceWorker() {
   }
 }
 
+// In-App Device Notification Permission Banner (Mobile & Desktop)
+function checkAndPromptNotificationPermission() {
+  if (!('Notification' in window)) return;
+  if (Notification.permission === 'default') {
+    showNotificationPermissionBanner();
+  }
+}
+window.checkAndPromptNotificationPermission = checkAndPromptNotificationPermission;
+
+function showNotificationPermissionBanner() {
+  if (!('Notification' in window)) return;
+  if (Notification.permission !== 'default') return;
+  if (sessionStorage.getItem('dismissedNotifBanner')) return;
+
+  let banner = document.getElementById('deviceNotificationBanner');
+  if (!banner) {
+    banner = document.createElement('div');
+    banner.id = 'deviceNotificationBanner';
+    banner.className = 'device-notif-banner';
+    banner.innerHTML = `
+      <div class="notif-banner-inner">
+        <div class="notif-banner-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+          </svg>
+        </div>
+        <div class="notif-banner-text">
+          <h4>Enable Phone Notifications</h4>
+          <p>Get real-time alerts in your notification bar and lock screen when messages arrive.</p>
+        </div>
+        <div class="notif-banner-actions">
+          <button type="button" onclick="handleBannerEnableNotifications()" class="btn-notif-allow">Allow</button>
+          <button type="button" onclick="dismissNotificationBanner()" class="btn-notif-later">Later</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(banner);
+  }
+
+  setTimeout(() => {
+    banner.classList.add('active');
+  }, 150);
+}
+
+function dismissNotificationBanner() {
+  const banner = document.getElementById('deviceNotificationBanner');
+  if (banner) {
+    banner.classList.remove('active');
+    setTimeout(() => {
+      banner.remove();
+    }, 400);
+  }
+  sessionStorage.setItem('dismissedNotifBanner', 'true');
+}
+window.dismissNotificationBanner = dismissNotificationBanner;
+
+async function handleBannerEnableNotifications() {
+  dismissNotificationBanner();
+  await enableUserNotifications();
+}
+window.handleBannerEnableNotifications = handleBannerEnableNotifications;
+
 function updateNotificationButtonState() {
   const adminBtn = document.getElementById('btnEnableNotifications');
   const custBtn = document.getElementById('btnEnableCustNotifications');
@@ -2300,6 +2363,7 @@ function dismissSplashScreen() {
     if (splash.parentNode) {
       splash.parentNode.removeChild(splash);
     }
+    checkAndPromptNotificationPermission();
   }, 750);
 }
 
@@ -2308,6 +2372,13 @@ document.addEventListener('DOMContentLoaded', () => {
   registerServiceWorker();
   initSplashScreen();
   checkAuthStatus();
+
+  // If page does not have a splash screen (e.g. subpages), prompt after short delay
+  if (!document.getElementById('splashScreen')) {
+    setTimeout(() => {
+      checkAndPromptNotificationPermission();
+    }, 1200);
+  }
 
   if (document.getElementById('carsGrid')) {
     loadCars();

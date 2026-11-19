@@ -4114,3 +4114,131 @@ html, body {
   }
 }
 
+/* Device Notification Permission Banner (Mobile & Desktop) */
+.device-notif-banner {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(120px);
+  width: calc(100% - 32px);
+  max-width: 520px;
+  background: rgba(7, 25, 17, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75), 0 0 25px rgba(16, 185, 129, 0.18);
+  border-radius: 16px;
+  padding: 14px 18px;
+  z-index: 100000;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.device-notif-banner.active {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.notif-banner-inner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.notif-banner-icon {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notif-banner-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.notif-banner-text h4 {
+  font-family: var(--font-heading);
+  font-size: 14px;
+  font-weight: 750;
+  color: #ffffff;
+  margin-bottom: 2px;
+  letter-spacing: 0.2px;
+}
+
+.notif-banner-text p {
+  font-size: 12px;
+  color: #94a3b8;
+  line-height: 1.35;
+  margin: 0;
+}
+
+.notif-banner-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.btn-notif-allow {
+  background: var(--green-primary);
+  color: #030806;
+  border: none;
+  font-family: var(--font-main);
+  font-size: 12.5px;
+  font-weight: 750;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.btn-notif-allow:hover {
+  background: #34d399;
+  transform: translateY(-1px);
+}
+
+.btn-notif-later {
+  background: transparent;
+  color: #64748b;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-family: var(--font-main);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-notif-later:hover {
+  color: #cbd5e1;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+@media (max-width: 480px) {
+  .notif-banner-inner {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .notif-banner-actions {
+    width: 100%;
+    justify-content: flex-end;
+    margin-top: 4px;
+  }
+  .btn-notif-allow {
+    flex: 1;
+    text-align: center;
+    padding: 10px 14px;
+  }
+}
+
+
