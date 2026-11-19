@@ -5,11 +5,13 @@ import hashlib
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 
-DB_PATH = os.path.join(os.path.dirname(__file__), 'big_l_autos.db')
+DB_PATH = os.environ.get('DATABASE_PATH') or os.path.join(os.path.dirname(__file__), 'big_l_autos.db')
 
 def get_db():
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, timeout=20.0)
     conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA journal_mode=WAL")
+    conn.execute("PRAGMA busy_timeout=5000")
     return conn
 
 def hash_password(password):
