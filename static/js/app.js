@@ -108,6 +108,20 @@ window.addEventListener('focus', () => {
   stopTabFlashing();
 });
 
+// Service Worker Registration for Phone & Laptop Native System Notifications
+let swRegistration = null;
+
+async function registerServiceWorker() {
+  if ('serviceWorker' in navigator) {
+    try {
+      const reg = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+      swRegistration = reg;
+    } catch (err) {
+      console.warn('Service Worker registration:', err);
+    }
+  }
+}
+
 function updateNotificationButtonState() {
   const adminBtn = document.getElementById('btnEnableNotifications');
   const custBtn = document.getElementById('btnEnableCustNotifications');
@@ -125,7 +139,7 @@ function updateNotificationButtonState() {
       btn.innerText = 'Alerts Active';
       btn.style.borderColor = 'rgba(16,185,129,0.7)';
       btn.style.color = '#34d399';
-      btn.title = 'Background push notifications are enabled';
+      btn.title = 'Device push notifications are active on this phone/laptop';
     } else if (perm === 'denied') {
       btn.innerText = 'Alerts Blocked';
       btn.style.borderColor = 'rgba(239,68,68,0.5)';
@@ -135,7 +149,7 @@ function updateNotificationButtonState() {
       btn.innerText = 'Enable Alerts';
       btn.style.borderColor = 'rgba(16,185,129,0.35)';
       btn.style.color = 'var(--mint)';
-      btn.title = 'Click to enable real-time notifications in background';
+      btn.title = 'Click to enable real-time device notifications';
     }
   });
 }
@@ -151,13 +165,31 @@ async function enableUserNotifications() {
     updateNotificationButtonState();
     if (perm === 'granted') {
       playMessageNotificationSound();
-      showToast('Notifications enabled! You will be alerted when new texts arrive.', 'success');
-      try {
-        new Notification('BIG L Autos Alerts Active', {
-          body: 'You will receive real-time notifications when customers text you.',
-          icon: '/static/img/favicon.ico'
-        });
-      } catch (err) {}
+      if ('vibrate' in navigator) {
+        try { navigator.vibrate([200, 100, 200]); } catch (e) {}
+      }
+      showToast('Notifications enabled on this device!', 'success');
+
+      const welcomeTitle = 'BIG-L Autos Alerts Active';
+      const welcomeOptions = {
+        body: 'You will receive real-time notifications in your device tray when texts arrive.',
+        icon: '/static/img/favicon.ico',
+        badge: '/static/img/favicon.ico',
+        tag: 'welcome-notification',
+        renotify: true,
+        vibrate: [200, 100, 200],
+        data: { url: window.location.href }
+      };
+
+      if (swRegistration && typeof swRegistration.showNotification === 'function') {
+        try {
+          await swRegistration.showNotification(welcomeTitle, welcomeOptions);
+        } catch (e) {}
+      } else {
+        try {
+          new Notification(welcomeTitle, welcomeOptions);
+        } catch (e) {}
+      }
     } else if (perm === 'denied') {
       showToast('Notifications blocked in browser settings.', 'info');
     }
@@ -167,19 +199,133 @@ async function enableUserNotifications() {
 }
 window.enableUserNotifications = enableUserNotifications;
 
-function triggerDesktopNotification(senderName, messageText, chatId) {
+async function testDeviceNotification() {
+  playMessageNotificationSound();
+
+  if ('vibrate' in navigator) {
+    try { navigator.vibrate([200, 100, 200, 100, 200]); } catch (e) {}
+  }
+
+  if (!('Notification' in window)) {
+    showToast('Sound played! System notifications not supported on this browser.', 'info');
+    return;
+  }
+
+  let perm = Notification.permission;
+  if (perm !== 'granted') {
+    try {
+      perm = await Notification.requestPermission();
+      updateNotificationButtonState();
+    } catch (e) {}
+  }
+
+  if (perm === 'granted') {
+    const testTitle = 'BIG-L Autos: Device Alert';
+    const testOptions = {
+      body: 'Device notification successfully delivered to your phone/laptop notification side!',
+      icon: '/static/img/favicon.ico',
+      badge: '/static/img/favicon.ico',
+      tag: 'test-notification',
+      renotify: true,
+      requireInteraction: true,
+      vibrate: [200, 100, 200],
+      data: { url: window.location.href }
+    };
+
+    let shown = false;
+    if (swRegistration && typeof swRegistration.showNotification === 'function') {
+      try {
+        await swRegistration.showNotification(testTitle, testOptions);
+        shown = true;
+      } catch (e) {}
+    }
+
+    if (!shown && 'serviceWorker' in navigator) {
+      try {
+        const readyReg = await navigator.serviceWorker.ready;
+        if (readyReg && typeof readyReg.showNotification === 'function') {
+          await readyReg.showNotification(testTitle, testOptions);
+          shown = true;
+        }
+      } catch (e) {}
+    }
+
+    if (!shown) {
+      try {
+        new Notification(testTitle, testOptions);
+        shown = true;
+      } catch (e) {}
+    }
+
+    showToast('Test notification sent to device notification tray!', 'success');
+  } else {
+    showToast('Notification permission denied. Please allow notifications in browser settings.', 'info');
+  }
+}
+window.testDeviceNotification = testDeviceNotification;
+
+async function triggerDesktopNotification(senderName, messageText, chatId) {
   playMessageNotificationSound();
 
   if (document.hidden) {
     flashTabNotification(`🔔 New message from ${senderName}`);
+  }
 
-    if ('Notification' in window && Notification.permission === 'granted') {
+  if ('vibrate' in navigator) {
+    try { navigator.vibrate([200, 100, 200, 100, 200]); } catch (e) {}
+  }
+
+  let targetUrl = '/';
+  if (currentUser) {
+    if (currentUser.role === 'admin' || currentUser.role === 'receptionist') {
+      targetUrl = '/admin' + (chatId ? `?chat_id=${chatId}` : '');
+    } else {
+      targetUrl = '/customer' + (chatId ? `?chat_id=${chatId}` : '');
+    }
+  }
+
+  const notifTitle = `BIG-L Autos: ${senderName}`;
+  const notifOptions = {
+    body: messageText ? messageText.slice(0, 120) : 'Sent you a new message',
+    icon: '/static/img/favicon.ico',
+    badge: '/static/img/favicon.ico',
+    tag: `bigl-msg-${chatId || Date.now()}`,
+    renotify: true,
+    requireInteraction: true,
+    vibrate: [200, 100, 200],
+    data: {
+      url: targetUrl,
+      chatId: chatId
+    }
+  };
+
+  if ('Notification' in window && Notification.permission === 'granted') {
+    let shown = false;
+
+    // Service Worker notification: required for Android phone notification bar & desktop
+    if (swRegistration && typeof swRegistration.showNotification === 'function') {
       try {
-        const notif = new Notification(`New message from ${senderName}`, {
-          body: messageText || 'Sent you a new message',
-          icon: '/static/img/favicon.ico',
-          tag: `chat-${chatId}`
-        });
+        await swRegistration.showNotification(notifTitle, notifOptions);
+        shown = true;
+      } catch (err) {
+        console.warn('SW showNotification failed, trying fallback:', err);
+      }
+    }
+
+    if (!shown && 'serviceWorker' in navigator) {
+      try {
+        const readyReg = await navigator.serviceWorker.ready;
+        if (readyReg && typeof readyReg.showNotification === 'function') {
+          await readyReg.showNotification(notifTitle, notifOptions);
+          shown = true;
+        }
+      } catch (err) {}
+    }
+
+    // Direct desktop window fallback
+    if (!shown) {
+      try {
+        const notif = new Notification(notifTitle, notifOptions);
         notif.onclick = () => {
           window.focus();
           stopTabFlashing();
@@ -192,6 +338,7 @@ function triggerDesktopNotification(senderName, messageText, chatId) {
           }
           notif.close();
         };
+        shown = true;
       } catch (e) {
         console.warn('Desktop notification error:', e);
       }
@@ -2158,6 +2305,7 @@ function dismissSplashScreen() {
 
 // Global initialization
 document.addEventListener('DOMContentLoaded', () => {
+  registerServiceWorker();
   initSplashScreen();
   checkAuthStatus();
 

@@ -202,6 +202,19 @@ def is_admin_or_receptionist(user):
         return False
     return user.get('role') in ('admin', 'receptionist')
 
+@app.route('/sw.js')
+def service_worker():
+    response = send_from_directory('static', 'sw.js', mimetype='application/javascript')
+    response.headers['Service-Worker-Allowed'] = '/'
+    response.headers['Cache-Control'] = 'no-cache'
+    return response
+
+@app.route('/manifest.json')
+def web_manifest():
+    response = send_from_directory('static', 'manifest.json', mimetype='application/manifest+json')
+    response.headers['Cache-Control'] = 'no-cache'
+    return response
+
 # --- Page Routes ---
 @app.route('/')
 def home():

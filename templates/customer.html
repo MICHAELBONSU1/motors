@@ -5,6 +5,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
   <title>Customer Dashboard | BIG-L AUTOS</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#030f08">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="stylesheet" href="/static/css/style.css?v=4.2">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -38,6 +42,7 @@
 
       <div class="nav-actions">
         <button type="button" id="btnEnableCustNotifications" onclick="enableUserNotifications()" class="btn btn-secondary btn-sm" style="display:none; font-size:11px; padding:5px 9px;" title="Enable background message alerts">Enable Alerts</button>
+        <button type="button" onclick="testDeviceNotification()" class="btn btn-secondary btn-sm" style="font-size:11px; padding:5px 9px;" title="Test device notification on phone or laptop">Test Alert</button>
         <a href="/" class="btn btn-secondary btn-sm">Showroom</a>
         <div id="navAuthArea">
           <button onclick="handleLogout()" class="btn btn-soft-green btn-sm">Log Out</button>
@@ -353,7 +358,7 @@
     </div>
   </div>
 
-  <script src="/static/js/app.js?v=4.3"></script>
+  <script src="/static/js/app.js?v=4.4"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       initCustomerDashboard();
