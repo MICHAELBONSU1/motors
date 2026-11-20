@@ -1145,7 +1145,10 @@ async function initCustomerDashboard() {
 }
 
 // Real-Time Background Synchronization for Admin and Customer
+let isBackgroundCheckInFlight = false;
 async function checkBackgroundChats(isAdmin = false) {
+  if (isBackgroundCheckInFlight) return;
+  isBackgroundCheckInFlight = true;
   try {
     const res = await fetch('/api/chats');
     if (!res.ok) return;
@@ -1218,6 +1221,8 @@ async function checkBackgroundChats(isAdmin = false) {
     }
   } catch (err) {
     console.warn('Background chat sync error:', err);
+  } finally {
+    isBackgroundCheckInFlight = false;
   }
 }
 
@@ -1225,8 +1230,10 @@ function startCustomerBackgroundPolling() {
   if (chatPollingInterval) clearInterval(chatPollingInterval);
   checkBackgroundChats(false);
   chatPollingInterval = setInterval(() => {
-    checkBackgroundChats(false);
-  }, 3500);
+    if (!document.hidden) {
+      checkBackgroundChats(false);
+    }
+  }, 7000);
 }
 
 function stopChatPolling() {
@@ -1773,8 +1780,10 @@ function startAdminBackgroundPolling() {
   if (adminPollingInterval) clearInterval(adminPollingInterval);
   checkBackgroundChats(true);
   adminPollingInterval = setInterval(() => {
-    checkBackgroundChats(true);
-  }, 3500);
+    if (!document.hidden) {
+      checkBackgroundChats(true);
+    }
+  }, 7000);
 }
 
 async function loadAdminStats() {
@@ -1930,18 +1939,30 @@ function removeAdminPhotoSlot(slotIdx, itemType) {
 // Add Car Form with 5-Photo Uploading
 function setupAddCarForm() {
   const form = document.getElementById('addCarForm');
-  if (!form) return;
+  if (!form || form.dataset.setupDone === 'true') return;
+  form.dataset.setupDone = 'true';
+
+  const submitBtn = form.querySelector('button[type="submit"]');
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
+
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerText = 'Publishing vehicle... please wait';
+    }
+
     const formData = new FormData(form);
 
-    // Ensure all 5 curated files are appended to formData
-    formData.delete('image_files');
-    formData.delete('image_file');
-    adminUploadedFiles.forEach(file => {
-      formData.append('image_files', file);
-    });
+    // If adminUploadedFiles has files, use those; otherwise use whatever files the file input holds
+    const filesInput = document.getElementById('carImageFiles') || document.getElementById('carImageFile');
+    if (adminUploadedFiles.length > 0) {
+      formData.delete('image_files');
+      formData.delete('image_file');
+      adminUploadedFiles.forEach(file => {
+        formData.append('image_files', file);
+      });
+    }
 
     try {
       const res = await fetch('/api/cars', {
@@ -1949,8 +1970,8 @@ function setupAddCarForm() {
         body: formData
       });
       const data = await res.json();
-      if (res.ok) {
-        showToast(data.message || 'Vehicle with up to 5 photos published successfully!', 'success');
+      if (res.ok && data.success) {
+        showToast(data.message || 'Vehicle published to showroom successfully!', 'success');
         form.reset();
         adminUploadedFiles = [];
         renderAdminPhotoSlots();
@@ -1963,6 +1984,11 @@ function setupAddCarForm() {
     } catch (err) {
       console.error('Add car error:', err);
       showToast('Server error while uploading car', 'info');
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerText = 'Publish Vehicle to Showroom';
+      }
     }
   });
 

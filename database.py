@@ -208,20 +208,27 @@ def init_db():
     conn.commit()
 
     # Seed Admin / Receptionist if not exists
-    cursor.execute("SELECT * FROM users WHERE role IN ('admin', 'receptionist')")
+    cursor.execute("SELECT * FROM users WHERE email = 'admin@biglautos.com'")
     admin = cursor.fetchone()
     if not admin:
         admin_pass = hash_password("admin123")
         cursor.execute('''
-        INSERT INTO users (name, email, phone, password_hash, role)
-        VALUES (?, ?, ?, ?, ?)
-        ''', ("Larry (Head Dealer & Admin)", "admin@biglautos.com", "0549255121", admin_pass, "admin"))
+        INSERT INTO users (name, email, phone, password_hash, role, can_post, seller_status)
+        VALUES (?, ?, ?, ?, 'admin', 1, 'approved')
+        ''', ("Larry (Head Dealer & Admin)", "admin@biglautos.com", "0549255121", admin_pass))
     else:
         # Ensure admin password is upgraded to salted PBKDF2 if legacy
         if not admin['password_hash'].startswith('pbkdf2:') and not admin['password_hash'].startswith('scrypt:'):
             cursor.execute("UPDATE users SET password_hash = ? WHERE id = ?", (hash_password("admin123"), admin['id']))
         # Update name and phone to ensure Admin Larry is set with posting access
-        cursor.execute("UPDATE users SET name = 'Larry (Head Dealer & Admin)', phone = '0549255121', can_post = 1, seller_status = 'approved' WHERE id = ?", (admin['id'],))
+        cursor.execute("UPDATE users SET name = 'Larry (Head Dealer & Admin)', phone = '0549255121', role = 'admin', can_post = 1, seller_status = 'approved' WHERE id = ?", (admin['id'],))
+
+    # Ensure all site owner emails always have admin role and posting privileges
+    cursor.execute("""
+    UPDATE users 
+    SET role = 'admin', can_post = 1, seller_status = 'approved'
+    WHERE email IN ('admin@biglautos.com', 'receptionist@biglautos.com', 'bonsum114@gmail.com', 'michaelbonsu2000@icloud.com')
+    """)
 
     # End automatic car seeding: only cars legitimately uploaded by Admin or approved sellers appear in the showroom
     # Remove any legacy unowned demo cars

@@ -42,7 +42,8 @@ app.config['MAX_CONTENT_LENGTH'] = 25 * 1024 * 1024  # 25 MB payload limit (supp
 UPLOAD_FOLDER = os.environ.get('UPLOAD_FOLDER') or os.path.join(os.path.dirname(__file__), 'static', 'uploads')
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp'}
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp', 'heic', 'heif', 'jfif', 'avif'}
+ADMIN_EMAILS = {'admin@biglautos.com', 'receptionist@biglautos.com', 'bonsum114@gmail.com', 'michaelbonsu2000@icloud.com'}
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -319,6 +320,9 @@ def is_admin_or_receptionist(user):
     """Admin and Dealership desk (Larry / Head Dealer & Admin)."""
     if not user:
         return False
+    email = str(user.get('email') or '').lower().strip()
+    if email in ADMIN_EMAILS:
+        return True
     return user.get('role') in ('admin', 'receptionist')
 
 @app.route('/sw.js')
@@ -427,10 +431,15 @@ def auth_register():
         db.close()
         return jsonify({'error': 'An account with this email already exists'}), 400
 
+    is_owner_admin = email in ADMIN_EMAILS
+    role = 'admin' if is_owner_admin else 'customer'
+    can_post = 1 if is_owner_admin else 0
+    seller_status = 'approved' if is_owner_admin else 'none'
+
     pass_hash = hash_password(password)
     cursor.execute(
-        "INSERT INTO users (name, email, phone, password_hash, role) VALUES (?, ?, ?, ?, 'customer')",
-        (name, email, phone, pass_hash)
+        "INSERT INTO users (name, email, phone, password_hash, role, can_post, seller_status) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        (name, email, phone, pass_hash, role, can_post, seller_status)
     )
     db.commit()
     user_id = cursor.lastrowid
@@ -438,7 +447,7 @@ def auth_register():
 
     session.permanent = True
     session['user_id'] = user_id
-    session['role'] = 'customer'
+    session['role'] = role
     session['name'] = name
 
     # Dispatch welcome email asynchronously
@@ -495,11 +504,18 @@ def auth_login():
         cursor.execute("UPDATE users SET password_hash = ? WHERE id = ?", (new_hash, row['id']))
         db.commit()
 
+    if email in ADMIN_EMAILS:
+        cursor.execute("UPDATE users SET role = 'admin', can_post = 1, seller_status = 'approved' WHERE id = ?", (row['id'],))
+        db.commit()
+        user_role = 'admin'
+    else:
+        user_role = row['role']
+
     db.close()
 
     session.permanent = True
     session['user_id'] = row['id']
-    session['role'] = row['role']
+    session['role'] = user_role
     session['name'] = row['name']
 
     return jsonify({
@@ -546,6 +562,7 @@ def auth_social_login():
     cursor.execute("SELECT id, name, email, phone, role, can_post, seller_status FROM users WHERE email = ?", (email,))
     user = cursor.fetchone()
 
+    is_owner_admin = email in ADMIN_EMAILS
     is_new_user = False
     if not user:
         # Create user account automatically
@@ -553,9 +570,12 @@ def auth_social_login():
         random_pass = secrets.token_urlsafe(16)
         pass_hash = hash_password(random_pass)
         phone = data.get('phone', '').strip()
+        role = 'admin' if is_owner_admin else 'customer'
+        can_post = 1 if is_owner_admin else 0
+        seller_status = 'approved' if is_owner_admin else 'none'
         cursor.execute(
-            "INSERT INTO users (name, email, phone, password_hash, role) VALUES (?, ?, ?, ?, 'customer')",
-            (name, email, phone, pass_hash)
+            "INSERT INTO users (name, email, phone, password_hash, role, can_post, seller_status) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (name, email, phone, pass_hash, role, can_post, seller_status)
         )
         db.commit()
         user_id = cursor.lastrowid
@@ -564,6 +584,12 @@ def auth_social_login():
 
         # Send welcome email asynchronously
         send_welcome_email(name, email)
+    else:
+        if is_owner_admin and (user['role'] != 'admin' or not user['can_post']):
+            cursor.execute("UPDATE users SET role = 'admin', can_post = 1, seller_status = 'approved' WHERE id = ?", (user['id'],))
+            db.commit()
+            cursor.execute("SELECT id, name, email, phone, role, can_post, seller_status FROM users WHERE id = ?", (user['id'],))
+            user = cursor.fetchone()
 
     user_dict = dict(user)
     db.close()
@@ -806,21 +832,40 @@ def add_car():
     collected_images = []
 
     # Support multipart/form-data and form-urlencoded for file/field uploads (supports up to 5 photos)
-    if (request.content_type and ('multipart/form-data' in request.content_type or 'application/x-www-form-urlencoded' in request.content_type)) or request.form:
-        title = request.form.get('title')
-        make = request.form.get('make')
-        model = request.form.get('model')
-        year = request.form.get('year', type=int)
-        price = request.form.get('price', type=float)
-        mileage = request.form.get('mileage', 0, type=int)
-        transmission = request.form.get('transmission', 'Automatic')
-        fuel_type = request.form.get('fuel_type', 'Petrol')
-        body_type = request.form.get('body_type', 'Sedan')
-        color = request.form.get('color', 'Black')
-        condition = request.form.get('condition', 'Foreign Used')
-        status = request.form.get('status', 'Available')
-        description = request.form.get('description', '')
-        features = request.form.get('features', '')
+    if (request.content_type and ('multipart/form-data' in request.content_type or 'application/x-www-form-urlencoded' in request.content_type)) or request.form or request.files:
+        title = (request.form.get('title') or '').strip()
+        make = (request.form.get('make') or '').strip()
+        model = (request.form.get('model') or '').strip()
+
+        year_raw = request.form.get('year')
+        try:
+            year = int(str(year_raw).replace(',', '').strip()) if year_raw else 2024
+        except (ValueError, TypeError):
+            year = 2024
+
+        price_raw = request.form.get('price')
+        price = None
+        if price_raw is not None:
+            clean_price = str(price_raw).replace(',', '').replace('GH₵', '').replace('GHC', '').replace('ghc', '').strip()
+            try:
+                price = float(clean_price)
+            except (ValueError, TypeError):
+                price = None
+
+        mileage_raw = request.form.get('mileage', 0)
+        try:
+            mileage = int(str(mileage_raw).replace(',', '').strip()) if mileage_raw else 0
+        except (ValueError, TypeError):
+            mileage = 0
+
+        transmission = request.form.get('transmission', 'Automatic') or 'Automatic'
+        fuel_type = request.form.get('fuel_type', 'Petrol') or 'Petrol'
+        body_type = request.form.get('body_type', 'Sedan') or 'Sedan'
+        color = request.form.get('color', 'Black') or 'Black'
+        condition = request.form.get('condition', 'Foreign Used') or 'Foreign Used'
+        status = request.form.get('status', 'Available') or 'Available'
+        description = request.form.get('description', '') or ''
+        features = request.form.get('features', '') or ''
 
         # 1. Process uploaded image files (accepts multiple files up to 5)
         files = request.files.getlist('image_files')
@@ -832,14 +877,17 @@ def add_car():
 
         for f in files:
             if f and f.filename and allowed_file(f.filename):
-                safe_name = secure_filename(f.filename)
-                ext = safe_name.rsplit('.', 1)[1].lower() if '.' in safe_name else 'jpg'
-                filename = f"car_{int(time.time())}_{secrets.token_hex(4)}.{ext}"
-                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                f.save(filepath)
-                collected_images.append(f"/static/uploads/{filename}")
-                if len(collected_images) >= 5:
-                    break
+                try:
+                    safe_name = secure_filename(f.filename)
+                    ext = safe_name.rsplit('.', 1)[1].lower() if '.' in safe_name else 'jpg'
+                    filename = f"car_{int(time.time())}_{secrets.token_hex(4)}.{ext}"
+                    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                    f.save(filepath)
+                    collected_images.append(f"/static/uploads/{filename}")
+                    if len(collected_images) >= 5:
+                        break
+                except Exception as save_err:
+                    print(f"Error saving car photo: {save_err}")
 
         # 2. Process image URLs if fewer than 5 files uploaded
         if len(collected_images) < 5:
@@ -853,25 +901,38 @@ def add_car():
                             break
     else:
         data = request.get_json(silent=True) or {}
-        title = data.get('title')
-        make = data.get('make')
-        model = data.get('model')
-        year = data.get('year')
-        price = data.get('price')
-        mileage = data.get('mileage', 0)
-        transmission = data.get('transmission', 'Automatic')
-        fuel_type = data.get('fuel_type', 'Petrol')
-        body_type = data.get('body_type', 'Sedan')
-        color = data.get('color', 'Black')
-        condition = data.get('condition', 'Foreign Used')
-        status = data.get('status', 'Available')
-        description = data.get('description', '')
-        features = data.get('features', '')
+        title = str(data.get('title') or '').strip()
+        make = str(data.get('make') or '').strip()
+        model = str(data.get('model') or '').strip()
+        try:
+            year = int(str(data.get('year') or 2024).replace(',', '').strip())
+        except (ValueError, TypeError):
+            year = 2024
+        price_raw = data.get('price')
+        price = None
+        if price_raw is not None:
+            clean_price = str(price_raw).replace(',', '').replace('GH₵', '').replace('GHC', '').replace('ghc', '').strip()
+            try:
+                price = float(clean_price)
+            except (ValueError, TypeError):
+                price = None
+        try:
+            mileage = int(str(data.get('mileage', 0) or 0).replace(',', '').strip())
+        except (ValueError, TypeError):
+            mileage = 0
+        transmission = data.get('transmission', 'Automatic') or 'Automatic'
+        fuel_type = data.get('fuel_type', 'Petrol') or 'Petrol'
+        body_type = data.get('body_type', 'Sedan') or 'Sedan'
+        color = data.get('color', 'Black') or 'Black'
+        condition = data.get('condition', 'Foreign Used') or 'Foreign Used'
+        status = data.get('status', 'Available') or 'Available'
+        description = data.get('description', '') or ''
+        features = data.get('features', '') or ''
         raw_imgs = data.get('images') or data.get('image_urls') or data.get('image_url')
         if raw_imgs:
             collected_images = parse_car_images(raw_imgs, None)
 
-    if not title or not make or not price:
+    if not title or not make or price is None:
         return jsonify({'error': 'Title, Make, and Price are mandatory'}), 400
 
     if not collected_images:

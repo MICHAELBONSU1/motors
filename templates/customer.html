@@ -9,7 +9,7 @@
   <meta name="theme-color" content="#030f08">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="stylesheet" href="/static/css/style.css?v=6.2">
+  <link rel="stylesheet" href="/static/css/style.css?v=6.3">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -501,7 +501,7 @@
     </div>
   </div>
 
-  <script src="/static/js/app.js?v=6.2"></script>
+  <script src="/static/js/app.js?v=6.3"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       initCustomerDashboard();
@@ -725,11 +725,13 @@
           e.preventDefault();
           const fd = new FormData(carForm);
 
-          fd.delete('image_files');
-          fd.delete('image_file');
-          directUploadedFiles.forEach(file => {
-            fd.append('image_files', file);
-          });
+          if (directUploadedFiles.length > 0) {
+            fd.delete('image_files');
+            fd.delete('image_file');
+            directUploadedFiles.forEach(file => {
+              fd.append('image_files', file);
+            });
+          }
 
           const btn = carForm.querySelector('button[type="submit"]');
           btn.disabled = true;
