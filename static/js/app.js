@@ -600,36 +600,12 @@ function togglePasswordVisibility(inputId, btn) {
   }
 }
 
-// Open Auth Modal (Advanced Concierge Layout)
+// Open Auth Modal (Clean, Non-busy Luxury Layout)
 function openAuthModal(mode = 'register', carContext = null) {
   const modal = document.getElementById('authModal');
   if (!modal) return;
 
-  const contextBox = document.getElementById('authCarContext');
-
-  if (carContext) {
-    pendingInquiryCar = carContext;
-    if (contextBox) {
-      contextBox.style.display = 'block';
-      contextBox.innerHTML = `
-        <div style="display:flex; align-items:center; gap:10px; background:rgba(0,242,150,0.06); border:1px solid rgba(0,242,150,0.22); border-radius:8px; padding:8px 12px; margin-bottom:14px;">
-          <img src="${carContext.image_url}" style="width:42px; height:30px; object-fit:cover; border-radius:4px;" alt="${carContext.title}">
-          <div style="flex:1; min-width:0;">
-            <div style="font-size:10px; font-weight:700; color:var(--mint); text-transform:uppercase;">Inquiring for:</div>
-            <div style="font-size:12.5px; font-weight:700; color:#ffffff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${carContext.title}</div>
-          </div>
-          <span style="font-size:12px; font-weight:700; color:var(--mint);">${formatMoney(carContext.price)}</span>
-        </div>
-      `;
-    }
-  } else {
-    pendingInquiryCar = null;
-    if (contextBox) {
-      contextBox.style.display = 'none';
-      contextBox.innerHTML = '';
-    }
-  }
-
+  pendingInquiryCar = carContext || null;
   switchAuthTab(mode);
   modal.classList.add('active');
 }

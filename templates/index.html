@@ -9,7 +9,7 @@
   <meta name="theme-color" content="#030f08">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="stylesheet" href="/static/css/style.css?v=4.5">
+  <link rel="stylesheet" href="/static/css/style.css?v=6.0">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -483,9 +483,6 @@
         <button class="btn-close-modal" onclick="closeAuthModal()" aria-label="Close dialog" style="font-size: 20px; color: #94a3b8; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1; transition: all 0.15s;">&times;</button>
       </div>
 
-      <!-- Inquired Car Context Banner (Only shown if actively inquiring) -->
-      <div id="authCarContext" class="modal-auth-car-context" style="display: none; margin-bottom: 14px; padding: 10px 12px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(52, 211, 153, 0.25); border-radius: 8px;"></div>
-
       <!-- Inline Real-Time Social Sign-In Sheet (No browser prompts) -->
       <div id="modalInlineSocial" style="display: none; background: rgba(6, 21, 11, 0.95); border: 1px solid rgba(52, 211, 153, 0.35); border-radius: 10px; padding: 14px; margin-bottom: 14px; box-shadow: 0 8px 24px rgba(0,0,0,0.5);">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
@@ -742,7 +739,7 @@
 
   <script src="/static/js/three.min.js"></script>
   <script src="/static/js/car3d.js"></script>
-  <script src="/static/js/app.js?v=5.1"></script>
+  <script src="/static/js/app.js?v=6.0"></script>
   <script>
     function openSellSwapModal() {
       if (!currentUser) {
