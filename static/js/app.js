@@ -551,22 +551,30 @@ function updateNavAuthUI() {
 
   if (currentUser) {
     const isCustomer = currentUser.role === 'customer';
+    const isDashboardPage = window.location.pathname.startsWith('/customer') || window.location.pathname.startsWith('/admin');
+
     if (authNav) {
-      authNav.innerHTML = `
-        <div style="display:flex; align-items:center; gap:8px;">
-          <a href="${isCustomer ? '/customer' : '/admin'}" class="btn btn-secondary btn-sm">
-            ${currentUser.name.split(' ')[0]} (${isCustomer ? 'Dashboard' : 'Receptionist'})
-          </a>
-          <button onclick="handleLogout()" class="btn btn-soft-green btn-sm">Log Out</button>
-        </div>
-      `;
+      if (isDashboardPage) {
+        authNav.innerHTML = `
+          <button onclick="handleLogout()" class="btn btn-sm" style="background: rgba(239, 68, 68, 0.16); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 6px; cursor: pointer; flex-shrink: 0; white-space: nowrap;">Log Out</button>
+        `;
+      } else {
+        authNav.innerHTML = `
+          <div style="display:flex; align-items:center; gap:8px;">
+            <a href="${isCustomer ? '/customer' : '/admin'}" class="btn btn-secondary btn-sm" style="max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+              ${currentUser.name.split(' ')[0]} (${isCustomer ? 'Dashboard' : 'Admin'})
+            </a>
+            <button onclick="handleLogout()" class="btn btn-sm" style="background: rgba(239, 68, 68, 0.16); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 6px; cursor: pointer; flex-shrink: 0; white-space: nowrap;">Log Out</button>
+          </div>
+        `;
+      }
     }
     if (mobileAuth) {
       mobileAuth.innerHTML = `
         <a href="${isCustomer ? '/customer' : '/admin'}" class="btn btn-secondary" onclick="closeMobileNav()" style="width:100%; text-align:center;">
-          ${currentUser.name} (${isCustomer ? 'Dashboard' : 'Receptionist Desk'})
+          ${currentUser.name} (${isCustomer ? 'Dashboard' : 'Admin Console'})
         </a>
-        <button onclick="closeMobileNav(); handleLogout();" class="btn btn-dark" style="width:100%;">Log Out</button>
+        <button onclick="closeMobileNav(); handleLogout();" class="btn btn-sm" style="width:100%; background: rgba(239, 68, 68, 0.16); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); font-weight: 700; padding: 10px;">Log Out</button>
       `;
     }
   } else {
