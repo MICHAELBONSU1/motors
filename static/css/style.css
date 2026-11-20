@@ -157,47 +157,86 @@ button, input, select, textarea {
   gap: 10px;
 }
 
-/* Mobile Hamburger Toggle & Drawer */
+/* Mobile Hamburger Toggle & Drawer (Enhanced 3-Line Luxury Toggle) */
 .mobile-nav-toggle {
   display: none;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
-  gap: 5px;
-  width: 42px;
-  height: 42px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: var(--radius-sm);
+  align-items: flex-end;
+  gap: 5.5px;
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(0, 242, 150, 0.06) 100%);
+  border: 1px solid rgba(0, 242, 150, 0.28);
+  border-radius: 10px;
   cursor: pointer;
-  padding: 8px;
-  transition: all 0.2s ease;
+  padding: 9px 10px;
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
   flex-shrink: 0;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
 }
 
-.mobile-nav-toggle:hover {
-  background: rgba(255, 255, 255, 0.16);
+.mobile-nav-toggle:hover,
+.mobile-nav-toggle:focus {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(0, 242, 150, 0.14) 100%);
+  border-color: rgba(0, 242, 150, 0.6);
+  box-shadow: 0 0 16px rgba(0, 242, 150, 0.35);
+  transform: translateY(-1px);
 }
 
 .hamburger-bar {
   display: block;
-  width: 22px;
-  height: 2px;
-  background-color: var(--white);
-  border-radius: 2px;
-  transition: all 0.25s ease;
+  height: 2.5px;
+  background: #ffffff;
+  border-radius: 99px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: center;
+}
+
+/* 3 distinct designer lines: top full, middle glowing mint accent, bottom full */
+.hamburger-bar:nth-child(1) {
+  width: 24px;
+  background: linear-gradient(90deg, #ffffff 0%, #e2e8f0 100%);
+}
+
+.hamburger-bar:nth-child(2) {
+  width: 16px;
+  background: #00f296;
+  box-shadow: 0 0 8px rgba(0, 242, 150, 0.6);
+}
+
+.hamburger-bar:nth-child(3) {
+  width: 24px;
+  background: linear-gradient(90deg, #e2e8f0 0%, #ffffff 100%);
+}
+
+.mobile-nav-toggle:hover .hamburger-bar:nth-child(2) {
+  width: 24px;
+}
+
+/* Smooth morph into glowing close '✕' */
+.mobile-nav-toggle.open {
+  border-color: rgba(0, 242, 150, 0.65);
+  background: rgba(0, 242, 150, 0.14);
+  align-items: center;
 }
 
 .mobile-nav-toggle.open .hamburger-bar:nth-child(1) {
-  transform: translateY(7px) rotate(45deg);
+  width: 22px;
+  transform: translateY(8px) rotate(45deg);
+  background: #00f296;
 }
 
 .mobile-nav-toggle.open .hamburger-bar:nth-child(2) {
+  width: 0;
   opacity: 0;
+  transform: scaleX(0);
 }
 
 .mobile-nav-toggle.open .hamburger-bar:nth-child(3) {
-  transform: translateY(-7px) rotate(-45deg);
+  width: 22px;
+  transform: translateY(-8px) rotate(-45deg);
+  background: #00f296;
 }
 
 .mobile-nav-drawer {

@@ -357,5 +357,77 @@ class BigLAutosTestCase(unittest.TestCase):
         chats_after = json.loads(self.client.get('/api/chats').data)['chats']
         self.assertNotIn(cust_id, [c['customer_id'] for c in chats_after])
 
+    def test_social_login(self):
+        social_email = f"social_{int(time.time()*1000)}@gmail.com"
+        # 1. First-time social sign-in (auto-creates account)
+        res = self.client.post('/api/auth/social-login', json={
+            'provider': 'google',
+            'email': social_email,
+            'name': 'Kofi Google'
+        })
+        self.assertEqual(res.status_code, 200)
+        data = json.loads(res.data)
+        self.assertTrue(data['success'])
+        self.assertTrue(data['is_new_user'])
+        self.assertEqual(data['user']['email'], social_email)
+        self.assertEqual(data['user']['name'], 'Kofi Google')
+
+        # 2. Returning social sign-in (logs directly in without filling forms)
+        res2 = self.client.post('/api/auth/social-login', json={
+            'provider': 'google',
+            'email': social_email
+        })
+        self.assertEqual(res2.status_code, 200)
+        data2 = json.loads(res2.data)
+        self.assertTrue(data2['success'])
+        self.assertFalse(data2['is_new_user'])
+        self.assertEqual(data2['user']['email'], social_email)
+
+    def test_user_profile_and_password_update(self):
+        test_email = f"user_{int(time.time()*1000)}@test.com"
+        reg = self.client.post('/api/auth/register', json={
+            'name': 'Original Name',
+            'email': test_email,
+            'phone': '0240001111',
+            'password': 'oldpassword123'
+        })
+        self.assertEqual(reg.status_code, 200)
+
+        # 1. Update Profile (Name & Phone)
+        up_res = self.client.post('/api/user/profile', json={
+            'name': 'Updated Name',
+            'phone': '0549998888',
+            'email': test_email
+        })
+        self.assertEqual(up_res.status_code, 200)
+        up_data = json.loads(up_res.data)
+        self.assertTrue(up_data['success'])
+        self.assertEqual(up_data['user']['name'], 'Updated Name')
+        self.assertEqual(up_data['user']['phone'], '0549998888')
+
+        # 2. Attempt password update with wrong current password
+        bad_pw = self.client.post('/api/user/change-password', json={
+            'current_password': 'wrongpassword',
+            'new_password': 'newpassword123'
+        })
+        self.assertEqual(bad_pw.status_code, 400)
+        self.assertIn('incorrect', json.loads(bad_pw.data)['error'].lower())
+
+        # 3. Successful password update
+        good_pw = self.client.post('/api/user/change-password', json={
+            'current_password': 'oldpassword123',
+            'new_password': 'newpassword123'
+        })
+        self.assertEqual(good_pw.status_code, 200)
+        self.assertTrue(json.loads(good_pw.data)['success'])
+
+        # 4. Verify login with new password works
+        self.client.post('/api/auth/logout')
+        login_res = self.client.post('/api/auth/login', json={
+            'email': test_email,
+            'password': 'newpassword123'
+        })
+        self.assertEqual(login_res.status_code, 200)
+
 if __name__ == '__main__':
     unittest.main()

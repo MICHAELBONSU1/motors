@@ -3,6 +3,10 @@ import re
 import json
 import time
 import secrets
+import smtplib
+import threading
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 from datetime import timedelta
 import sqlite3
 from flask import Flask, request, jsonify, render_template, redirect, url_for, session, send_from_directory
@@ -170,14 +174,129 @@ def set_security_headers(response):
     response.headers['Permissions-Policy'] = 'camera=(), microphone=(), geolocation=()'
     response.headers['Content-Security-Policy'] = (
         "default-src 'self'; "
-        "script-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+        "script-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com; "
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; "
         "font-src 'self' https://fonts.gstatic.com data:; "
-        "img-src 'self' data: https://images.unsplash.com https://*.unsplash.com https://*.svg; "
-        "connect-src 'self'; "
+        "img-src 'self' data: https://images.unsplash.com https://*.unsplash.com https://*.svg https://*.googleusercontent.com; "
+        "connect-src 'self' https://accounts.google.com; "
+        "frame-src 'self' https://accounts.google.com; "
         "frame-ancestors 'self';"
     )
     return response
+
+# --- Automated Welcome Email Utility ---
+def _send_welcome_email_worker(user_name, user_email):
+    """Worker executed in background daemon thread to deliver welcome email without blocking user."""
+    if not user_email or '@' not in user_email or user_email.endswith('@example.com'):
+        return
+
+    smtp_host = os.environ.get('SMTP_HOST', 'localhost')
+    smtp_port = int(os.environ.get('SMTP_PORT', '25'))
+    smtp_user = os.environ.get('SMTP_USER', 'support@big-lautos.com')
+    smtp_pass = os.environ.get('SMTP_PASS', '')
+    smtp_use_tls = os.environ.get('SMTP_USE_TLS', 'false').lower() in ('true', '1', 'yes')
+    sender_email = os.environ.get('SMTP_FROM', 'BIG-L Autos <support@big-lautos.com>')
+
+    subject = "Welcome to BIG-L Autos – Premium Showroom & Direct Deals"
+
+    html_content = f"""<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #030d07; color: #f1f5f9; margin: 0; padding: 24px; }}
+    .email-card {{ max-width: 600px; margin: 0 auto; background: #081a10; border: 1px solid rgba(0, 242, 150, 0.25); border-radius: 12px; overflow: hidden; }}
+    .email-header {{ background: linear-gradient(135deg, #022c16 0%, #064e2b 100%); padding: 32px 28px; text-align: center; border-bottom: 1px solid rgba(0, 242, 150, 0.2); }}
+    .email-logo {{ font-size: 24px; font-weight: 900; letter-spacing: 2px; color: #00f296; text-decoration: none; }}
+    .email-body {{ padding: 32px 28px; line-height: 1.6; font-size: 15px; color: #cbd5e1; }}
+    .email-title {{ color: #ffffff; font-size: 20px; font-weight: 800; margin-top: 0; margin-bottom: 12px; }}
+    .action-box {{ background: rgba(0, 242, 150, 0.08); border: 1px solid rgba(0, 242, 150, 0.2); border-radius: 8px; padding: 18px 20px; margin: 24px 0; }}
+    .btn {{ display: inline-block; background: #00f296; color: #000000; font-weight: 800; font-size: 14px; padding: 12px 28px; border-radius: 6px; text-decoration: none; margin-top: 10px; }}
+    .feature-list {{ margin: 18px 0; padding-left: 20px; }}
+    .feature-list li {{ margin-bottom: 10px; }}
+    .email-footer {{ padding: 20px 28px; text-align: center; font-size: 12px; color: #64748b; border-top: 1px solid rgba(255,255,255,0.06); }}
+  </style>
+</head>
+<body>
+  <div class="email-card">
+    <div class="email-header">
+      <div class="email-logo">BIG-L AUTOS</div>
+      <div style="font-size: 12px; color: #94a3b8; margin-top: 6px; letter-spacing: 1px;">PREMIUM AUTOMOTIVE SHOWROOM • SOMANYA-ROUNDABOUT</div>
+    </div>
+    <div class="email-body">
+      <h2 class="email-title">Welcome to BIG-L Autos, {user_name}!</h2>
+      <p>Your account has been created. You now have full access to our live inventory, direct dealer chat, vehicle swap evaluations, and customer portal.</p>
+      
+      <div class="action-box">
+        <strong style="color: #00f296; font-size: 16px;">What you can do right now:</strong>
+        <ul class="feature-list">
+          <li><strong>Browse Showroom:</strong> Discover foreign-used luxury and daily drivers with up to 5 photos.</li>
+          <li><strong>Direct Chat with Larry:</strong> Open a real-time negotiation chat or call Larry directly at <a href="tel:0549255121" style="color:#00f296; text-decoration:none;">0549255121</a>.</li>
+          <li><strong>Car Trade-Ins &amp; Swaps:</strong> Submit your vehicle details for fair market valuation.</li>
+          <li><strong>Sell Your Car (GH₵ 50/Month):</strong> List your own cars directly to verified buyers in Ghana.</li>
+        </ul>
+        <div style="text-align: center; margin-top: 20px;">
+          <a href="https://big-lautos.com" class="btn">Explore Live Showroom</a>
+        </div>
+      </div>
+
+      <p style="font-size: 13.5px; color: #94a3b8;">
+        Need assistance or wish to arrange an on-site inspection? Call or visit Larry at the Somanya-Roundabout showroom or phone <strong>0549255121</strong>.
+      </p>
+    </div>
+    <div class="email-footer">
+      &copy; 2026 BIG-L Autos. Somanya-Roundabout, Eastern Region, Ghana.<br>
+      This email was sent to {user_email} because you registered an account on big-lautos.com.
+    </div>
+  </div>
+</body>
+</html>"""
+
+    plain_content = f"""Welcome to BIG-L Autos, {user_name}!
+
+Your account has been created successfully.
+
+What you can do on BIG-L Autos:
+- Browse showroom cars: https://big-lautos.com
+- Chat or negotiate directly with Larry (Head Dealer) on 0549255121
+- Submit car trade-ins / swap evaluations
+- Sell your cars in the showroom for GH₵ 50 / month
+
+Showroom Location: Somanya-Roundabout, Eastern Region, Ghana
+Direct Phone: 0549255121
+"""
+
+    msg = MIMEMultipart('alternative')
+    msg['Subject'] = subject
+    msg['From'] = sender_email
+    msg['To'] = user_email
+    msg.attach(MIMEText(plain_content, 'plain', 'utf-8'))
+    msg.attach(MIMEText(html_content, 'html', 'utf-8'))
+
+    try:
+        if smtp_host == 'localhost' and smtp_port == 25 and not smtp_pass:
+            server = smtplib.SMTP('localhost', 25, timeout=5)
+            server.sendmail(sender_email, [user_email], msg.as_string())
+            server.quit()
+        else:
+            if smtp_port == 465:
+                server = smtplib.SMTP_SSL(smtp_host, smtp_port, timeout=10)
+            else:
+                server = smtplib.SMTP(smtp_host, smtp_port, timeout=10)
+                if smtp_use_tls:
+                    server.starttls()
+            if smtp_user and smtp_pass:
+                server.login(smtp_user, smtp_pass)
+            server.sendmail(sender_email, [user_email], msg.as_string())
+            server.quit()
+        print(f"[MAIL] Welcome email sent to {user_email}")
+    except Exception as e:
+        print(f"[MAIL NOTE] Background welcome email to {user_email} skipped: {e}")
+
+def send_welcome_email(user_name, user_email):
+    """Dispatches welcome email asynchronously in a background thread."""
+    t = threading.Thread(target=_send_welcome_email_worker, args=(user_name, user_email), daemon=True)
+    t.start()
 
 # Ensure DB initialized
 init_db()
@@ -322,6 +441,9 @@ def auth_register():
     session['role'] = 'customer'
     session['name'] = name
 
+    # Dispatch welcome email asynchronously
+    send_welcome_email(name, email)
+
     return jsonify({
         'success': True,
         'message': 'Account created successfully! Welcome to BIG L Autos.',
@@ -396,6 +518,164 @@ def auth_login():
 def auth_logout():
     session.clear()
     return jsonify({'success': True, 'message': 'Logged out successfully'})
+
+@app.route('/api/auth/social-login', methods=['POST'])
+def auth_social_login():
+    """
+    1-Click Social Sign-in (Google / Apple / etc.).
+    Authenticates existing user immediately without filling in anything again,
+    or auto-creates a new user account with default strong random password and sends welcome email!
+    """
+    data = request.get_json() or {}
+    provider = data.get('provider', 'google').lower()
+    email = data.get('email', '').strip().lower()
+    name = data.get('name', '').strip()
+
+    if not email:
+        return jsonify({'error': 'Email is required for social authentication'}), 400
+
+    # Validate email syntax
+    if not re.match(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$', email):
+        return jsonify({'error': 'Please provide a valid email address'}), 400
+
+    if not name:
+        name = email.split('@')[0].replace('.', ' ').capitalize()
+
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT id, name, email, phone, role, can_post, seller_status FROM users WHERE email = ?", (email,))
+    user = cursor.fetchone()
+
+    is_new_user = False
+    if not user:
+        # Create user account automatically
+        is_new_user = True
+        random_pass = secrets.token_urlsafe(16)
+        pass_hash = hash_password(random_pass)
+        phone = data.get('phone', '').strip()
+        cursor.execute(
+            "INSERT INTO users (name, email, phone, password_hash, role) VALUES (?, ?, ?, ?, 'customer')",
+            (name, email, phone, pass_hash)
+        )
+        db.commit()
+        user_id = cursor.lastrowid
+        cursor.execute("SELECT id, name, email, phone, role, can_post, seller_status FROM users WHERE id = ?", (user_id,))
+        user = cursor.fetchone()
+
+        # Send welcome email asynchronously
+        send_welcome_email(name, email)
+
+    user_dict = dict(user)
+    db.close()
+
+    session.permanent = True
+    session['user_id'] = user_dict['id']
+    session['role'] = user_dict['role']
+    session['name'] = user_dict['name']
+
+    return jsonify({
+        'success': True,
+        'is_new_user': is_new_user,
+        'message': f"Welcome {'back ' if not is_new_user else ''}to BIG-L Autos, {user_dict['name']}!",
+        'user': user_dict,
+        'redirect': '/admin' if is_admin_or_receptionist(user_dict) else '/customer'
+    })
+
+# --- Profile & Password Management APIs ---
+@app.route('/api/user/profile', methods=['GET', 'POST', 'PUT'])
+def user_profile_endpoint():
+    """Get or update current authenticated user's profile."""
+    current_user = get_current_user()
+    if not current_user:
+        return jsonify({'error': 'Authentication required'}), 401
+
+    if request.method == 'GET':
+        return jsonify({'success': True, 'user': current_user})
+
+    data = request.get_json() or {}
+    new_name = data.get('name', '').strip()
+    new_phone = data.get('phone', '').strip()
+    new_email = data.get('email', '').strip().lower()
+
+    if not new_name:
+        return jsonify({'error': 'Name is required'}), 400
+
+    db = get_db()
+    cursor = db.cursor()
+
+    # If email changed, verify email format and ensure no collision
+    if new_email and new_email != current_user['email'].lower():
+        if not re.match(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$', new_email):
+            db.close()
+            return jsonify({'error': 'Please provide a valid email address'}), 400
+        cursor.execute("SELECT id FROM users WHERE email = ? AND id != ?", (new_email, current_user['id']))
+        if cursor.fetchone():
+            db.close()
+            return jsonify({'error': 'That email address is already in use by another account'}), 400
+        email_to_set = new_email
+    else:
+        email_to_set = current_user['email']
+
+    phone_to_set = new_phone if new_phone else (current_user.get('phone') or '')
+
+    cursor.execute(
+        "UPDATE users SET name = ?, phone = ?, email = ? WHERE id = ?",
+        (new_name, phone_to_set, email_to_set, current_user['id'])
+    )
+    db.commit()
+
+    # Update session name if changed
+    session['name'] = new_name
+
+    cursor.execute("SELECT id, name, email, phone, role, can_post, seller_status FROM users WHERE id = ?", (current_user['id'],))
+    updated_user = dict(cursor.fetchone())
+    db.close()
+
+    return jsonify({
+        'success': True,
+        'message': 'Profile updated successfully!',
+        'user': updated_user
+    })
+
+@app.route('/api/user/change-password', methods=['POST'])
+def user_change_password_endpoint():
+    """Change current authenticated user's password."""
+    current_user = get_current_user()
+    if not current_user:
+        return jsonify({'error': 'Authentication required'}), 401
+
+    data = request.get_json() or {}
+    current_password = data.get('current_password', '')
+    new_password = data.get('new_password', '')
+
+    if not new_password or len(new_password) < 6:
+        return jsonify({'error': 'New password must be at least 6 characters long'}), 400
+
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT password_hash FROM users WHERE id = ?", (current_user['id'],))
+    row = cursor.fetchone()
+    if not row:
+        db.close()
+        return jsonify({'error': 'User not found'}), 404
+
+    current_hash = row['password_hash']
+    # If the user has a password set and is not empty, require verifying current password
+    if current_hash and current_user.get('role') != 'admin_override':
+        is_valid, _ = verify_password(current_hash, current_password)
+        if not is_valid:
+            db.close()
+            return jsonify({'error': 'Current password is incorrect'}), 400
+
+    new_hash = hash_password(new_password)
+    cursor.execute("UPDATE users SET password_hash = ? WHERE id = ?", (new_hash, current_user['id']))
+    db.commit()
+    db.close()
+
+    return jsonify({
+        'success': True,
+        'message': 'Password updated successfully!'
+    })
 
 # --- Cars Inventory APIs ---
 @app.route('/api/cars', methods=['GET'])

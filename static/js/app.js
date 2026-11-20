@@ -723,6 +723,47 @@ async function handleRegister(e) {
   }
 }
 
+// 1-Click Social Sign-in (Google / Apple)
+async function handleSocialAuth(provider) {
+  const providerTitle = provider === 'google' ? 'Google' : 'Apple';
+  const promptEmail = prompt(`1-Click ${providerTitle} Sign-In:\nEnter your ${providerTitle} email to sign in instantly without filling in forms:`, '');
+  if (!promptEmail || !promptEmail.trim()) return;
+
+  const email = promptEmail.trim();
+  const name = email.split('@')[0].replace('.', ' ').replace(/^[a-z]/, c => c.toUpperCase());
+
+  try {
+    const res = await fetch('/api/auth/social-login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ provider, email, name })
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      currentUser = data.user;
+      showToast(data.message, 'success');
+      closeAuthModal();
+      updateNavAuthUI();
+
+      if (pendingInquiryCar) {
+        initiateCarInquiry(pendingInquiryCar.id);
+        pendingInquiryCar = null;
+      } else {
+        if (currentUser && currentUser.role === 'admin') {
+          window.location.href = '/admin';
+        } else {
+          window.location.href = '/customer';
+        }
+      }
+    } else {
+      showToast(data.error || 'Social login failed', 'info');
+    }
+  } catch (err) {
+    showToast('Network error during social login', 'info');
+  }
+}
+window.handleSocialAuth = handleSocialAuth;
+
 // Handle Login
 async function handleLogin(e) {
   if (e) e.preventDefault();

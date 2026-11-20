@@ -118,6 +118,7 @@
         Account Management
         <span id="pendingSellersBadge" style="display:none; position:absolute; top:-6px; right:-6px; background:#ef4444; color:#fff; font-size:10px; font-weight:800; border-radius:50%; width:18px; height:18px; line-height:18px; text-align:center;">0</span>
       </button>
+      <button class="tab-btn" id="adminTabProfileBtn" onclick="switchAdminTab('profile')">Admin Settings</button>
     </div>
 
     <!-- Tab 1: Receptionist Live Chat Desk (No icons, No green status pill) -->
@@ -246,6 +247,58 @@
               <!-- Populated by JS -->
             </tbody>
           </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 5: Admin Settings & Profile -->
+    <div id="adminProfileView" style="display:none;">
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:24px;">
+        <!-- Admin Profile Information -->
+        <div style="background:var(--bg-card); border:1px solid var(--border-dark); border-radius:var(--radius-md); padding:24px; box-shadow:var(--shadow-sm);">
+          <div style="border-bottom:1px solid var(--border-dark); padding-bottom:14px; margin-bottom:18px;">
+            <h3 style="font-family:var(--font-heading); font-size:18px; font-weight:800; color:var(--white); margin:0;">Admin Profile</h3>
+            <p style="font-size:13px; color:var(--gray-text); margin:4px 0 0 0;">Update Larry's contact name, MoMo telephone number, and email.</p>
+          </div>
+          <form onsubmit="handleAdminUpdateProfile(event)">
+            <div class="form-group" style="margin-bottom:16px;">
+              <label class="form-label">Dealer / Admin Name</label>
+              <input type="text" id="adminProfileName" class="form-input" value="{{ user.name if user else 'Larry (Head Dealer & Admin)' }}" required>
+            </div>
+            <div class="form-group" style="margin-bottom:16px;">
+              <label class="form-label">Contact / MoMo Phone Line</label>
+              <input type="tel" id="adminProfilePhone" class="form-input" value="{{ user.phone if user else '0549255121' }}" required>
+              <p class="form-helper" style="font-size:11.5px; color:var(--gray-text); margin-top:4px;">This number is displayed across the showroom for inquiries and GH₵ 50 MoMo posting subscriptions.</p>
+            </div>
+            <div class="form-group" style="margin-bottom:20px;">
+              <label class="form-label">Admin Email</label>
+              <input type="email" id="adminProfileEmail" class="form-input" value="{{ user.email if user else 'admin@biglautos.com' }}" required>
+            </div>
+            <button type="submit" id="btnSaveAdminProfile" class="btn btn-primary" style="padding:10px 22px; font-weight:700; font-size:13px;">Save Admin Profile</button>
+          </form>
+        </div>
+
+        <!-- Admin Password -->
+        <div style="background:var(--bg-card); border:1px solid var(--border-dark); border-radius:var(--radius-md); padding:24px; box-shadow:var(--shadow-sm);">
+          <div style="border-bottom:1px solid var(--border-dark); padding-bottom:14px; margin-bottom:18px;">
+            <h3 style="font-family:var(--font-heading); font-size:18px; font-weight:800; color:var(--white); margin:0;">Change Admin Password</h3>
+            <p style="font-size:13px; color:var(--gray-text); margin:4px 0 0 0;">Update the password used to access this console.</p>
+          </div>
+          <form onsubmit="handleAdminChangePassword(event)">
+            <div class="form-group" style="margin-bottom:16px;">
+              <label class="form-label">Current Password</label>
+              <input type="password" id="adminPwCurrent" class="form-input" placeholder="Current password" required>
+            </div>
+            <div class="form-group" style="margin-bottom:16px;">
+              <label class="form-label">New Admin Password</label>
+              <input type="password" id="adminPwNew" class="form-input" placeholder="At least 6 characters" minlength="6" required>
+            </div>
+            <div class="form-group" style="margin-bottom:20px;">
+              <label class="form-label">Confirm New Password</label>
+              <input type="password" id="adminPwConfirm" class="form-input" placeholder="Re-type new password" minlength="6" required>
+            </div>
+            <button type="submit" id="btnSaveAdminPw" class="btn btn-secondary" style="padding:10px 22px; font-weight:700; font-size:13px; color:var(--white);">Update Password</button>
+          </form>
         </div>
       </div>
     </div>
@@ -405,23 +458,96 @@
       const inv = document.getElementById('adminInventoryView');
       const swp = document.getElementById('adminSwapView');
       const slr = document.getElementById('adminSellersView');
+      const prf = document.getElementById('adminProfileView');
 
       const btnInq = document.getElementById('adminTabInquiriesBtn');
       const btnInv = document.getElementById('adminTabInventoryBtn');
       const btnSwp = document.getElementById('adminTabSwapBtn');
       const btnSlr = document.getElementById('adminTabSellersBtn');
+      const btnPrf = document.getElementById('adminTabProfileBtn');
 
       inq.style.display = view === 'inquiries' ? 'block' : 'none';
       inv.style.display = view === 'inventory' ? 'block' : 'none';
       swp.style.display = view === 'swap'      ? 'block' : 'none';
       if (slr) slr.style.display = view === 'sellers' ? 'block' : 'none';
+      if (prf) prf.style.display = view === 'profile' ? 'block' : 'none';
 
       btnInq.classList.toggle('active', view === 'inquiries');
       btnInv.classList.toggle('active', view === 'inventory');
       btnSwp.classList.toggle('active', view === 'swap');
       if (btnSlr) btnSlr.classList.toggle('active', view === 'sellers');
+      if (btnPrf) btnPrf.classList.toggle('active', view === 'profile');
 
       if (view === 'sellers') loadAdminSellers();
+    }
+
+    async function handleAdminUpdateProfile(e) {
+      e.preventDefault();
+      const name = document.getElementById('adminProfileName').value.trim();
+      const phone = document.getElementById('adminProfilePhone').value.trim();
+      const email = document.getElementById('adminProfileEmail').value.trim();
+      const btn = document.getElementById('btnSaveAdminProfile');
+      if (btn) { btn.disabled = true; btn.textContent = 'Saving...'; }
+
+      try {
+        const res = await fetch('/api/user/profile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, phone, email })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          showToast('Admin profile updated!', 'success');
+          const adminFull = document.querySelector('.admin-user-full');
+          if (adminFull) adminFull.innerText = name;
+        } else {
+          showToast(data.error || 'Failed to update profile', 'info');
+        }
+      } catch (err) {
+        showToast('Network error saving profile', 'info');
+      } finally {
+        if (btn) { btn.disabled = false; btn.textContent = 'Save Admin Profile'; }
+      }
+    }
+
+    async function handleAdminChangePassword(e) {
+      e.preventDefault();
+      const current_password = document.getElementById('adminPwCurrent').value;
+      const new_password = document.getElementById('adminPwNew').value;
+      const confirm_password = document.getElementById('adminPwConfirm').value;
+      const btn = document.getElementById('btnSaveAdminPw');
+
+      if (new_password !== confirm_password) {
+        showToast('New passwords do not match', 'info');
+        return;
+      }
+      if (new_password.length < 6) {
+        showToast('Password must be at least 6 characters', 'info');
+        return;
+      }
+
+      if (btn) { btn.disabled = true; btn.textContent = 'Updating...'; }
+
+      try {
+        const res = await fetch('/api/user/change-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ current_password, new_password })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          showToast(data.message || 'Admin password updated successfully!', 'success');
+          document.getElementById('adminPwCurrent').value = '';
+          document.getElementById('adminPwNew').value = '';
+          document.getElementById('adminPwConfirm').value = '';
+        } else {
+          showToast(data.error || 'Failed to change password', 'info');
+        }
+      } catch (err) {
+        showToast('Network error updating password', 'info');
+      } finally {
+        if (btn) { btn.disabled = false; btn.textContent = 'Update Password'; }
+      }
     }
 
     /* ── User & Account Management JS ── */

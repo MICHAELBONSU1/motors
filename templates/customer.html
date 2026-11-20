@@ -93,6 +93,9 @@
               <li class="sidebar-nav-item" id="navItemMyListings" onclick="switchCustomerTab('mylistings')">
                 <span>Post My Car</span>
               </li>
+              <li class="sidebar-nav-item" id="navItemProfile" onclick="switchCustomerTab('profile')">
+                <span>Profile &amp; Password</span>
+              </li>
             </ul>
           </div>
 
@@ -412,6 +415,79 @@
           </div>
 
         </div>
+
+        <!-- Tab 4: Profile & Password Settings -->
+        <div id="customerProfileTab" style="display:none;">
+          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:24px;">
+            <!-- Profile Details Card -->
+            <div style="background:var(--bg-card); border:1px solid var(--border-dark); border-radius:var(--radius-md); padding:24px; box-shadow:var(--shadow-sm);">
+              <div style="border-bottom:1px solid var(--border-dark); padding-bottom:14px; margin-bottom:18px;">
+                <h3 style="font-family:var(--font-heading); font-size:18px; font-weight:800; color:var(--white); margin:0;">Edit Profile Information</h3>
+                <p style="font-size:13px; color:var(--gray-text); margin:4px 0 0 0;">Update your display name, contact phone number, and email address.</p>
+              </div>
+
+              <form onsubmit="handleUpdateProfile(event)" id="userProfileForm">
+                <div class="form-group" style="margin-bottom:16px;">
+                  <label class="form-label">Full Name</label>
+                  <input type="text" id="profileName" class="form-input" value="{{ user.name if user else '' }}" required placeholder="e.g. David Mensah">
+                </div>
+
+                <div class="form-group" style="margin-bottom:16px;">
+                  <label class="form-label">Phone Number (WhatsApp / Calls)</label>
+                  <input type="tel" id="profilePhone" class="form-input" value="{{ user.phone if user else '' }}" placeholder="e.g. 0549255121">
+                  <p class="form-helper" style="font-size:11.5px; color:var(--gray-text); margin-top:4px;">Buyers and Larry use this phone number to reach you directly.</p>
+                </div>
+
+                <div class="form-group" style="margin-bottom:20px;">
+                  <label class="form-label">Email Address</label>
+                  <input type="email" id="profileEmail" class="form-input" value="{{ user.email if user else '' }}" required placeholder="you@example.com">
+                </div>
+
+                <button type="submit" id="btnSaveProfile" class="btn btn-primary" style="padding:10px 22px; font-weight:700; font-size:13px; border-radius:6px;">
+                  Save Profile Changes
+                </button>
+              </form>
+            </div>
+
+            <!-- Change Password Card -->
+            <div style="background:var(--bg-card); border:1px solid var(--border-dark); border-radius:var(--radius-md); padding:24px; box-shadow:var(--shadow-sm);">
+              <div style="border-bottom:1px solid var(--border-dark); padding-bottom:14px; margin-bottom:18px;">
+                <h3 style="font-family:var(--font-heading); font-size:18px; font-weight:800; color:var(--white); margin:0;">Change Password</h3>
+                <p style="font-size:13px; color:var(--gray-text); margin:4px 0 0 0;">Ensure your account is protected with a secure password (min 6 characters).</p>
+              </div>
+
+              <form onsubmit="handleChangePassword(event)" id="userPasswordForm">
+                <div class="form-group" style="margin-bottom:16px;">
+                  <label class="form-label">Current Password</label>
+                  <div class="input-wrap has-toggle" style="position:relative;">
+                    <input type="password" id="pwCurrent" class="form-input" placeholder="Enter current password" required style="padding-right:50px;">
+                    <button type="button" class="pw-toggle-btn" onclick="togglePasswordVisibility('pwCurrent', this)" style="position:absolute; right:8px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--mint); font-size:11px; cursor:pointer; padding:4px;">Show</button>
+                  </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom:16px;">
+                  <label class="form-label">New Password</label>
+                  <div class="input-wrap has-toggle" style="position:relative;">
+                    <input type="password" id="pwNew" class="form-input" placeholder="At least 6 characters" minlength="6" required style="padding-right:50px;">
+                    <button type="button" class="pw-toggle-btn" onclick="togglePasswordVisibility('pwNew', this)" style="position:absolute; right:8px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--mint); font-size:11px; cursor:pointer; padding:4px;">Show</button>
+                  </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom:20px;">
+                  <label class="form-label">Confirm New Password</label>
+                  <div class="input-wrap has-toggle" style="position:relative;">
+                    <input type="password" id="pwConfirm" class="form-input" placeholder="Re-type new password" minlength="6" required style="padding-right:50px;">
+                    <button type="button" class="pw-toggle-btn" onclick="togglePasswordVisibility('pwConfirm', this)" style="position:absolute; right:8px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--mint); font-size:11px; cursor:pointer; padding:4px;">Show</button>
+                  </div>
+                </div>
+
+                <button type="submit" id="btnChangePassword" class="btn btn-secondary" style="padding:10px 22px; font-weight:700; font-size:13px; border-radius:6px; color:var(--white); border-color:var(--border-dark);">
+                  Update Password
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
       </main>
 
     </div>
@@ -430,15 +506,18 @@
       const chatsTab      = document.getElementById('customerChatsTab');
       const swapTab       = document.getElementById('customerSwapTab');
       const myListingsTab = document.getElementById('customerMyListingsTab');
+      const profileTab    = document.getElementById('customerProfileTab');
       const navChats      = document.getElementById('navItemChats');
       const navSwap       = document.getElementById('navItemSwap');
       const navMy         = document.getElementById('navItemMyListings');
+      const navProfile    = document.getElementById('navItemProfile');
 
       chatsTab.style.display      = tab === 'chats'       ? 'block' : 'none';
       swapTab.style.display       = tab === 'swap'        ? 'block' : 'none';
       myListingsTab.style.display = tab === 'mylistings'  ? 'block' : 'none';
+      if (profileTab) profileTab.style.display = tab === 'profile' ? 'block' : 'none';
 
-      // On mobile or narrow screens, hide inactive chat threads when using Sell/Swap or Post My Car
+      // On mobile or narrow screens, hide inactive chat threads when using Sell/Swap, Post My Car, or Profile
       const sidebarChats = document.getElementById('sidebarChatsSection');
       if (sidebarChats) {
         sidebarChats.style.display = tab === 'chats' ? 'block' : 'none';
@@ -447,8 +526,99 @@
       navChats.classList.toggle('active', tab === 'chats');
       navSwap.classList.toggle('active',  tab === 'swap');
       if (navMy) navMy.classList.toggle('active', tab === 'mylistings');
+      if (navProfile) navProfile.classList.toggle('active', tab === 'profile');
 
       if (tab === 'mylistings') refreshSellerSection();
+      if (tab === 'profile') loadUserProfile();
+    }
+
+    async function loadUserProfile() {
+      try {
+        const res = await fetch('/api/user/profile');
+        const data = await res.json();
+        if (data.success && data.user) {
+          const u = data.user;
+          const nameInput = document.getElementById('profileName');
+          const phoneInput = document.getElementById('profilePhone');
+          const emailInput = document.getElementById('profileEmail');
+          if (nameInput) nameInput.value = u.name || '';
+          if (phoneInput) phoneInput.value = u.phone || '';
+          if (emailInput) emailInput.value = u.email || '';
+          const welcomeName = document.getElementById('customerWelcomeName');
+          if (welcomeName) welcomeName.innerText = u.name;
+        }
+      } catch (e) {
+        console.error('Failed to load profile:', e);
+      }
+    }
+
+    async function handleUpdateProfile(e) {
+      e.preventDefault();
+      const name = document.getElementById('profileName').value.trim();
+      const phone = document.getElementById('profilePhone').value.trim();
+      const email = document.getElementById('profileEmail').value.trim();
+      const btn = document.getElementById('btnSaveProfile');
+      if (btn) { btn.disabled = true; btn.textContent = 'Saving...'; }
+
+      try {
+        const res = await fetch('/api/user/profile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, phone, email })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          showToast(data.message || 'Profile updated!', 'success');
+          const welcomeName = document.getElementById('customerWelcomeName');
+          if (welcomeName) welcomeName.innerText = name;
+        } else {
+          showToast(data.error || 'Failed to update profile', 'info');
+        }
+      } catch (err) {
+        showToast('Network error saving profile', 'info');
+      } finally {
+        if (btn) { btn.disabled = false; btn.textContent = 'Save Profile Changes'; }
+      }
+    }
+
+    async function handleChangePassword(e) {
+      e.preventDefault();
+      const current_password = document.getElementById('pwCurrent').value;
+      const new_password = document.getElementById('pwNew').value;
+      const confirm_password = document.getElementById('pwConfirm').value;
+      const btn = document.getElementById('btnChangePassword');
+
+      if (new_password !== confirm_password) {
+        showToast('New passwords do not match', 'info');
+        return;
+      }
+      if (new_password.length < 6) {
+        showToast('Password must be at least 6 characters', 'info');
+        return;
+      }
+
+      if (btn) { btn.disabled = true; btn.textContent = 'Updating...'; }
+
+      try {
+        const res = await fetch('/api/user/change-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ current_password, new_password })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          showToast(data.message || 'Password changed successfully!', 'success');
+          document.getElementById('pwCurrent').value = '';
+          document.getElementById('pwNew').value = '';
+          document.getElementById('pwConfirm').value = '';
+        } else {
+          showToast(data.error || 'Failed to change password', 'info');
+        }
+      } catch (err) {
+        showToast('Network error updating password', 'info');
+      } finally {
+        if (btn) { btn.disabled = false; btn.textContent = 'Update Password'; }
+      }
     }
 
     /* ── Profile-Based Seller Posting Logic (Up to 5 Photos) ── */
