@@ -622,7 +622,7 @@ function openAuthModal(mode = 'register', carContext = null) {
               <span class="modal-context-sub">${carContext.year || ''} • ${Number(carContext.mileage || 0).toLocaleString()} km</span>
             </div>
           </div>
-          <p class="modal-context-hint">After signing in, a direct negotiation chat with Receptionist Sarah Mitchell will open immediately for this vehicle.</p>
+          <p class="modal-context-hint">After signing in, a direct negotiation chat with Larry will open immediately for this vehicle.</p>
         </div>
       `;
     }
@@ -641,7 +641,7 @@ function openAuthModal(mode = 'register', carContext = null) {
               <span class="modal-context-sub">Handcrafted V8 • Somanya Showroom</span>
             </div>
           </div>
-          <p class="modal-context-hint">Speak directly with Receptionist Sarah Mitchell to negotiate vehicle prices, cash terms, or submit a car trade-in.</p>
+          <p class="modal-context-hint">Speak directly with Larry to negotiate vehicle prices, cash terms, or submit a car trade-in.</p>
         </div>
       `;
     }
@@ -677,7 +677,7 @@ function switchAuthTab(mode) {
     if (loginForm) loginForm.style.display = 'block';
     if (registerForm) registerForm.style.display = 'none';
     if (modalTitle) modalTitle.innerText = 'Welcome Back';
-    if (modalSubtitle) modalSubtitle.innerText = 'Log in to continue your conversation with Sarah';
+    if (modalSubtitle) modalSubtitle.innerText = 'Log in to continue your conversation with Larry';
   }
 }
 
@@ -824,7 +824,7 @@ function renderCarsGrid(cars) {
     grid.innerHTML = `
       <div style="grid-column: 1/-1; text-align:center; padding: 56px 20px; background:#030d07; border-radius:12px; border:1px solid rgba(52,211,153,0.18); box-shadow:0 12px 32px rgba(0,0,0,0.5);">
         <h3 style="font-size:18px; font-weight:700; color:#ffffff; margin-bottom:8px;">${isFiltered ? 'No Matching Vehicles Found' : 'Showroom Inventory Updating'}</h3>
-        <p style="color:var(--gray-400); font-size:13.5px; max-width:440px; margin:0 auto 18px; line-height:1.5;">${isFiltered ? 'Try resetting your search filters to view all current showroom inventory.' : 'No vehicles are currently listed. Check back shortly or contact Sarah at Somanya-Roundabout (0549255121).'}</p>
+        <p style="color:var(--gray-400); font-size:13.5px; max-width:440px; margin:0 auto 18px; line-height:1.5;">${isFiltered ? 'Try resetting your search filters to view all current showroom inventory.' : 'No vehicles are currently listed. Check back shortly or contact Larry at Somanya-Roundabout (0549255121).'}</p>
         ${isFiltered ? '<button onclick="resetFilters()" class="btn btn-secondary" style="padding:8px 20px; font-size:13px; font-weight:600; border-radius:6px; cursor:pointer;">Reset Filters</button>' : '<a href="tel:0549255121" class="btn btn-secondary" style="padding:9px 22px; font-size:13px; font-weight:600; border-radius:6px; text-decoration:none; display:inline-block;">Call Showroom (0549255121)</a>'}
       </div>
     `;
@@ -980,7 +980,7 @@ async function initiateCarInquiry(carId) {
 
     if (res.ok) {
       const isUserCar = data.car && data.car.is_user_seller;
-      const targetName = isUserCar ? (data.car.seller_name ? `seller ${data.car.seller_name}` : 'the seller') : 'Receptionist Sarah';
+      const targetName = isUserCar ? (data.car.seller_name ? `seller ${data.car.seller_name}` : 'the seller') : 'Larry (Dealer)';
       showToast(`Connecting you with ${targetName}...`, 'success');
       window.location.href = `/customer?chat_id=${data.chat_id}`;
     } else {
@@ -1171,7 +1171,7 @@ async function checkBackgroundChats(isAdmin = false) {
           if ((prevId === undefined || currentLatestId > prevId) && currentUser && c.last_sender_id !== currentUser.id) {
             const senderLabel = isAdmin
               ? (c.customer_name || 'Customer')
-              : (c.other_party_name || 'Sarah Mitchell (Receptionist)');
+              : (c.other_party_name || 'Larry (Head Dealer)');
             triggerDesktopNotification(senderLabel, c.last_message, c.id);
           }
         }
@@ -1293,8 +1293,8 @@ async function loadCustomerChats(selectChatId = null) {
         : (c.is_user_seller
             ? 'background:rgba(34,197,94,0.15); color:#22c55e; border:1px solid rgba(34,197,94,0.3);'
             : 'background:rgba(52,211,153,0.1); color:#34d399; border:1px solid rgba(52,211,153,0.25);');
-      const badgeText = isSelling ? 'Buyer Inquiry' : (c.is_user_seller ? 'Seller Chat' : 'Receptionist');
-      const partyLabel = isSelling ? `Buyer: ${c.other_party_name}` : (c.is_user_seller ? `Seller: ${c.other_party_name}` : 'Receptionist: Sarah');
+      const badgeText = isSelling ? 'Buyer Inquiry' : (c.is_user_seller ? 'Seller Chat' : 'Dealership');
+      const partyLabel = isSelling ? `Buyer: ${c.other_party_name}` : (c.is_user_seller ? `Seller: ${c.other_party_name}` : 'Dealer: Larry');
 
       return `
         <div onclick="selectChat(${c.id}, true)" class="chat-thread-card ${selectChatId == c.id || currentChatId == c.id ? 'active' : ''}" id="thread-${c.id}">
@@ -1528,8 +1528,8 @@ function renderChatWindowFrame(chat) {
   if (!chatWindow) return;
 
   const isSelling = chat.chat_type === 'selling';
-  const otherName = chat.other_party_name || (chat.is_user_seller ? chat.seller_name : 'Sarah Mitchell');
-  const otherRole = chat.other_party_role || (chat.is_user_seller ? 'Seller' : 'Receptionist');
+  const otherName = chat.other_party_name || (chat.is_user_seller ? chat.seller_name : 'Larry (Head Dealer)');
+  const otherRole = chat.other_party_role || (chat.is_user_seller ? 'Seller' : 'Dealership');
 
   const chipsHtml = isSelling
     ? `
@@ -2047,7 +2047,7 @@ window.deleteUserAccount = deleteUserAccount;
 
 // Admin Clean Users Helper
 async function cleanAllNonAdminUsers() {
-  if (!confirm("Are you sure you want to remove everyone from the system except the administrator?\n\nThis will permanently delete all customer/test accounts, chats, and submissions, keeping only Sarah (Head Receptionist & Admin).")) {
+  if (!confirm("Are you sure you want to remove everyone from the system except the administrator?\n\nThis will permanently delete all customer/test accounts, chats, and submissions, keeping only Larry (Head Dealer & Admin).")) {
     return;
   }
 
@@ -2206,7 +2206,7 @@ function renderAdminMessagesList(messages, chat, forceScroll = false) {
     const isReceptionist = m.sender_role === 'admin';
     let senderLabel = chat.customer_name || 'Buyer';
     if (isReceptionist) {
-      senderLabel = 'Sarah (Receptionist & Admin)';
+      senderLabel = 'Larry (Head Dealer & Admin)';
     } else if (m.sender_role === 'seller' || (chat.seller_id && m.sender_id === chat.seller_id)) {
       senderLabel = `${chat.seller_name || 'Seller'}`;
     }
@@ -2214,7 +2214,7 @@ function renderAdminMessagesList(messages, chat, forceScroll = false) {
     return `
       <div class="message-row ${isReceptionist ? 'sent' : 'received'}">
         <div class="msg-avatar ${isReceptionist ? 'receptionist-avatar' : 'customer-avatar'}">
-          ${isReceptionist ? 'S' : (senderLabel ? senderLabel[0].toUpperCase() : 'U')}
+          ${isReceptionist ? 'L' : (senderLabel ? senderLabel[0].toUpperCase() : 'U')}
         </div>
         <div class="msg-bubble-wrap">
           <div class="msg-bubble">
@@ -2251,11 +2251,11 @@ async function sendAdminMessage() {
   if (container) {
     container.insertAdjacentHTML('beforeend', `
       <div class="message-row sent">
-        <div class="msg-avatar receptionist-avatar">S</div>
+        <div class="msg-avatar receptionist-avatar">L</div>
         <div class="msg-bubble-wrap">
           <div class="msg-bubble">${escapeHtml(text)}</div>
           <div class="msg-meta">
-            <span class="msg-sender">Sarah (Receptionist &amp; Admin)</span>
+            <span class="msg-sender">Larry (Head Dealer &amp; Admin)</span>
             <span>•</span>
             <span class="msg-time">Just now</span>
           </div>

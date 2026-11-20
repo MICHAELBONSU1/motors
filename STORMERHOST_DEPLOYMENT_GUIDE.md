@@ -79,7 +79,7 @@ python database.py
 ```
 This ensures the SQLite database (`big_l_autos.db`) is initialized with:
 - WAL mode enabled for high concurrency.
-- Head Receptionist admin account (`Sarah Mitchell`, `0549255121`).
+- Head Dealer admin account (`Larry`, `0549255121`).
 - Default luxury showroom fleet listings.
 
 ---
@@ -117,6 +117,6 @@ Service workers, live audio notifications, and push alerts require HTTPS to func
 
 ## Verification Checklist
 - [x] **Home page loads with luxury dark emerald branding**: Check showroom cars and swap/sell forms.
-- [x] **Admin Login**: Go to `/admin`, log in with Sarah Mitchell's credentials.
+- [x] **Admin Login**: Go to `/admin`, log in with Larry's credentials.
 - [x] **Live Inquiries**: Submit an enquiry from the website; verify that the receptionist desk receives it instantly.
 - [x] **Data Persistence Check**: Add a car or message in the admin portal, click **Restart** in cPanel Python App, and refresh the page. All data will remain intact!

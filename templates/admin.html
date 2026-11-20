@@ -54,7 +54,7 @@
       <div class="nav-actions">
         <button type="button" id="btnEnableNotifications" onclick="enableUserNotifications()" class="btn btn-secondary btn-sm" style="display:none; font-size:11px; padding:5px 10px; color:var(--mint); border-color:rgba(16,185,129,0.35);" title="Enable background alerts on phone/laptop">Enable Alerts</button>
         <span class="admin-nav-user" style="font-size:12px; color:var(--mint); font-weight:700; background:rgba(34,197,94,0.1); border:1px solid rgba(34,197,94,0.25); padding:6px 12px; border-radius:100px; display:inline-flex; align-items:center;">
-          <span class="admin-user-full">Sarah Mitchell (Head Receptionist &amp; Admin)</span>
+          <span class="admin-user-full">Larry (Head Dealer &amp; Admin)</span>
           <span class="admin-user-short">Admin</span>
         </span>
         <button onclick="openModal('addCarModal')" class="btn btn-primary btn-sm">
@@ -223,6 +223,11 @@
               Purge All Non-Admin Accounts
             </button>
           </div>
+        </div>
+
+        <div style="background:rgba(0,242,150,0.08); border:1px solid rgba(0,242,150,0.25); border-radius:6px; padding:10px 14px; margin-bottom:16px; font-size:12.5px; color:var(--gray-300); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+          <span><strong style="color:var(--mint);">Monthly Seller Posting Fee:</strong> Customers pay <strong>GH₵ 50 / month</strong> to Larry (<a href="tel:0549255121" style="color:var(--mint); text-decoration:none; font-weight:700;">0549255121</a> via MoMo) to list their cars. Confirm payment before approving access.</span>
+          <span style="color:var(--gray-400); font-size:11.5px;">Direct Posting Model</span>
         </div>
 
         <div class="responsive-table-wrapper" style="overflow-x:auto; -webkit-overflow-scrolling:touch;">
@@ -479,9 +484,9 @@
           } else {
             let sellerBtn = '';
             if (!isApproved) {
-              sellerBtn = `<button type="button" onclick="toggleSellerAccess(${u.id}, 'approve')" class="btn btn-primary btn-sm" style="font-weight:700; font-size:11.5px; padding:5px 9px; margin-right:6px;" title="Grant showroom car posting access">Approve Seller</button>`;
+              sellerBtn = `<button type="button" onclick="toggleSellerAccess(${u.id}, 'approve')" class="btn btn-primary btn-sm" style="font-weight:700; font-size:11.5px; padding:5px 9px; margin-right:6px;" title="Verify GH₵ 50 payment and grant showroom car posting access">Approve (GH₵ 50 Paid)</button>`;
             } else {
-              sellerBtn = `<button type="button" onclick="toggleSellerAccess(${u.id}, 'revoke')" class="btn btn-secondary btn-sm" style="color:#f59e0b; border-color:rgba(245,158,11,0.3); font-size:11.5px; padding:5px 9px; margin-right:6px;" title="Revoke posting access">Revoke Seller</button>`;
+              sellerBtn = `<button type="button" onclick="toggleSellerAccess(${u.id}, 'revoke')" class="btn btn-secondary btn-sm" style="color:#f59e0b; border-color:rgba(245,158,11,0.3); font-size:11.5px; padding:5px 9px; margin-right:6px;" title="Revoke posting access">Revoke Access</button>`;
             }
 
             const deleteBtn = `<button type="button" onclick="deleteUserAccount(${u.id}, '${escapeJs(u.name)}', '${escapeJs(u.email)}')" class="btn btn-sm" style="background:#450a0a; color:#f87171; border:1px solid #991b1b; font-weight:700; font-size:11.5px; padding:5px 10px; cursor:pointer;" title="Permanently delete user account">Delete Account</button>`;
@@ -552,8 +557,8 @@
 
     async function toggleSellerAccess(userId, action) {
       const confirmMsg = action === 'approve'
-        ? 'Approve this user profile? They will immediately be able to post their cars directly to the showroom without needing further approval.'
-        : 'Revoke posting access for this user?';
+        ? 'Confirm approval? Verify that the customer has paid the GH₵ 50 monthly subscription fee to Larry (0549255121). Once approved, they can post cars directly to the showroom.'
+        : 'Revoke seller posting access for this user? They will no longer be able to post cars directly until re-approved.';
       if (!confirm(confirmMsg)) return;
 
       try {

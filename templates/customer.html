@@ -170,7 +170,7 @@
               <div class="form-group">
                 <label class="form-label">Expected Valuation / Price (GH₵)</label>
                 <input type="number" id="swapPrice" class="form-input" placeholder="e.g. 350000">
-                <p class="form-helper">Sarah our receptionist will evaluate your vehicle and confirm fair market value.
+                <p class="form-helper">Larry will evaluate your vehicle and confirm fair market value.
                 </p>
               </div>
 
@@ -199,25 +199,80 @@
         <!-- Tab 3: Post My Car (Profile-Based Approval) -->
         <div id="customerMyListingsTab" style="display:none;">
 
-          <!-- State A: Not Requested or Revoked -->
-          <div id="sellerNotApprovedCard" style="display:none; background:var(--bg-card); border:1px solid var(--border-dark); border-radius:var(--radius-md); padding:32px; box-shadow:var(--shadow-sm); text-align:center; margin-bottom:24px;">
-            <div style="font-size:11px; font-weight:800; letter-spacing:1px; color:var(--mint); text-transform:uppercase; margin-bottom:8px;">SELLER PORTAL</div>
-            <h3 style="font-family:var(--font-heading); font-size:20px; font-weight:800; color:var(--white); margin-bottom:8px;">Sell Your Cars on BIG-L Autos</h3>
-            <p style="font-size:14px; color:var(--gray-text); max-width:480px; margin:0 auto 20px; line-height:1.5;">
-              To protect buyers and ensure premium showroom quality, Receptionist Sarah approves seller profiles before posting. Once your profile is approved, you can post unlimited vehicles directly to the showroom without waiting!
+          <!-- State A: Not Requested or Revoked (Full Step-by-Step Guide) -->
+          <div id="sellerNotApprovedCard" style="display:none; background:var(--bg-card); border:1px solid var(--border-dark); border-radius:var(--radius-md); padding:32px 28px; box-shadow:var(--shadow-sm); margin-bottom:24px;">
+            <div style="display:inline-block; font-size:11px; font-weight:800; letter-spacing:1px; color:var(--mint); text-transform:uppercase; background:rgba(0,242,150,0.1); padding:4px 10px; border-radius:4px; margin-bottom:12px;">HOW TO POST CARS ON BIG-L AUTOS</div>
+            <h3 style="font-family:var(--font-heading); font-size:22px; font-weight:800; color:var(--white); margin-bottom:10px;">Post Your Vehicles in the Showroom</h3>
+            <p style="font-size:14px; color:var(--gray-300); max-width:620px; line-height:1.6; margin-bottom:24px;">
+              Showcase your cars to thousands of verified buyers across Ghana. To maintain high vehicle quality and verified seller listings, posting access is granted via a monthly subscription paid to Larry.
             </p>
-            <button onclick="requestSellerPostingAccess()" id="requestSellerBtn" class="btn btn-primary" style="padding:10px 24px; font-weight:700; font-size:13.5px; border-radius:6px;">
-              Request Seller Posting Access
-            </button>
+
+            <!-- Pricing Box -->
+            <div style="background:linear-gradient(135deg, rgba(0,242,150,0.1) 0%, rgba(15,23,42,0.6) 100%); border:1px solid rgba(0,242,150,0.3); border-radius:var(--radius-sm); padding:18px 22px; margin-bottom:24px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+              <div>
+                <div style="font-size:12px; font-weight:700; color:var(--gray-400); text-transform:uppercase; letter-spacing:0.5px;">Seller Posting Fee</div>
+                <div style="font-size:26px; font-weight:900; color:var(--white); margin-top:2px;">GH₵ 50 <span style="font-size:13px; font-weight:600; color:var(--gray-400);">/ month</span></div>
+                <div style="font-size:12.5px; color:var(--gray-300); margin-top:4px;">Paid directly to <strong style="color:var(--white);">Larry (Head Dealer &amp; Admin)</strong> via Mobile Money / Telecel Cash</div>
+              </div>
+              <div style="background:rgba(0,0,0,0.4); padding:10px 16px; border-radius:6px; border:1px solid rgba(255,255,255,0.08); text-align:right;">
+                <div style="font-size:11px; color:var(--gray-400); text-transform:uppercase; font-weight:700;">MoMo / Call Line</div>
+                <a href="tel:0549255121" style="font-size:16px; font-weight:800; color:var(--mint); text-decoration:none;">0549255121</a>
+                <div style="font-size:11px; color:var(--gray-400);">Larry (BIG-L Autos)</div>
+              </div>
+            </div>
+
+            <!-- Steps 1, 2, 3 -->
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:16px; margin-bottom:28px; text-align:left;">
+              <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-dark); border-radius:8px; padding:18px;">
+                <div style="width:28px; height:28px; border-radius:50%; background:var(--mint); color:#000; font-weight:900; font-size:13px; display:flex; align-items:center; justify-content:center; margin-bottom:10px;">1</div>
+                <h4 style="font-size:14.5px; font-weight:750; color:var(--white); margin-bottom:6px;">Pay GH₵ 50 to Larry</h4>
+                <p style="font-size:12.5px; color:var(--gray-400); line-height:1.5; margin:0;">
+                  Send your GH₵ 50 monthly subscription via Mobile Money to <strong>0549255121</strong> (Larry). Use your registered full name as reference.
+                </p>
+              </div>
+
+              <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-dark); border-radius:8px; padding:18px;">
+                <div style="width:28px; height:28px; border-radius:50%; background:var(--mint); color:#000; font-weight:900; font-size:13px; display:flex; align-items:center; justify-content:center; margin-bottom:10px;">2</div>
+                <h4 style="font-size:14.5px; font-weight:750; color:var(--white); margin-bottom:6px;">Request Posting Access</h4>
+                <p style="font-size:12.5px; color:var(--gray-400); line-height:1.5; margin:0;">
+                  Tap the button below to notify Larry. Larry will verify your GH₵ 50 payment and approve your account right away.
+                </p>
+              </div>
+
+              <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-dark); border-radius:8px; padding:18px;">
+                <div style="width:28px; height:28px; border-radius:50%; background:var(--mint); color:#000; font-weight:900; font-size:13px; display:flex; align-items:center; justify-content:center; margin-bottom:10px;">3</div>
+                <h4 style="font-size:14.5px; font-weight:750; color:var(--white); margin-bottom:6px;">Post &amp; Sell Directly</h4>
+                <p style="font-size:12.5px; color:var(--gray-400); line-height:1.5; margin:0;">
+                  Upload up to 5 photos per vehicle, set your price, and receive direct buyer inquiries and calls straight from the showroom!
+                </p>
+              </div>
+            </div>
+
+            <div style="text-align:center;">
+              <button onclick="requestSellerPostingAccess()" id="requestSellerBtn" class="btn btn-primary" style="padding:12px 30px; font-weight:800; font-size:14px; border-radius:6px; box-shadow:0 4px 14px rgba(0,242,150,0.25);">
+                Request Seller Posting Access (GH₵ 50 / Mo)
+              </button>
+              <p style="font-size:12px; color:var(--gray-400); margin-top:10px;">
+                Already paid GH₵ 50 to Larry? Click above, or call <a href="tel:0549255121" style="color:var(--mint); text-decoration:none; font-weight:700;">0549255121</a> for instant activation.
+              </p>
+            </div>
           </div>
 
-          <!-- State B: Pending Review -->
-          <div id="sellerPendingCard" style="display:none; background:var(--bg-card); border:1px solid rgba(245,158,11,0.3); border-radius:var(--radius-md); padding:28px; box-shadow:var(--shadow-sm); text-align:center; margin-bottom:24px;">
-            <div style="font-size:11px; font-weight:800; letter-spacing:1px; color:#f59e0b; text-transform:uppercase; margin-bottom:8px;">UNDER REVIEW</div>
-            <h3 style="font-family:var(--font-heading); font-size:18px; font-weight:800; color:#f59e0b; margin-bottom:6px;">Seller Profile Under Review</h3>
-            <p style="font-size:13.5px; color:var(--gray-text); max-width:440px; margin:0 auto; line-height:1.5;">
-              Sarah, our receptionist, is reviewing your account profile. Once approved, you can immediately post your vehicles directly into the live showroom!
+          <!-- State B: Pending Review (Verification with Larry) -->
+          <div id="sellerPendingCard" style="display:none; background:var(--bg-card); border:1px solid rgba(245,158,11,0.4); border-radius:var(--radius-md); padding:30px 24px; box-shadow:var(--shadow-sm); text-align:center; margin-bottom:24px;">
+            <div style="display:inline-block; font-size:11px; font-weight:800; letter-spacing:1px; color:#f59e0b; text-transform:uppercase; background:rgba(245,158,11,0.12); padding:4px 10px; border-radius:4px; margin-bottom:12px;">VERIFICATION IN PROGRESS</div>
+            <h3 style="font-family:var(--font-heading); font-size:20px; font-weight:800; color:#f59e0b; margin-bottom:8px;">Larry is Verifying Your GH₵ 50 Payment</h3>
+            <p style="font-size:14px; color:var(--gray-300); max-width:540px; margin:0 auto 18px; line-height:1.6;">
+              Your seller request has been submitted to Larry. Once your GH₵ 50 monthly subscription is confirmed on <strong>0549255121</strong>, your showroom posting access will be unlocked instantly.
             </p>
+            <div style="display:flex; justify-content:center; gap:12px; flex-wrap:wrap; margin-top:16px;">
+              <a href="tel:0549255121" class="btn btn-secondary" style="font-size:13px; font-weight:700; padding:9px 18px; color:var(--white); border-color:rgba(245,158,11,0.5);">
+                Call Larry: 0549255121
+              </a>
+              <button onclick="refreshSellerSection()" class="btn btn-primary" style="font-size:13px; font-weight:700; padding:9px 18px;">
+                Check Approval Status
+              </button>
+            </div>
           </div>
 
           <!-- State C: Approved Seller (Can Post Directly!) -->
@@ -225,10 +280,10 @@
             <!-- Verified Banner -->
             <div style="background:rgba(34,197,94,0.08); border:1px solid rgba(34,197,94,0.3); border-radius:var(--radius-sm); padding:14px 18px; margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
               <div>
-                <span style="font-weight:800; color:var(--mint); font-size:13px;">Approved Showroom Seller</span>
-                <p style="font-size:12px; color:var(--gray-text); margin-top:2px;">Your profile is approved! Cars you post appear directly in the showroom for buyers to view immediately.</p>
+                <span style="font-weight:800; color:var(--mint); font-size:13px;">Approved Showroom Seller • Active Subscription</span>
+                <p style="font-size:12px; color:var(--gray-text); margin-top:2px;">Your GH₵ 50/month posting access is active with Larry. Cars you post appear directly in the showroom for all buyers.</p>
               </div>
-              <span style="font-size:11px; font-weight:700; color:#22c55e; background:rgba(34,197,94,0.15); padding:4px 10px; border-radius:100px;">Direct Publishing Enabled</span>
+              <span style="font-size:11px; font-weight:700; color:#22c55e; background:rgba(34,197,94,0.15); padding:4px 10px; border-radius:100px;">Direct Publishing Active</span>
             </div>
 
             <!-- Car Posting Form (Submits directly to Showroom) -->
@@ -566,7 +621,7 @@
       } catch (e) {
         showToast('Network error', 'error');
       } finally {
-        if (btn) { btn.disabled = false; btn.textContent = 'Request Seller Posting Access'; }
+        if (btn) { btn.disabled = false; btn.textContent = 'Request Seller Posting Access (GH₵ 50 / Mo)'; }
       }
     }
 

@@ -13,7 +13,7 @@ echo "[1/4] Installing Python requirements..."
 pip install --upgrade pip
 pip install -r requirements.txt
 
-# 2. Initialize database (Admin Sarah Mitchell + Showroom Cars + WAL Mode)
+# 2. Initialize database (Admin Larry + Showroom Cars + WAL Mode)
 echo "[2/4] Initializing database and ensuring persistence..."
 python database.py
 

@@ -24,7 +24,7 @@ Designed with the **Dark Emerald Green, Mint, Crisp White & Black** aesthetic in
 ### 2. "Text Receptionist" Inquiry Flow
 - Under each car card: A prominent **"Text Receptionist"** button.
 - **New Visitors**: Automatically prompts account creation/login with that exact vehicle pinned as the reason for the conversation.
-- **Immediate Context Initialization**: Links the buyer directly to **Sarah Mitchell** (Head Receptionist). The vehicle specifications and price remain pinned at the top of the chat.
+- **Immediate Context Initialization**: Links the buyer directly to **Larry** (Head Dealer & Admin). The vehicle specifications and price remain pinned at the top of the chat.
 - Negotiation quick-chips:
   - *Ask for cash discount*
   - *Request test drive*

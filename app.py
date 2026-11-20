@@ -197,7 +197,7 @@ def get_current_user():
     return None
 
 def is_admin_or_receptionist(user):
-    """Admin and Receptionist are the same desk (Sarah Mitchell / Head Receptionist & Admin)."""
+    """Admin and Dealership desk (Larry / Head Dealer & Admin)."""
     if not user:
         return False
     return user.get('role') in ('admin', 'receptionist')
@@ -335,7 +335,7 @@ def auth_login():
     email = data.get('email', '').strip().lower()
     password = data.get('password', '')
 
-    # Admin and Receptionist are identical accounts for Sarah Mitchell
+    # Admin and Dealership desk are identical accounts for Larry
     if email in ('receptionist@biglautos.com', 'admin@biglautos.com'):
         email = 'admin@biglautos.com' 
 
@@ -456,7 +456,7 @@ def get_cars():
         c = dict(r)
         is_user_seller = bool(c.get('seller_id') and c.get('seller_role') != 'admin')
         c['is_user_seller'] = is_user_seller
-        c['seller_display_name'] = c.get('seller_name') if is_user_seller else "Sarah Mitchell (Receptionist)"
+        c['seller_display_name'] = c.get('seller_name') if is_user_seller else "Larry (Head Dealer)"
         imgs = parse_car_images(c.get('images'), c.get('image_url'))
         c['images'] = imgs
         c['image_url'] = imgs[0] if imgs else (c.get('image_url') or '')
@@ -487,7 +487,7 @@ def get_car(car_id):
     car = dict(row)
     is_user_seller = bool(car.get('seller_id') and car.get('seller_role') != 'admin')
     car['is_user_seller'] = is_user_seller
-    car['seller_display_name'] = car.get('seller_name') if is_user_seller else "Sarah Mitchell (Receptionist)"
+    car['seller_display_name'] = car.get('seller_name') if is_user_seller else "Larry (Head Dealer)"
     imgs = parse_car_images(car.get('images'), car.get('image_url'))
     car['images'] = imgs
     car['image_url'] = imgs[0] if imgs else (car.get('image_url') or '')
@@ -666,7 +666,7 @@ def start_inquiry():
     """
     Called when a customer clicks "Text Receptionist" or "Text Seller" on a car card.
     If the car was posted by a customer, the chat is directly with that seller!
-    If the car is a dealership car, the chat is with Receptionist Sarah.
+    If the car is a dealership car, the chat is with Larry.
     """
     user = get_current_user()
     if not user:
@@ -695,7 +695,7 @@ def start_inquiry():
         db.close()
         return jsonify({'error': 'Car not found'}), 404
 
-    # Determine seller ID (fallback to admin/Sarah if no seller_id)
+    # Determine seller ID (fallback to admin/Larry if no seller_id)
     seller_id = car['seller_id']
     if not seller_id:
         cursor.execute("SELECT id FROM users WHERE role = 'admin' LIMIT 1")
@@ -734,10 +734,10 @@ def start_inquiry():
                 (chat_id, user['id'], initial_message)
             )
         else:
-            # Dealership vehicle: Receptionist Sarah greeting
+            # Dealership vehicle: Larry greeting
             receptionist_greeting = (
                 f"Hello {user['name']}. Welcome to BIG-L Autos. "
-                f"I'm Sarah, your receptionist. I see you're interested in our {car['title']} priced at GH₵ {car['price']:,.2f}. "
+                f"I'm Larry, head dealer at BIG-L Autos. I see you're interested in our {car['title']} priced at GH₵ {car['price']:,.2f}. "
                 f"How can I assist you with this vehicle? We're open to cash discussions, financing terms, inspections at Somanya-Roundabout, and vehicle swaps!"
             )
             cursor.execute(
@@ -750,7 +750,7 @@ def start_inquiry():
 
     car_dict = dict(car)
     car_dict['is_user_seller'] = is_user_seller
-    car_dict['seller_display_name'] = seller_name if is_user_seller else "Sarah Mitchell (Receptionist)"
+    car_dict['seller_display_name'] = seller_name if is_user_seller else "Larry (Head Dealer)"
 
     db.close()
     return jsonify({
@@ -827,8 +827,8 @@ def list_chats():
             d['other_party_role'] = 'Buyer'
         else:
             d['chat_type'] = 'buying'
-            d['other_party_name'] = d['seller_name'] if is_user_posted else "Sarah Mitchell (Receptionist)"
-            d['other_party_role'] = 'Seller' if is_user_posted else 'Receptionist'
+            d['other_party_name'] = d['seller_name'] if is_user_posted else "Larry (Head Dealer)"
+            d['other_party_role'] = 'Seller' if is_user_posted else 'Dealership'
 
         chats.append(d)
 
@@ -911,15 +911,15 @@ def get_chat_messages(chat_id):
 
     if user['id'] == chat_dict['customer_id']:
         chat_dict['chat_type'] = 'buying'
-        chat_dict['other_party_name'] = chat_dict['seller_name'] if is_user_posted else "Sarah Mitchell (Receptionist)"
-        chat_dict['other_party_role'] = 'Seller' if is_user_posted else 'Receptionist'
+        chat_dict['other_party_name'] = chat_dict['seller_name'] if is_user_posted else "Larry (Head Dealer)"
+        chat_dict['other_party_role'] = 'Seller' if is_user_posted else 'Dealership'
     elif user['id'] == chat_dict['seller_id']:
         chat_dict['chat_type'] = 'selling'
         chat_dict['other_party_name'] = chat_dict['customer_name']
         chat_dict['other_party_role'] = 'Buyer'
     else:
         chat_dict['chat_type'] = 'admin_view'
-        chat_dict['other_party_name'] = f"{chat_dict['customer_name']} (Buyer) & {chat_dict['seller_name'] or 'Sarah'} (Seller)"
+        chat_dict['other_party_name'] = f"{chat_dict['customer_name']} (Buyer) & {chat_dict['seller_name'] or 'Larry'} (Seller)"
         chat_dict['other_party_role'] = 'Showroom Inquiry'
 
     db.close()
@@ -1030,7 +1030,7 @@ def submit_swap_sell():
             chat_id = existing_chat['id']
 
         swap_msg = (
-            f"[SWAP INQUIRY] Hi Sarah, I would like to swap my {car_year} {car_make} {car_model} "
+            f"[SWAP INQUIRY] Hi Larry, I would like to swap my {car_year} {car_make} {car_model} "
             f"({car_mileage:,} km, valued at approx GH₵ {float(expected_price or 0):,.2f}) for this vehicle. "
             f"Notes: {condition_notes or 'Ready for inspection at Somanya-Roundabout.'}"
         )
@@ -1392,13 +1392,13 @@ def admin_stats():
 
 @app.route('/api/seller/request-access', methods=['POST'])
 def request_seller_access():
-    """Customer submits their profile to Receptionist Sarah for posting approval."""
+    """Customer submits their request to Larry for monthly posting access approval."""
     user = get_current_user()
     if not user:
         return jsonify({'error': 'Please sign in to request seller access'}), 401
 
     if user.get('can_post'):
-        return jsonify({'success': True, 'message': 'Your profile already has approved posting access!'})
+        return jsonify({'success': True, 'message': 'Your account already has approved posting access!'})
 
     db = get_db()
     cursor = db.cursor()
@@ -1412,7 +1412,7 @@ def request_seller_access():
 
     return jsonify({
         'success': True,
-        'message': 'Your seller access request has been sent to Receptionist Sarah! Once your profile is approved, you can post cars directly to the showroom without any further approvals.'
+        'message': 'Your posting access request has been sent to Larry! Please make sure you have sent your GH₵ 50 monthly subscription to Larry via Mobile Money on 0549255121. Once confirmed, your direct posting access will be activated immediately.'
     })
 
 

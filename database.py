@@ -215,13 +215,13 @@ def init_db():
         cursor.execute('''
         INSERT INTO users (name, email, phone, password_hash, role)
         VALUES (?, ?, ?, ?, ?)
-        ''', ("Sarah (Head Receptionist & Admin)", "admin@biglautos.com", "0549255121", admin_pass, "admin"))
+        ''', ("Larry (Head Dealer & Admin)", "admin@biglautos.com", "0549255121", admin_pass, "admin"))
     else:
         # Ensure admin password is upgraded to salted PBKDF2 if legacy
         if not admin['password_hash'].startswith('pbkdf2:') and not admin['password_hash'].startswith('scrypt:'):
             cursor.execute("UPDATE users SET password_hash = ? WHERE id = ?", (hash_password("admin123"), admin['id']))
-        # Update name and phone to ensure Receptionist & Admin are unified, and set posting access
-        cursor.execute("UPDATE users SET name = 'Sarah (Head Receptionist & Admin)', phone = '0549255121', can_post = 1, seller_status = 'approved' WHERE id = ?", (admin['id'],))
+        # Update name and phone to ensure Admin Larry is set with posting access
+        cursor.execute("UPDATE users SET name = 'Larry (Head Dealer & Admin)', phone = '0549255121', can_post = 1, seller_status = 'approved' WHERE id = ?", (admin['id'],))
 
     # End automatic car seeding: only cars legitimately uploaded by Admin or approved sellers appear in the showroom
     # Remove any legacy unowned demo cars
