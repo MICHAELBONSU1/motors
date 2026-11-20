@@ -69,23 +69,24 @@ function getAudioContext() {
 // Mobile Audio Unlock on ANY user gesture (tap, touch, click, keydown)
 function unlockPhoneAudio() {
   if (!phoneChimeAudio) initPhoneAudio();
-  if (!isAudioUnlocked && phoneChimeAudio) {
+  if (phoneChimeAudio && !isAudioUnlocked) {
     try {
-      phoneChimeAudio.volume = 0.01;
-      const playPromise = phoneChimeAudio.play();
-      if (playPromise !== undefined) {
-        playPromise.then(() => {
-          phoneChimeAudio.pause();
-          phoneChimeAudio.currentTime = 0;
-          phoneChimeAudio.volume = 1.0;
-          isAudioUnlocked = true;
-        }).catch(() => {});
-      }
+      phoneChimeAudio.load();
+      isAudioUnlocked = true;
     } catch (e) {}
   }
   const ctx = getAudioContext();
-  if (ctx && ctx.state === 'suspended') {
-    ctx.resume().catch(() => {});
+  if (ctx) {
+    if (ctx.state === 'suspended') {
+      ctx.resume().catch(() => {});
+    }
+    try {
+      const buffer = ctx.createBuffer(1, 1, 22050);
+      const source = ctx.createBufferSource();
+      source.buffer = buffer;
+      source.connect(ctx.destination);
+      source.start(0);
+    } catch (e) {}
   }
 }
 
@@ -94,54 +95,54 @@ function unlockPhoneAudio() {
 });
 
 function playMessageNotificationSound() {
-  // 1. Play real audio element (supported on all mobile phones & desktops)
-  try {
-    if (!phoneChimeAudio) initPhoneAudio();
-    if (phoneChimeAudio) {
-      phoneChimeAudio.currentTime = 0;
-      phoneChimeAudio.volume = 1.0;
-      const p = phoneChimeAudio.play();
-      if (p !== undefined) {
-        p.catch(err => {
-          console.warn('HTML5 Audio play note:', err);
-        });
-      }
-    }
-  } catch (err) {}
-
-  // 2. Play Web Audio synthesizer oscillator (parallel fallback)
+  // 1. Dual Audio Engine: Web Audio synthesizer bell (A5 880Hz + E6 1318Hz chime)
   try {
     const ctx = getAudioContext();
     if (ctx) {
       if (ctx.state === 'suspended') ctx.resume().catch(() => {});
       const now = ctx.currentTime;
 
-      // Punchy bell tone (A5 - 880Hz)
+      // Primary clear luxury bell tone (880Hz)
       const osc1 = ctx.createOscillator();
       const gain1 = ctx.createGain();
       osc1.type = 'sine';
       osc1.frequency.setValueAtTime(880, now);
-      gain1.gain.setValueAtTime(0.4, now);
-      gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+      gain1.gain.setValueAtTime(0.6, now);
+      gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
       osc1.connect(gain1);
       gain1.connect(ctx.destination);
       osc1.start(now);
-      osc1.stop(now + 0.35);
+      osc1.stop(now + 0.45);
 
-      // Second bell tone (E6 - 1318.5Hz)
+      // Harmonious second chime note (1318.5Hz)
       const osc2 = ctx.createOscillator();
       const gain2 = ctx.createGain();
       osc2.type = 'sine';
-      osc2.frequency.setValueAtTime(1318.5, now + 0.08);
-      gain2.gain.setValueAtTime(0.45, now + 0.08);
-      gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.65);
+      osc2.frequency.setValueAtTime(1318.5, now + 0.09);
+      gain2.gain.setValueAtTime(0.55, now + 0.09);
+      gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.7);
       osc2.connect(gain2);
       gain2.connect(ctx.destination);
-      osc2.start(now + 0.08);
-      osc2.stop(now + 0.65);
+      osc2.start(now + 0.09);
+      osc2.stop(now + 0.7);
     }
   } catch (err) {
-    console.warn('Web Audio error:', err);
+    console.warn('Web Audio chime note:', err);
+  }
+
+  // 2. Play HTML5 Audio element
+  try {
+    if (!phoneChimeAudio) initPhoneAudio();
+    if (phoneChimeAudio) {
+      phoneChimeAudio.currentTime = 0;
+      phoneChimeAudio.volume = 1.0;
+      phoneChimeAudio.play().catch(() => {});
+    }
+  } catch (err) {}
+
+  // 3. Physical phone vibration (double pulse)
+  if ('vibrate' in navigator) {
+    try { navigator.vibrate([250, 100, 250]); } catch (e) {}
   }
 }
 window.playMessageNotificationSound = playMessageNotificationSound;
@@ -312,8 +313,8 @@ async function enableUserNotifications() {
       const welcomeTitle = 'BIG-L Autos Alerts Active';
       const welcomeOptions = {
         body: 'You will receive real-time notifications when texts arrive.',
-        icon: '/static/img/favicon.ico',
-        badge: '/static/img/favicon.ico',
+        icon: '/static/img/logo-192.png',
+        badge: '/static/img/logo-192.png',
         tag: 'welcome-notification',
         renotify: true,
         vibrate: [300, 150, 300],
@@ -420,8 +421,8 @@ async function triggerDesktopNotification(senderName, messageText, chatId) {
     const notifTitle = `BIG-L Autos: ${senderName}`;
     const notifOptions = {
       body: messageText ? messageText.slice(0, 120) : 'Sent you a new message',
-      icon: '/static/img/favicon.ico',
-      badge: '/static/img/favicon.ico',
+      icon: '/static/img/logo-192.png',
+      badge: '/static/img/logo-192.png',
       tag: `bigl-msg-${chatId || Date.now()}`,
       renotify: true,
       requireInteraction: true,
@@ -502,10 +503,20 @@ async function checkAuthStatus() {
     const data = await res.json();
     if (data.authenticated) {
       currentUser = data.user;
+      if (currentUser.role === 'admin' || currentUser.role === 'receptionist') {
+        if (!adminPollingInterval && !document.getElementById('adminChatWindow')) {
+          startAdminBackgroundPolling();
+        }
+      } else {
+        if (!chatPollingInterval && !document.getElementById('chatWindow')) {
+          startCustomerBackgroundPolling();
+        }
+      }
     } else {
       currentUser = null;
     }
     updateNavAuthUI();
+    updateNotificationButtonState();
   } catch (err) {
     console.error('Auth check error:', err);
   }
@@ -809,11 +820,12 @@ function renderCarsGrid(cars) {
   if (!grid) return;
 
   if (cars.length === 0) {
+    const isFiltered = Boolean(document.getElementById('searchInput')?.value || document.getElementById('filterMake')?.value || document.getElementById('filterPrice')?.value);
     grid.innerHTML = `
-      <div style="grid-column: 1/-1; text-align:center; padding: 60px 20px; background:var(--white); border-radius:var(--radius-md); border:1px solid var(--gray-200);">
-        <h3 style="font-size:18px; margin-bottom:8px;">No matching cars found</h3>
-        <p style="color:var(--gray-500); font-size:14px; margin-bottom:16px;">Try adjusting your search criteria or price filters.</p>
-        <button onclick="resetFilters()" class="btn btn-secondary btn-sm">Reset Filters</button>
+      <div style="grid-column: 1/-1; text-align:center; padding: 56px 20px; background:#030d07; border-radius:12px; border:1px solid rgba(52,211,153,0.18); box-shadow:0 12px 32px rgba(0,0,0,0.5);">
+        <h3 style="font-size:18px; font-weight:700; color:#ffffff; margin-bottom:8px;">${isFiltered ? 'No Matching Vehicles Found' : 'Showroom Inventory Updating'}</h3>
+        <p style="color:var(--gray-400); font-size:13.5px; max-width:440px; margin:0 auto 18px; line-height:1.5;">${isFiltered ? 'Try resetting your search filters to view all current showroom inventory.' : 'No vehicles are currently listed. Check back shortly or contact Sarah at Somanya-Roundabout (0549255121).'}</p>
+        ${isFiltered ? '<button onclick="resetFilters()" class="btn btn-secondary" style="padding:8px 20px; font-size:13px; font-weight:600; border-radius:6px; cursor:pointer;">Reset Filters</button>' : '<a href="tel:0549255121" class="btn btn-secondary" style="padding:9px 22px; font-size:13px; font-weight:600; border-radius:6px; text-decoration:none; display:inline-block;">Call Showroom (0549255121)</a>'}
       </div>
     `;
     return;
@@ -1238,10 +1250,9 @@ function stopChatPolling() {
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden) {
     stopTabFlashing();
-    if (document.getElementById('adminChatWindow')) {
-      checkBackgroundChats(true);
-    } else if (document.getElementById('chatWindow')) {
-      checkBackgroundChats(false);
+    if (currentUser) {
+      const isAdmin = currentUser.role === 'admin' || currentUser.role === 'receptionist';
+      checkBackgroundChats(isAdmin);
     }
   }
 });

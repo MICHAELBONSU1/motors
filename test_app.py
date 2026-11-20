@@ -11,6 +11,16 @@ class BigLAutosTestCase(unittest.TestCase):
         app.config['SECRET_KEY'] = 'test-secret-key'
         self.client = app.test_client()
         init_db()
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT id FROM cars WHERE make = 'Toyota' LIMIT 1")
+        if not cursor.fetchone():
+            cursor.execute('''
+            INSERT INTO cars (seller_id, title, make, model, year, price, mileage, transmission, fuel_type, body_type, color, condition, status, description, features, image_url, images)
+            VALUES (1, '2022 Toyota Land Cruiser Prado TX-L', 'Toyota', 'Land Cruiser Prado', 2022, 920000, 26000, 'Automatic', 'Diesel', 'SUV', 'Pearl White', 'Foreign Used', 'Available', 'Test car', '4x4', 'https://images.unsplash.com/photo-1594502184342-2e12f877aa73?auto=format&fit=crop&w=1200&q=80', '[]')
+            ''')
+            db.commit()
+        db.close()
 
     def test_home_page(self):
         response = self.client.get('/')
