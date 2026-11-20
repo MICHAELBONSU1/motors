@@ -218,9 +218,8 @@
 
           <!-- Quick Action Buttons -->
           <div class="hero-cta-buttons">
-            <a href="#showroom" class="btn btn-primary btn-lg">Browse Showroom Fleet</a>
-            <button onclick="openSellSwapModal()" class="btn btn-outline-white btn-lg">Value Your Car (Sell or
-              Swap)</button>
+            <a href="#showroom" class="btn btn-primary" style="padding: 10px 22px; font-size: 13.5px; font-weight: 700;">Browse Showroom Fleet</a>
+            <button onclick="openSellSwapModal()" class="btn btn-outline-white" style="padding: 10px 22px; font-size: 13.5px; font-weight: 700;">Value Your Car (Sell or Swap)</button>
           </div>
         </div>
 
@@ -278,7 +277,6 @@
             <div class="car-motion-toolbar" id="carMotionToolbar">
               <button type="button" class="motion-tool-btn" id="btnTurntable" onclick="toggleTurntable()"
                 title="Auto-Turntable 360° Spin (Space)">
-                <span class="tool-icon spin-icon">🔄</span>
                 <span class="tool-label">Auto Turntable</span>
               </button>
 
@@ -288,10 +286,10 @@
                 </button>
                 <span class="zoom-level-badge" id="zoomLevelBadge">100%</span>
                 <button type="button" class="motion-tool-btn zoom-btn" onclick="zoomCar(-0.12)" title="Zoom Out (−)">
-                  <span>−</span>
+                  <span>&minus;</span>
                 </button>
                 <button type="button" class="motion-tool-btn reset-btn" onclick="resetCarView()" title="Reset View (R)">
-                  <span>↺</span>
+                  <span>Reset</span>
                 </button>
               </div>
             </div>
@@ -390,8 +388,6 @@
         <div class="service-card">
           <div class="service-num">01</div>
           <h3>We Sell</h3>
-          <p>Hand-inspected luxury and everyday vehicles. Click "Text Receptionist" under any listing to discuss price
-            and arrange an on-site viewing.</p>
           <p>Hand-inspected luxury and everyday vehicles. Click "Enquire Now" under any listing to discuss price and
             arrange an on-site viewing.</p>
         </div>
@@ -411,14 +407,15 @@
         </div>
       </div>
 
-      <div style="text-align:center; margin-top:36px;">
-        <button onclick="openSellSwapModal()" class="btn btn-primary btn-lg">Value Your Car (Sell or Swap)</button>
+      <div style="text-align:center; margin-top:32px;">
+        <button onclick="openSellSwapModal()" class="btn btn-primary" style="padding: 10px 24px; font-size: 13.5px; font-weight: 700;">Value Your Car (Sell or Swap)</button>
       </div>
     </div>
   </section>
 
   <!-- Clean, Simple Minimal Footer -->
-  <footer class="site-footer" id="contact" style="padding: 24px 0; background: #020704; border-top: 1px solid rgba(255, 255, 255, 0.06); text-align: center;">
+  <footer class="site-footer" id="contact"
+    style="padding: 24px 0; background: #020704; border-top: 1px solid rgba(255, 255, 255, 0.06); text-align: center;">
     <div class="container">
       <p style="font-size: 13px; color: #64748b; margin: 0;">&copy; 2026 BIG-L Autos. All rights reserved.</p>
     </div>
@@ -426,148 +423,100 @@
 
   <!-- ================= MODALS ================= -->
 
-  <!-- Auth Modal (Advanced Concierge Registration & Sign In) -->
+  <!-- Auth Modal (Humanized Luxury Concierge) -->
   <div class="modal-overlay" id="authModal">
-    <div class="modal-content modal-advanced-auth">
-
-      <!-- Left Showcase Panel -->
-      <div class="modal-auth-showcase">
-        <div class="modal-showcase-header">
-          <div class="showcase-emblem">
-            <svg viewBox="0 0 100 100" width="46" height="46">
+    <div class="modal-content modal-auth-clean" style="max-width: 440px; padding: 28px 24px; background: #041009; border: 1px solid rgba(52, 211, 153, 0.2); border-radius: 12px; box-shadow: 0 20px 48px rgba(0,0,0,0.85);">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div class="showcase-emblem" style="width: 36px; height: 36px; flex-shrink: 0;">
+            <svg viewBox="0 0 100 100" width="36" height="36">
               <circle cx="50" cy="50" r="44" stroke="#ffffff" stroke-width="2.5" fill="none" opacity="0.95" />
-              <path d="M 28 26 L 28 72 L 72 72" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round"
-                stroke-linejoin="round" fill="none" />
-              <path d="M 33 62 C 36 54 44 48 54 48 C 63 48 70 53 74 62 L 75 66 L 32 66 Z" fill="none" stroke="#ffffff"
-                stroke-width="2.5" />
+              <path d="M 28 26 L 28 72 L 72 72" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+              <path d="M 33 62 C 36 54 44 48 54 48 C 63 48 70 53 74 62 L 75 66 L 32 66 Z" fill="none" stroke="#ffffff" stroke-width="2.5" />
               <circle cx="41" cy="66" r="3.5" fill="none" stroke="#ffffff" stroke-width="2" />
               <circle cx="66" cy="66" r="3.5" fill="none" stroke="#ffffff" stroke-width="2" />
               <path d="M 27 52 L 32 52 L 33 62" stroke="#ffffff" stroke-width="2" fill="none" />
             </svg>
           </div>
-          <h4>BIG-L AUTOS</h4>
-          <span class="modal-showcase-tag">YOUR NEXT CAR AWAITS YOU</span>
-          <div class="modal-services-pill">WE SELL • WE BUY • WE SWAP</div>
-        </div>
-
-        <!-- Dynamic Context Box (Inquired Car or Showroom Highlights) -->
-        <div id="authCarContext" class="modal-auth-car-context"></div>
-
-        <div class="modal-showcase-pillars">
-          <div class="modal-pillar-item">
-            <span class="pillar-bullet">•</span>
-            <span>Direct Receptionist Chat with Sarah Mitchell</span>
-            <span>Direct Negotiation & Instant Enquiry</span>
-          </div>
-          <div class="modal-pillar-item">
-            <span class="pillar-bullet">•</span>
-            <span>Instant Equity Valuation & Trade-In</span>
-          </div>
-          <div class="modal-pillar-item">
-            <span class="pillar-bullet">•</span>
-            <span>Somanya-Roundabout Physical Showroom</span>
+          <div>
+            <h3 style="font-family: var(--font-heading); font-size: 15px; font-weight: 800; color: #ffffff; margin: 0; letter-spacing: 0.5px;">BIG-L AUTOS</h3>
+            <span style="font-size: 11px; color: var(--mint); letter-spacing: 1.5px; font-weight: 600;">CLIENT PORTAL</span>
           </div>
         </div>
-
-        <div class="modal-showcase-meta">
-          <span>Location: Somanya-Roundabout</span>
-          <span>Line: 0549255121</span>
-        </div>
+        <button class="btn-close-modal" onclick="closeAuthModal()" aria-label="Close dialog" style="font-size: 22px; color: #94a3b8; background: none; border: none; cursor: pointer; padding: 0;">&times;</button>
       </div>
 
-      <!-- Right Form Panel -->
-      <div class="modal-auth-form-side">
-        <div class="modal-form-top">
-          <div class="modal-title">
-            <h3 id="authModalTitle">Connect with our Receptionist</h3>
-            <p id="authModalSubtitle">Create an account to start your direct negotiation</p>
-            <h3 id="authModalTitle">Enquire About This Vehicle</h3>
-            <p id="authModalSubtitle">Sign in or create an account to start direct negotiation</p>
-          </div>
-          <button class="btn-close-modal" onclick="closeAuthModal()" aria-label="Close dialog">&times;</button>
-        </div>
+      <!-- Inquired Car Context Banner -->
+      <div id="authCarContext" class="modal-auth-car-context" style="display: none; margin-bottom: 14px; padding: 10px 14px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(52, 211, 153, 0.25); border-radius: 8px;"></div>
 
-        <!-- Segmented Tab Switcher -->
-        <div class="advanced-tab-switcher">
-          <button type="button" class="adv-tab-btn active" id="tabRegisterBtn" onclick="switchAuthTab('register')">
-            Create Account
-          </button>
-          <button type="button" class="adv-tab-btn" id="tabLoginBtn" onclick="switchAuthTab('login')">
-            Sign In
-          </button>
-        </div>
-
-        <!-- Registration Form -->
-        <form id="registerForm" onsubmit="handleRegister(event)" class="adv-form">
-          <div class="adv-form-group">
-            <label class="adv-label" for="regName">FULL NAME</label>
-            <div class="input-wrap">
-              <input type="text" id="regName" class="adv-input" placeholder="e.g. David Miller" required
-                autocomplete="name">
-            </div>
-          </div>
-
-          <div class="adv-form-group">
-            <label class="adv-label" for="regEmail">EMAIL ADDRESS</label>
-            <div class="input-wrap">
-              <input type="email" id="regEmail" class="adv-input" placeholder="david@example.com" required
-                autocomplete="email">
-            </div>
-          </div>
-
-          <div class="adv-form-group">
-            <label class="adv-label" for="regPhone">PHONE NUMBER <span class="label-opt">(For
-                WhatsApp/Call)</span></label>
-            <div class="input-wrap">
-              <input type="tel" id="regPhone" class="adv-input" placeholder="e.g. 0549255121" autocomplete="tel">
-            </div>
-          </div>
-
-          <div class="adv-form-group">
-            <label class="adv-label" for="regPassword">PASSWORD <span class="label-opt">(Min 4
-                characters)</span></label>
-            <div class="input-wrap has-toggle">
-              <input type="password" id="regPassword" class="adv-input" placeholder="Create secure password" required
-                minlength="4" autocomplete="new-password">
-              <button type="button" class="pw-toggle-btn"
-                onclick="togglePasswordVisibility('regPassword', this)">Show</button>
-            </div>
-          </div>
-
-          <button type="submit" class="btn btn-primary adv-submit-btn">
-            Create Account & Open Chat
-            Create Account & Enquire
-          </button>
-        </form>
-
-        <!-- Login Form -->
-        <form id="loginForm" onsubmit="handleLogin(event)" class="adv-form" style="display:none;">
-          <div class="adv-form-group">
-            <label class="adv-label" for="loginEmail">EMAIL ADDRESS</label>
-            <div class="input-wrap">
-              <input type="email" id="loginEmail" class="adv-input" placeholder="you@example.com" required
-                autocomplete="email">
-            </div>
-          </div>
-
-          <div class="adv-form-group">
-            <label class="adv-label" for="loginPassword">PASSWORD</label>
-            <div class="input-wrap has-toggle">
-              <input type="password" id="loginPassword" class="adv-input" placeholder="Enter your password" required
-                autocomplete="current-password">
-              <button type="button" class="pw-toggle-btn"
-                onclick="togglePasswordVisibility('loginPassword', this)">Show</button>
-            </div>
-          </div>
-
-          <button type="submit" class="btn btn-primary adv-submit-btn">
-            Sign In to Receptionist Desk
-            Sign In & Enquire
-          </button>
-        </form>
-
+      <div class="modal-title" style="margin-bottom: 16px;">
+        <h4 id="authModalTitle" style="font-size: 16px; font-weight: 700; color: #ffffff; margin-bottom: 4px;">Welcome</h4>
+        <p id="authModalSubtitle" style="font-size: 13px; color: var(--gray-400); margin: 0; line-height: 1.4;">Sign in to your account or register to enquire about vehicles.</p>
       </div>
 
+      <!-- Segmented Tab Switcher -->
+      <div class="advanced-tab-switcher" style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; background: rgba(255,255,255,0.04); padding: 4px; border-radius: 8px; margin-bottom: 18px; border: 1px solid rgba(255,255,255,0.06);">
+        <button type="button" class="adv-tab-btn active" id="tabRegisterBtn" onclick="switchAuthTab('register')" style="padding: 8px; font-size: 12.5px; font-weight: 600; border-radius: 6px; border: none; cursor: pointer;">
+          Create Account
+        </button>
+        <button type="button" class="adv-tab-btn" id="tabLoginBtn" onclick="switchAuthTab('login')" style="padding: 8px; font-size: 12.5px; font-weight: 600; border-radius: 6px; border: none; cursor: pointer;">
+          Sign In
+        </button>
+      </div>
+
+      <!-- Registration Form -->
+      <form id="registerForm" onsubmit="handleRegister(event)" class="adv-form">
+        <div class="adv-form-group" style="margin-bottom: 12px;">
+          <label class="adv-label" for="regName" style="font-size: 11px; letter-spacing: 0.8px; font-weight: 700; color: var(--gray-300); display: block; margin-bottom: 5px;">FULL NAME</label>
+          <input type="text" id="regName" class="adv-input" placeholder="e.g. David Mensah" required autocomplete="name" style="width: 100%; padding: 9px 12px; background: #020704; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #ffffff; font-size: 13px;">
+        </div>
+
+        <div class="adv-form-group" style="margin-bottom: 12px;">
+          <label class="adv-label" for="regEmail" style="font-size: 11px; letter-spacing: 0.8px; font-weight: 700; color: var(--gray-300); display: block; margin-bottom: 5px;">EMAIL ADDRESS</label>
+          <input type="email" id="regEmail" class="adv-input" placeholder="david@example.com" required autocomplete="email" style="width: 100%; padding: 9px 12px; background: #020704; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #ffffff; font-size: 13px;">
+        </div>
+
+        <div class="adv-form-group" style="margin-bottom: 12px;">
+          <label class="adv-label" for="regPhone" style="font-size: 11px; letter-spacing: 0.8px; font-weight: 700; color: var(--gray-300); display: block; margin-bottom: 5px;">PHONE NUMBER <span style="font-size: 10px; color: var(--gray-500); font-weight: 400;">(WhatsApp)</span></label>
+          <input type="tel" id="regPhone" class="adv-input" placeholder="e.g. 0549255121" autocomplete="tel" style="width: 100%; padding: 9px 12px; background: #020704; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #ffffff; font-size: 13px;">
+        </div>
+
+        <div class="adv-form-group" style="margin-bottom: 18px;">
+          <label class="adv-label" for="regPassword" style="font-size: 11px; letter-spacing: 0.8px; font-weight: 700; color: var(--gray-300); display: block; margin-bottom: 5px;">PASSWORD</label>
+          <div class="input-wrap has-toggle" style="position: relative;">
+            <input type="password" id="regPassword" class="adv-input" placeholder="Create a password" required minlength="4" autocomplete="new-password" style="width: 100%; padding: 9px 12px; padding-right: 50px; background: #020704; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #ffffff; font-size: 13px;">
+            <button type="button" class="pw-toggle-btn" onclick="togglePasswordVisibility('regPassword', this)" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--mint); font-size: 11px; cursor: pointer; padding: 4px;">Show</button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 10px 18px; font-size: 13px; font-weight: 700; letter-spacing: 0.5px; border-radius: 6px;">
+          Create Account
+        </button>
+      </form>
+
+      <!-- Login Form -->
+      <form id="loginForm" onsubmit="handleLogin(event)" class="adv-form" style="display: none;">
+        <div class="adv-form-group" style="margin-bottom: 12px;">
+          <label class="adv-label" for="loginEmail" style="font-size: 11px; letter-spacing: 0.8px; font-weight: 700; color: var(--gray-300); display: block; margin-bottom: 5px;">EMAIL ADDRESS</label>
+          <input type="email" id="loginEmail" class="adv-input" placeholder="you@example.com" required autocomplete="email" style="width: 100%; padding: 9px 12px; background: #020704; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #ffffff; font-size: 13px;">
+        </div>
+
+        <div class="adv-form-group" style="margin-bottom: 18px;">
+          <label class="adv-label" for="loginPassword" style="font-size: 11px; letter-spacing: 0.8px; font-weight: 700; color: var(--gray-300); display: block; margin-bottom: 5px;">PASSWORD</label>
+          <div class="input-wrap has-toggle" style="position: relative;">
+            <input type="password" id="loginPassword" class="adv-input" placeholder="Enter your password" required autocomplete="current-password" style="width: 100%; padding: 9px 12px; padding-right: 50px; background: #020704; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #ffffff; font-size: 13px;">
+            <button type="button" class="pw-toggle-btn" onclick="togglePasswordVisibility('loginPassword', this)" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--mint); font-size: 11px; cursor: pointer; padding: 4px;">Show</button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 10px 18px; font-size: 13px; font-weight: 700; letter-spacing: 0.5px; border-radius: 6px;">
+          Sign In
+        </button>
+      </form>
+
+      <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.06); text-align: center;">
+        <span style="font-size: 11.5px; color: var(--gray-500);">Somanya-Roundabout • Direct Line: 0549255121</span>
+      </div>
     </div>
   </div>
 
@@ -577,8 +526,7 @@
       <div class="modal-header">
         <div class="modal-title">
           <h3 id="modalCarTitle">Vehicle Specifications</h3>
-          <p><span id="modalCarCondition" style="font-size:12px; color:var(--mint); font-weight:600;"></span>
-          </p>
+          <p><span id="modalCarCondition" style="font-size:12px; color:var(--mint); font-weight:600;"></span></p>
         </div>
         <button class="btn-close-modal" onclick="closeCarDetailsModal()">&times;</button>
       </div>
@@ -625,100 +573,92 @@
             <h2 id="modalCarPrice"
               style="font-size:28px; font-weight:850; color:var(--green-primary); letter-spacing:-0.5px;"></h2>
           </div>
-          <span id="modalNegotiableText" style="font-size:13px; color:var(--gray-400);">Negotiable with
-            receptionist</span>
           <span id="modalNegotiableText" style="font-size:13px; color:var(--gray-400);">Price Negotiable</span>
         </div>
 
-        <h4 style="font-size:14px; font-weight:700; margin-bottom:8px; color:var(--white);">Technical
-          Specifications
-        </h4>
+        <h4 style="font-size:14px; font-weight:700; margin-bottom:8px; color:var(--white);">Technical Specifications</h4>
         <div class="car-specs modal-car-specs" style="margin-bottom:18px;">
-          <div class="spec-item"><span class="spec-label">Year</span><span id="modalCarYear" class="spec-val"></span>
-          </div>
-          <div class="spec-item"><span class="spec-label">Mileage</span><span id="modalCarMileage"
-              class="spec-val"></span></div>
-          <div class="spec-item"><span class="spec-label">Transmission</span><span id="modalCarTransmission"
-              class="spec-val"></span></div>
-          <div class="spec-item"><span class="spec-label">Fuel</span><span id="modalCarFuel" class="spec-val"></span>
-          </div>
-          <div class="spec-item"><span class="spec-label">Body Style</span><span id="modalCarBody"
-              class="spec-val"></span></div>
-          <div class="spec-item"><span class="spec-label">Color</span><span id="modalCarColor" class="spec-val"></span>
-          </div>
+          <div class="spec-item"><span class="spec-label">Year</span><span id="modalCarYear" class="spec-val"></span></div>
+          <div class="spec-item"><span class="spec-label">Mileage</span><span id="modalCarMileage" class="spec-val"></span></div>
+          <div class="spec-item"><span class="spec-label">Transmission</span><span id="modalCarTransmission" class="spec-val"></span></div>
+          <div class="spec-item"><span class="spec-label">Fuel</span><span id="modalCarFuel" class="spec-val"></span></div>
+          <div class="spec-item"><span class="spec-label">Body Style</span><span id="modalCarBody" class="spec-val"></span></div>
+          <div class="spec-item"><span class="spec-label">Color</span><span id="modalCarColor" class="spec-val"></span></div>
         </div>
 
-        <h4 style="font-size:14px; font-weight:700; margin-bottom:6px; color:var(--white);">Highlights and
-          Features</h4>
+        <h4 style="font-size:14px; font-weight:700; margin-bottom:6px; color:var(--white);">Highlights and Features</h4>
         <div id="modalCarFeatures" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px;"></div>
 
-        <h4 style="font-size:14px; font-weight:700; margin-bottom:6px; color:var(--white);">Vehicle Description
-        </h4>
-        <p id="modalCarDescription" style="font-size:14px; color:var(--gray-300); line-height:1.6; margin-bottom:20px;">
-        </p>
+        <h4 style="font-size:14px; font-weight:700; margin-bottom:6px; color:var(--white);">Vehicle Description</h4>
+        <p id="modalCarDescription" style="font-size:14px; color:var(--gray-300); line-height:1.6; margin-bottom:20px;"></p>
 
-        <button id="modalTextReceptionistBtn" class="btn btn-primary"
-          style="width:100%; padding:14px; font-size:15px; font-weight:700;">
-          Enquire Now
-        </button>
+        <div style="margin-top:16px;">
+          <button id="modalTextReceptionistBtn" class="btn btn-primary"
+            style="width:100%; padding:11px 20px; font-size:13.5px; font-weight:700; border-radius:6px;">
+            Enquire Now
+          </button>
+        </div>
       </div>
     </div>
   </div>
 
   <!-- Sell or Swap Request Modal -->
   <div class="modal-overlay" id="sellSwapModal">
-    <div class="modal-content">
-      <div class="modal-header">
+    <div class="modal-content" style="max-width: 500px; padding: 26px 24px; background: #030d07; border: 1px solid rgba(52,211,153,0.22); border-radius: 12px;">
+      <div class="modal-header" style="margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.08);">
         <div class="modal-title">
-          <h3>Value Your Car (Sell or Swap)</h3>
-          <p>Get a direct offer from BIG-L Autos (Somanya-Roundabout)</p>
+          <h3 style="font-size: 17px; font-weight: 700; color: #ffffff; margin: 0 0 3px 0;">Value Your Vehicle</h3>
+          <p style="font-size: 12px; color: var(--gray-400); margin: 0;">Trade-in or direct sale • Somanya-Roundabout showroom</p>
         </div>
-        <button class="btn-close-modal" onclick="closeModal('sellSwapModal')">&times;</button>
+        <button class="btn-close-modal" onclick="closeModal('sellSwapModal')" style="font-size: 22px; color: var(--gray-400); background: none; border: none; cursor: pointer;">&times;</button>
       </div>
-      <div class="modal-body">
+      <div class="modal-body" style="padding: 0;">
         <form onsubmit="handleGeneralSwapSubmit(event)">
-          <div class="form-group">
-            <label class="form-label">I want to:</label>
-            <select id="genSwapType" class="form-select">
-              <option value="sell">Sell my car for instant cash</option>
-              <option value="swap">Swap my car for a showroom vehicle</option>
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label class="form-label" style="font-size: 11px; letter-spacing: 0.8px; font-weight: 700; color: var(--gray-300); display: block; margin-bottom: 4px;">REQUEST TYPE</label>
+            <select id="genSwapType" class="form-select" style="width: 100%; padding: 8px 12px; background: #020704; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #ffffff; font-size: 13px;">
+              <option value="sell">Sell vehicle for direct payout</option>
+              <option value="swap">Exchange for showroom inventory</option>
             </select>
           </div>
 
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Make</label>
-              <input type="text" id="genSwapMake" class="form-input" placeholder="e.g. Toyota" required>
+          <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+            <div class="form-group" style="margin: 0;">
+              <label class="form-label" style="font-size: 11px; letter-spacing: 0.8px; font-weight: 700; color: var(--gray-300); display: block; margin-bottom: 4px;">MAKE</label>
+              <input type="text" id="genSwapMake" class="form-input" placeholder="e.g. Toyota" required style="width: 100%; padding: 8px 12px; background: #020704; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #ffffff; font-size: 13px;">
             </div>
-            <div class="form-group">
-              <label class="form-label">Model</label>
-              <input type="text" id="genSwapModel" class="form-input" placeholder="e.g. Camry" required>
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Year</label>
-              <input type="number" id="genSwapYear" class="form-input" placeholder="2019" required>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Mileage (km)</label>
-              <input type="number" id="genSwapMileage" class="form-input" placeholder="45000">
+            <div class="form-group" style="margin: 0;">
+              <label class="form-label" style="font-size: 11px; letter-spacing: 0.8px; font-weight: 700; color: var(--gray-300); display: block; margin-bottom: 4px;">MODEL</label>
+              <input type="text" id="genSwapModel" class="form-input" placeholder="e.g. Camry" required style="width: 100%; padding: 8px 12px; background: #020704; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #ffffff; font-size: 13px;">
             </div>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">Expected Valuation / Price (GH₵)</label>
-            <input type="number" id="genSwapPrice" class="form-input" placeholder="e.g. 280000">
+          <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+            <div class="form-group" style="margin: 0;">
+              <label class="form-label" style="font-size: 11px; letter-spacing: 0.8px; font-weight: 700; color: var(--gray-300); display: block; margin-bottom: 4px;">YEAR</label>
+              <input type="number" id="genSwapYear" class="form-input" placeholder="2020" required style="width: 100%; padding: 8px 12px; background: #020704; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #ffffff; font-size: 13px;">
+            </div>
+            <div class="form-group" style="margin: 0;">
+              <label class="form-label" style="font-size: 11px; letter-spacing: 0.8px; font-weight: 700; color: var(--gray-300); display: block; margin-bottom: 4px;">MILEAGE (KM)</label>
+              <input type="number" id="genSwapMileage" class="form-input" placeholder="45000" style="width: 100%; padding: 8px 12px; background: #020704; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #ffffff; font-size: 13px;">
+            </div>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">Condition Notes</label>
-            <textarea id="genSwapNotes" class="form-textarea" rows="3"
-              placeholder="Condition details, mechanical state..."></textarea>
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label class="form-label" style="font-size: 11px; letter-spacing: 0.8px; font-weight: 700; color: var(--gray-300); display: block; margin-bottom: 4px;">EXPECTED VALUATION (GH₵)</label>
+            <input type="number" id="genSwapPrice" class="form-input" placeholder="e.g. 280000" style="width: 100%; padding: 8px 12px; background: #020704; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #ffffff; font-size: 13px;">
           </div>
 
-          <button type="submit" class="btn btn-primary" style="width:100%; padding:12px;">Submit Enquiry</button>
+          <div class="form-group" style="margin-bottom: 16px;">
+            <label class="form-label" style="font-size: 11px; letter-spacing: 0.8px; font-weight: 700; color: var(--gray-300); display: block; margin-bottom: 4px;">CONDITION NOTES</label>
+            <textarea id="genSwapNotes" class="form-textarea" rows="2"
+              placeholder="Exterior condition, mechanical history, key details..." style="width: 100%; padding: 8px 12px; background: #020704; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #ffffff; font-size: 13px; font-family: inherit; resize: vertical;"></textarea>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 10px;">
+            <button type="button" class="btn btn-secondary" onclick="closeModal('sellSwapModal')" style="padding: 9px 18px; font-size: 13px; font-weight: 600; border-radius: 6px; background: rgba(255,255,255,0.06); color: #e2e8f0; border: 1px solid rgba(255,255,255,0.1); cursor: pointer;">Cancel</button>
+            <button type="submit" class="btn btn-primary" style="padding: 9px 22px; font-size: 13px; font-weight: 700; border-radius: 6px; cursor: pointer;">Submit Valuation</button>
+          </div>
         </form>
       </div>
     </div>
@@ -726,7 +666,7 @@
 
   <script src="/static/js/three.min.js"></script>
   <script src="/static/js/car3d.js"></script>
-  <script src="/static/js/app.js?v=4.7"></script>
+  <script src="/static/js/app.js?v=5.0"></script>
   <script>
     function openSellSwapModal() {
       if (!currentUser) {
@@ -749,7 +689,7 @@
       try {
         const res = await fetch('/api/swap-sell', {
           method: 'POST',
-          headers: {'Content-Type': 'application/json'},
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             request_type: type,
             car_make: make,

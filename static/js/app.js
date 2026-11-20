@@ -224,12 +224,6 @@ function showNotificationPermissionBanner() {
     banner.className = 'device-notif-banner';
     banner.innerHTML = `
       <div class="notif-banner-inner">
-        <div class="notif-banner-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-          </svg>
-        </div>
         <div class="notif-banner-text">
           <h4>Enable Phone Notifications</h4>
           <p>Get real-time alerts in your notification bar and lock screen when messages arrive.</p>
@@ -404,7 +398,7 @@ async function triggerDesktopNotification(senderName, messageText, chatId) {
 
   // 3. Tab title flasher when minimized
   if (document.hidden) {
-    flashTabNotification(`🔔 New message from ${senderName}`);
+    flashTabNotification(`New message from ${senderName}`);
   }
 
   // 4. Universal In-App Floating Alert (works on 100% of browsers including iOS Safari)
@@ -841,7 +835,7 @@ function renderCarsGrid(cars) {
           <img src="${car.image_url}" alt="${car.title}" class="car-img" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=800&q=80'">
           <span class="car-badge ${badgeClass}">${car.condition}</span>
           ${isUserCar ? `<span class="car-badge" style="top:36px; background:rgba(34,197,94,0.18); color:#34d399; border:1px solid rgba(52,211,153,0.35); font-size:10px;">${sellerTag}</span>` : ''}
-          ${car.images && car.images.length > 1 ? `<span class="car-photo-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:-1px; margin-right:3px;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>${car.images.length} Photos</span>` : ''}
+          ${car.images && car.images.length > 1 ? `<span class="car-photo-badge">${car.images.length} Photos</span>` : ''}
         </div>
 
         <div class="car-body">
@@ -1908,7 +1902,7 @@ function renderAdminPhotoSlots() {
     <div class="preview-slot-card" style="position:relative; aspect-ratio:4/3; border-radius:6px; overflow:hidden; border:${i === 0 ? '2px solid #10b981' : '1px solid rgba(255,255,255,0.18)'}; background:#000;">
       <img src="${item.src}" style="width:100%; height:100%; object-fit:cover;" alt="Photo ${i + 1}">
       <span style="position:absolute; bottom:2px; left:2px; font-size:9px; font-weight:800; padding:1px 5px; border-radius:3px; background:${i === 0 ? '#059669' : 'rgba(0,0,0,0.75)'}; color:#fff;">
-        ${i === 0 ? '★ Cover' : `Slot ${i + 1}`}
+        ${i === 0 ? 'Cover' : `Slot ${i + 1}`}
       </span>
       <button type="button" onclick="removeAdminPhotoSlot(${i}, '${item.type}')" title="Remove photo" style="position:absolute; top:2px; right:2px; width:18px; height:18px; border-radius:50%; background:rgba(239,68,68,0.9); color:#fff; border:none; cursor:pointer; font-size:11px; font-weight:900; line-height:1; display:flex; align-items:center; justify-content:center;">&times;</button>
     </div>

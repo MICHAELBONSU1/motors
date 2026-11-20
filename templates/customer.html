@@ -190,25 +190,19 @@
 
           <!-- State A: Not Requested or Revoked -->
           <div id="sellerNotApprovedCard" style="display:none; background:var(--bg-card); border:1px solid var(--border-dark); border-radius:var(--radius-md); padding:32px; box-shadow:var(--shadow-sm); text-align:center; margin-bottom:24px;">
-            <div style="width:56px; height:56px; border-radius:50%; background:rgba(34,197,94,0.1); border:1px solid rgba(34,197,94,0.25); display:inline-flex; align-items:center; justify-content:center; margin-bottom:16px;">
-              <svg viewBox="0 0 24 24" width="28" height="28" stroke="var(--mint)" stroke-width="2" fill="none">
-                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                <circle cx="8.5" cy="7" r="4"></circle>
-                <polyline points="17 11 19 13 23 9"></polyline>
-              </svg>
-            </div>
+            <div style="font-size:11px; font-weight:800; letter-spacing:1px; color:var(--mint); text-transform:uppercase; margin-bottom:8px;">SELLER PORTAL</div>
             <h3 style="font-family:var(--font-heading); font-size:20px; font-weight:800; color:var(--white); margin-bottom:8px;">Sell Your Cars on BIG-L Autos</h3>
             <p style="font-size:14px; color:var(--gray-text); max-width:480px; margin:0 auto 20px; line-height:1.5;">
               To protect buyers and ensure premium showroom quality, Receptionist Sarah approves seller profiles before posting. Once your profile is approved, you can post unlimited vehicles directly to the showroom without waiting!
             </p>
-            <button onclick="requestSellerPostingAccess()" id="requestSellerBtn" class="btn btn-primary" style="padding:13px 28px; font-weight:800; font-size:14px;">
+            <button onclick="requestSellerPostingAccess()" id="requestSellerBtn" class="btn btn-primary" style="padding:10px 24px; font-weight:700; font-size:13.5px; border-radius:6px;">
               Request Seller Posting Access
             </button>
           </div>
 
           <!-- State B: Pending Review -->
           <div id="sellerPendingCard" style="display:none; background:var(--bg-card); border:1px solid rgba(245,158,11,0.3); border-radius:var(--radius-md); padding:28px; box-shadow:var(--shadow-sm); text-align:center; margin-bottom:24px;">
-            <div style="font-size:32px; margin-bottom:12px;">⏳</div>
+            <div style="font-size:11px; font-weight:800; letter-spacing:1px; color:#f59e0b; text-transform:uppercase; margin-bottom:8px;">UNDER REVIEW</div>
             <h3 style="font-family:var(--font-heading); font-size:18px; font-weight:800; color:#f59e0b; margin-bottom:6px;">Seller Profile Under Review</h3>
             <p style="font-size:13.5px; color:var(--gray-text); max-width:440px; margin:0 auto; line-height:1.5;">
               Sarah, our receptionist, is reviewing your account profile. Once approved, you can immediately post your vehicles directly into the live showroom!
@@ -220,7 +214,7 @@
             <!-- Verified Banner -->
             <div style="background:rgba(34,197,94,0.08); border:1px solid rgba(34,197,94,0.3); border-radius:var(--radius-sm); padding:14px 18px; margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
               <div>
-                <span style="font-weight:800; color:var(--mint); font-size:13px;">✓ Approved Showroom Seller</span>
+                <span style="font-weight:800; color:var(--mint); font-size:13px;">Approved Showroom Seller</span>
                 <p style="font-size:12px; color:var(--gray-text); margin-top:2px;">Your profile is approved! Cars you post appear directly in the showroom for buyers to view immediately.</p>
               </div>
               <span style="font-size:11px; font-weight:700; color:#22c55e; background:rgba(34,197,94,0.15); padding:4px 10px; border-radius:100px;">Direct Publishing Enabled</span>
@@ -431,7 +425,7 @@
         <div class="preview-slot-card" style="position:relative; aspect-ratio:4/3; border-radius:6px; overflow:hidden; border:${i === 0 ? '2px solid #10b981' : '1px solid rgba(255,255,255,0.18)'}; background:#000;">
           <img src="${item.src}" style="width:100%; height:100%; object-fit:cover;" alt="Photo ${i + 1}">
           <span style="position:absolute; bottom:2px; left:2px; font-size:9px; font-weight:800; padding:1px 5px; border-radius:3px; background:${i === 0 ? '#059669' : 'rgba(0,0,0,0.75)'}; color:#fff;">
-            ${i === 0 ? '★ Cover' : `Slot ${i + 1}`}
+            ${i === 0 ? 'Cover' : `Slot ${i + 1}`}
           </span>
           <button type="button" onclick="removeDirectPhotoSlot(${i}, '${item.type}')" title="Remove photo" style="position:absolute; top:2px; right:2px; width:18px; height:18px; border-radius:50%; background:rgba(239,68,68,0.9); color:#fff; border:none; cursor:pointer; font-size:11px; font-weight:900; line-height:1; display:flex; align-items:center; justify-content:center;">&times;</button>
         </div>

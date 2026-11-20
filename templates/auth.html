@@ -9,12 +9,12 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
-<body class="theme-dark-green auth-page-body">
+<body class="theme-dark-green auth-page-body" style="background: #020704; min-height: 100vh; display: flex; flex-direction: column;">
 
   <!-- Minimal Luxury Header -->
-  <header class="navbar auth-navbar">
-    <div class="container nav-inner">
-      <a href="/" class="brand-logo">
+  <header class="navbar auth-navbar" style="background: rgba(3, 13, 7, 0.9); border-bottom: 1px solid rgba(255,255,255,0.06); padding: 14px 0;">
+    <div class="container nav-inner" style="display: flex; justify-content: space-between; align-items: center;">
+      <a href="/" class="brand-logo" style="display: flex; align-items: center; gap: 10px; text-decoration: none;">
         <div class="logo-symbol">
           <svg viewBox="0 0 100 100" width="30" height="30">
             <circle cx="50" cy="50" r="44" stroke="#ffffff" stroke-width="2.5" fill="none" opacity="0.9"/>
@@ -26,218 +26,123 @@
           </svg>
         </div>
         <div class="brand-text">
-          <h1>BIG-L AUTOS</h1>
+          <h1 style="font-size: 17px; font-weight: 800; letter-spacing: 0.5px; color: #ffffff; margin: 0;">BIG-L AUTOS</h1>
         </div>
       </a>
 
       <div class="nav-actions">
-        <a href="/" class="btn btn-secondary btn-sm">Showroom</a>
+        <a href="/" class="btn btn-secondary" style="padding: 7px 16px; font-size: 12.5px; font-weight: 600; border-radius: 6px; background: rgba(255,255,255,0.06); color: #ffffff; border: 1px solid rgba(255,255,255,0.12); text-decoration: none;">View Showroom</a>
       </div>
     </div>
   </header>
 
-  <!-- Advanced Auth Centerpiece -->
-  <main class="auth-main-wrapper">
-    <div class="auth-ambient-glow-top"></div>
-    <div class="auth-ambient-glow-bottom"></div>
-
-    <div class="container auth-center-container">
-      <div class="advanced-auth-container">
+  <!-- Centered Luxury Auth Container -->
+  <main style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 48px 16px;">
+    <div style="width: 100%; max-width: 440px;">
+      
+      <div class="advanced-auth-container" style="background: #030d07; border: 1px solid rgba(52, 211, 153, 0.22); border-radius: 12px; padding: 32px 28px; box-shadow: 0 20px 40px rgba(0,0,0,0.45); display: block;">
         
-        <!-- Left Showcase Side -->
-        <div class="auth-showcase-panel">
-          
-          <div class="showcase-top">
-            <div class="showcase-emblem">
-              <svg viewBox="0 0 100 100" width="56" height="56">
-                <circle cx="50" cy="50" r="44" stroke="#ffffff" stroke-width="2.5" fill="none" opacity="0.95"/>
-                <path d="M 28 26 L 28 72 L 72 72" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-                <path d="M 33 62 C 36 54 44 48 54 48 C 63 48 70 53 74 62 L 75 66 L 32 66 Z" fill="none" stroke="#ffffff" stroke-width="2.5"/>
-                <circle cx="41" cy="66" r="3.5" fill="none" stroke="#ffffff" stroke-width="2"/>
-                <circle cx="66" cy="66" r="3.5" fill="none" stroke="#ffffff" stroke-width="2"/>
-                <path d="M 27 52 L 32 52 L 33 62" stroke="#ffffff" stroke-width="2" fill="none"/>
-              </svg>
-            </div>
-            <h2 class="showcase-brand-title">BIG-L AUTOS</h2>
-            <div class="showcase-punch">YOUR NEXT CAR AWAITS YOU</div>
-            <div class="showcase-services-pill">WE SELL • WE BUY • WE SWAP</div>
+        <!-- Brand Emblem Header -->
+        <div style="text-align: center; margin-bottom: 24px;">
+          <div style="display: inline-flex; align-items: center; justify-content: center; width: 52px; height: 52px; border-radius: 50%; background: rgba(52,211,153,0.08); border: 1px solid rgba(52,211,153,0.25); margin-bottom: 12px;">
+            <svg viewBox="0 0 100 100" width="34" height="34">
+              <circle cx="50" cy="50" r="44" stroke="#ffffff" stroke-width="2.5" fill="none" opacity="0.95"/>
+              <path d="M 28 26 L 28 72 L 72 72" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+              <path d="M 33 62 C 36 54 44 48 54 48 C 63 48 70 53 74 62 L 75 66 L 32 66 Z" fill="none" stroke="#ffffff" stroke-width="2.5"/>
+              <circle cx="41" cy="66" r="3.5" fill="none" stroke="#ffffff" stroke-width="2"/>
+              <circle cx="66" cy="66" r="3.5" fill="none" stroke="#ffffff" stroke-width="2"/>
+              <path d="M 27 52 L 32 52 L 33 62" stroke="#ffffff" stroke-width="2" fill="none"/>
+            </svg>
           </div>
-
-          <!-- Featured Vehicle Preview or Inquired Car Card -->
-          <div class="auth-vehicle-preview">
-            {% if inquiry_car %}
-              <div class="preview-badge">VEHICLE SELECTED FOR INQUIRY</div>
-              <div class="preview-card-inner">
-                <img src="{{ inquiry_car.image_url }}" alt="{{ inquiry_car.title }}" class="preview-img">
-                <div class="preview-details">
-                  <h4>{{ inquiry_car.title }}</h4>
-                  <div class="preview-meta">
-                    <span class="preview-price">${{ '{:,}'.format(inquiry_car.price) }}</span>
-                    <span class="preview-sub">{{ inquiry_car.year }} • {{ '{:,}'.format(inquiry_car.mileage) }} km</span>
-                  </div>
-                </div>
-              </div>
-              <p class="preview-chat-note">After login, you can immediately enquire and negotiate for this vehicle.</p>
-            {% else %}
-              <div class="preview-badge">SHOWROOM SPOTLIGHT</div>
-              <div class="preview-card-inner">
-                <img src="https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?auto=format&fit=crop&w=1200&q=80" alt="Mercedes-AMG GT R" class="preview-img">
-                <div class="preview-details">
-                  <h4>2023 Mercedes-AMG GT R Coupe</h4>
-                  <div class="preview-meta">
-                    <span class="preview-price">$118,000</span>
-                    <span class="preview-sub">3,100 km • V8 Bi-Turbo</span>
-                  </div>
-                </div>
-              </div>
-              <p class="preview-chat-note">Enquire directly to discuss cash offers, trade-ins, or vehicle test drives.</p>
-            {% endif %}
-          </div>
-
-          <!-- Trust Pillars -->
-          <div class="showcase-pillars">
-            <div class="pillar-row">
-              <span class="pillar-index">01</span>
-              <div class="pillar-content">
-                <h5>Direct Negotiation &amp; Enquiry</h5>
-                <p>Negotiate directly in real-time. No robotic forms or intermediaries.</p>
-              </div>
-            </div>
-
-            <div class="pillar-row">
-              <span class="pillar-index">02</span>
-              <div class="pillar-content">
-                <h5>Certified Swap & Buyout</h5>
-                <p>Instant equity valuation for your current car towards any showroom model.</p>
-              </div>
-            </div>
-
-            <div class="pillar-row">
-              <span class="pillar-index">03</span>
-              <div class="pillar-content">
-                <h5>Somanya-Roundabout Showroom</h5>
-                <p>Mechanically certified and inspected vehicles ready for immediate ownership.</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Footer Metadata Badges -->
-          <div class="showcase-bottom-meta">
-            <div class="meta-pill">
-              <span class="meta-label">LOCATION</span>
-              <span class="meta-val">SOMANYA-ROUNDABOUT</span>
-            </div>
-            <div class="meta-pill">
-              <span class="meta-label">CONTACT</span>
-              <span class="meta-val">0549255121</span>
-            </div>
-          </div>
-
+          <h2 style="font-size: 18px; font-weight: 800; letter-spacing: 0.5px; color: #ffffff; margin: 0 0 4px 0;">BIG-L AUTOS</h2>
+          <p style="font-size: 12.5px; color: var(--gray-400); margin: 0;">Somanya-Roundabout Showroom</p>
         </div>
 
-        <!-- Right Form Side (High-Tech Glassmorphic Portal) -->
-        <div class="auth-form-panel">
-          
-          <div class="panel-status-header">
-            <span class="status-badge">RECEPTIONIST PORTAL • SECURE</span>
-            <span class="desk-indicator">Reception Desk: Online</span>
+        {% if inquiry_car %}
+        <!-- Clean Vehicle Inquired Pill -->
+        <div style="background: rgba(52,211,153,0.08); border: 1px solid rgba(52,211,153,0.22); border-radius: 8px; padding: 10px 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
+          <img src="{{ inquiry_car.image_url }}" alt="{{ inquiry_car.title }}" style="width: 50px; height: 36px; object-fit: cover; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1);">
+          <div style="flex: 1; min-width: 0;">
+            <div style="font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--mint); font-weight: 700;">Vehicle Selected</div>
+            <div style="font-size: 12.5px; font-weight: 700; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ inquiry_car.title }}</div>
           </div>
+        </div>
+        {% endif %}
 
-          <!-- Segmented Tab Switcher -->
-          <div class="advanced-tab-switcher">
-            <button type="button" class="adv-tab-btn {{ 'active' if mode == 'register' else '' }}" id="pageTabRegister" onclick="switchPageAuthMode('register')">
-              Create Account
-            </button>
-            <button type="button" class="adv-tab-btn {{ 'active' if mode == 'login' else '' }}" id="pageTabLogin" onclick="switchPageAuthMode('login')">
+        <!-- Segmented Tab Switcher -->
+        <div class="advanced-tab-switcher" style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; background: #020704; padding: 4px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 22px;">
+          <button type="button" class="adv-tab-btn {{ 'active' if mode == 'login' else '' }}" id="pageTabLogin" onclick="switchPageAuthMode('login')" style="padding: 8px 12px; font-size: 12.5px; font-weight: 600; border-radius: 6px; border: none; cursor: pointer; transition: all 0.2s;">
+            Sign In
+          </button>
+          <button type="button" class="adv-tab-btn {{ 'active' if mode == 'register' else '' }}" id="pageTabRegister" onclick="switchPageAuthMode('register')" style="padding: 8px 12px; font-size: 12.5px; font-weight: 600; border-radius: 6px; border: none; cursor: pointer; transition: all 0.2s;">
+            Create Account
+          </button>
+        </div>
+
+        <!-- Login Form -->
+        <div id="pageLoginContainer" style="{{ 'display:block;' if mode == 'login' else 'display:none;' }}">
+          <form onsubmit="handlePageLogin(event)">
+            <div class="adv-form-group" style="margin-bottom: 14px;">
+              <label class="adv-label" for="pageLoginEmail" style="font-size: 11px; letter-spacing: 0.8px; font-weight: 700; color: var(--gray-300); display: block; margin-bottom: 5px;">EMAIL ADDRESS</label>
+              <input type="email" id="pageLoginEmail" class="adv-input" placeholder="you@example.com" required autocomplete="email" style="width: 100%; padding: 9px 12px; background: #020704; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #ffffff; font-size: 13px;">
+            </div>
+
+            <div class="adv-form-group" style="margin-bottom: 18px;">
+              <label class="adv-label" for="pageLoginPassword" style="font-size: 11px; letter-spacing: 0.8px; font-weight: 700; color: var(--gray-300); display: block; margin-bottom: 5px;">PASSWORD</label>
+              <div class="input-wrap has-toggle" style="position: relative;">
+                <input type="password" id="pageLoginPassword" class="adv-input" placeholder="Enter your password" required autocomplete="current-password" style="width: 100%; padding: 9px 12px; padding-right: 50px; background: #020704; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #ffffff; font-size: 13px;">
+                <button type="button" class="pw-toggle-btn" onclick="togglePasswordVisibility('pageLoginPassword', this)" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--mint); font-size: 11px; cursor: pointer; padding: 4px;">Show</button>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 10px 18px; font-size: 13px; font-weight: 700; letter-spacing: 0.5px; border-radius: 6px; cursor: pointer;">
               Sign In
             </button>
-          </div>
+          </form>
 
-          <!-- Register Form -->
-          <div id="pageRegisterContainer" style="{{ 'display:block;' if mode == 'register' else 'display:none;' }}">
-            <div class="form-header-text">
-              <h3>Create Your Account</h3>
-              <p>Join BIG-L Autos to negotiate prices and speak with the receptionist.</p>
+          <div style="margin-top: 16px; text-align: center; font-size: 12.5px; color: var(--gray-400);">
+            Don't have an account? <a href="javascript:void(0)" onclick="switchPageAuthMode('register')" style="color: var(--mint); text-decoration: none; font-weight: 600;">Create one</a>
+          </div>
+        </div>
+
+        <!-- Register Form -->
+        <div id="pageRegisterContainer" style="{{ 'display:block;' if mode == 'register' else 'display:none;' }}">
+          <form onsubmit="handlePageRegister(event)">
+            <div class="adv-form-group" style="margin-bottom: 12px;">
+              <label class="adv-label" for="pageRegName" style="font-size: 11px; letter-spacing: 0.8px; font-weight: 700; color: var(--gray-300); display: block; margin-bottom: 4px;">FULL NAME</label>
+              <input type="text" id="pageRegName" class="adv-input" placeholder="e.g. David Mensah" required autocomplete="name" style="width: 100%; padding: 8px 12px; background: #020704; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #ffffff; font-size: 13px;">
             </div>
 
-            <form onsubmit="handlePageRegister(event)" class="adv-form">
-              <div class="adv-form-group">
-                <label class="adv-label" for="pageRegName">FULL NAME</label>
-                <div class="input-wrap">
-                  <input type="text" id="pageRegName" class="adv-input" placeholder="e.g. David Miller" required autocomplete="name">
-                </div>
-              </div>
-
-              <div class="adv-form-group">
-                <label class="adv-label" for="pageRegEmail">EMAIL ADDRESS</label>
-                <div class="input-wrap">
-                  <input type="email" id="pageRegEmail" class="adv-input" placeholder="david@example.com" required autocomplete="email">
-                </div>
-              </div>
-
-              <div class="adv-form-group">
-                <label class="adv-label" for="pageRegPhone">PHONE NUMBER <span class="label-opt">(For Showroom Follow-up)</span></label>
-                <div class="input-wrap">
-                  <input type="tel" id="pageRegPhone" class="adv-input" placeholder="e.g. 0549255121" autocomplete="tel">
-                </div>
-              </div>
-
-              <div class="adv-form-group">
-                <label class="adv-label" for="pageRegPassword">PASSWORD <span class="label-opt">(Minimum 4 characters)</span></label>
-                <div class="input-wrap has-toggle">
-                  <input type="password" id="pageRegPassword" class="adv-input" placeholder="Enter secure password" required minlength="4" autocomplete="new-password">
-                  <button type="button" class="pw-toggle-btn" onclick="togglePasswordVisibility('pageRegPassword', this)">Show</button>
-                </div>
-              </div>
-
-              <button type="submit" class="btn btn-primary adv-submit-btn">
-                Create Account & Open Chat
-              </button>
-            </form>
-
-            <div class="auth-switch-note">
-              Already have an account? <a href="javascript:void(0)" onclick="switchPageAuthMode('login')">Sign In here</a>
-            </div>
-          </div>
-
-          <!-- Login Form -->
-          <div id="pageLoginContainer" style="{{ 'display:block;' if mode == 'login' else 'display:none;' }}">
-            <div class="form-header-text">
-              <h3>Welcome Back</h3>
-              <p>Log in to access your direct chat negotiations and vehicle valuations.</p>
+            <div class="adv-form-group" style="margin-bottom: 12px;">
+              <label class="adv-label" for="pageRegEmail" style="font-size: 11px; letter-spacing: 0.8px; font-weight: 700; color: var(--gray-300); display: block; margin-bottom: 4px;">EMAIL ADDRESS</label>
+              <input type="email" id="pageRegEmail" class="adv-input" placeholder="you@example.com" required autocomplete="email" style="width: 100%; padding: 8px 12px; background: #020704; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #ffffff; font-size: 13px;">
             </div>
 
-            <form onsubmit="handlePageLogin(event)" class="adv-form">
-              <div class="adv-form-group">
-                <label class="adv-label" for="pageLoginEmail">EMAIL ADDRESS</label>
-                <div class="input-wrap">
-                  <input type="email" id="pageLoginEmail" class="adv-input" placeholder="you@example.com" required autocomplete="email">
-                </div>
-              </div>
-
-              <div class="adv-form-group">
-                <label class="adv-label" for="pageLoginPassword">PASSWORD</label>
-                <div class="input-wrap has-toggle">
-                  <input type="password" id="pageLoginPassword" class="adv-input" placeholder="Enter your password" required autocomplete="current-password">
-                  <button type="button" class="pw-toggle-btn" onclick="togglePasswordVisibility('pageLoginPassword', this)">Show</button>
-                </div>
-              </div>
-
-              <button type="submit" class="btn btn-primary adv-submit-btn">
-                Sign In &amp; Enquire
-              </button>
-            </form>
-
-            <div class="auth-switch-note">
-              Don't have an account yet? <a href="javascript:void(0)" onclick="switchPageAuthMode('register')">Create an Account</a>
+            <div class="adv-form-group" style="margin-bottom: 12px;">
+              <label class="adv-label" for="pageRegPhone" style="font-size: 11px; letter-spacing: 0.8px; font-weight: 700; color: var(--gray-300); display: block; margin-bottom: 4px;">PHONE NUMBER</label>
+              <input type="tel" id="pageRegPhone" class="adv-input" placeholder="e.g. 0549255121" autocomplete="tel" style="width: 100%; padding: 8px 12px; background: #020704; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #ffffff; font-size: 13px;">
             </div>
+
+            <div class="adv-form-group" style="margin-bottom: 18px;">
+              <label class="adv-label" for="pageRegPassword" style="font-size: 11px; letter-spacing: 0.8px; font-weight: 700; color: var(--gray-300); display: block; margin-bottom: 4px;">PASSWORD</label>
+              <div class="input-wrap has-toggle" style="position: relative;">
+                <input type="password" id="pageRegPassword" class="adv-input" placeholder="At least 4 characters" required minlength="4" autocomplete="new-password" style="width: 100%; padding: 8px 12px; padding-right: 50px; background: #020704; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: #ffffff; font-size: 13px;">
+                <button type="button" class="pw-toggle-btn" onclick="togglePasswordVisibility('pageRegPassword', this)" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--mint); font-size: 11px; cursor: pointer; padding: 4px;">Show</button>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 10px 18px; font-size: 13px; font-weight: 700; letter-spacing: 0.5px; border-radius: 6px; cursor: pointer;">
+              Create Your Account
+            </button>
+          </form>
+
+          <div style="margin-top: 16px; text-align: center; font-size: 12.5px; color: var(--gray-400);">
+            Already have an account? <a href="javascript:void(0)" onclick="switchPageAuthMode('login')" style="color: var(--mint); text-decoration: none; font-weight: 600;">Sign In</a>
           </div>
+        </div>
 
-
-          <div class="auth-security-footer">
-            <span>SOMANYA-ROUNDABOUT SHOWROOM • DIRECT LINE 0549255121</span>
-          </div>
-
+        <div style="margin-top: 24px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.06); text-align: center;">
+          <span style="font-size: 11.5px; color: var(--gray-500);">Somanya-Roundabout • Direct Line: 0549255121</span>
         </div>
 
       </div>
@@ -307,7 +212,6 @@
         if (res.ok) {
           showToast(data.message, 'success');
           if (inquiryCarId) {
-            // Automatically start the inquiry chat for this car!
             await startInquiryAndRedirect(inquiryCarId);
           } else {
             window.location.href = '/customer';
