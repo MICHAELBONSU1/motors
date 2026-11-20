@@ -4381,5 +4381,106 @@ html, body {
   color: #041009;
 }
 
+/* ============================================================================
+   Compact Navbar Navigation (Zero Overlap & No 3-Line Hamburger Menu)
+   ============================================================================ */
+.top-compact-nav {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.nav-btn-compact {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 6px 11px !important;
+  border-radius: 6px !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+  transition: all 0.2s ease !important;
+  line-height: 1.2 !important;
+}
+
+.btn-nav-showroom {
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: #e2e8f0 !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+.btn-nav-showroom:hover {
+  background: rgba(255, 255, 255, 0.14) !important;
+  color: #ffffff !important;
+}
+
+.btn-nav-dashboard {
+  background: rgba(16, 185, 129, 0.14) !important;
+  color: #34d399 !important;
+  border: 1px solid rgba(16, 185, 129, 0.35) !important;
+}
+.btn-nav-dashboard:hover {
+  background: #10b981 !important;
+  color: #041009 !important;
+}
+
+.btn-nav-logout {
+  background: rgba(239, 68, 68, 0.14) !important;
+  color: #f87171 !important;
+  border: 1px solid rgba(239, 68, 68, 0.38) !important;
+}
+.btn-nav-logout:hover {
+  background: #ef4444 !important;
+  color: #ffffff !important;
+}
+
+.btn-nav-login {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+}
+.btn-nav-login:hover {
+  background: rgba(255, 255, 255, 0.18) !important;
+}
+
+.btn-nav-join {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+  color: #041009 !important;
+  border: 1px solid rgba(16, 185, 129, 0.5) !important;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25) !important;
+}
+.btn-nav-join:hover {
+  background: #10b981 !important;
+  color: #020704 !important;
+}
+
+/* Ensure no text collision on mobile and clean responsiveness */
+@media (max-width: 480px) {
+  .brand-name-sub {
+    display: none !important;
+  }
+  .nav-btn-compact {
+    padding: 5px 8px !important;
+    font-size: 11px !important;
+  }
+  .top-compact-nav {
+    gap: 4px !important;
+  }
+  .mobile-nav-toggle,
+  .mobile-nav-drawer {
+    display: none !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .btn-nav-showroom {
+    display: none !important;
+  }
+}
+
 
 

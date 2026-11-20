@@ -9,7 +9,7 @@
   <meta name="theme-color" content="#030f08">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="stylesheet" href="/static/css/style.css?v=6.1">
+  <link rel="stylesheet" href="/static/css/style.css?v=6.2">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -129,54 +129,17 @@
           </svg>
         </div>
         <div class="brand-text">
-          <h1>BIG-L AUTOS</h1>
+          <h1 style="font-size: 15px; font-weight: 800; letter-spacing: 0.5px; margin: 0; color: #ffffff; white-space: nowrap;">
+            <span class="brand-name-main">BIG-L</span><span class="brand-name-sub"> AUTOS</span>
+          </h1>
         </div>
       </a>
 
-      <!-- Desktop Links -->
-      <nav class="desktop-nav-links">
-        <ul class="nav-links">
-          <li><a href="#showroom" class="active">Showroom</a></li>
-          <li><a href="#services">Sell & Swap</a></li>
-          <li><a href="#contact">Contact</a></li>
-        </ul>
-      </nav>
-
-      <!-- Desktop Auth Actions -->
-      <div class="nav-actions desktop-nav-actions">
-        <div id="navAuthArea">
-          <button onclick="openAuthModal('login')" class="btn btn-secondary btn-sm">Log In</button>
-          <button onclick="openAuthModal('register')" class="btn btn-primary btn-sm">Sign Up</button>
-        </div>
-      </div>
-
-      <!-- Mobile Hamburger Toggle -->
-      <button class="mobile-nav-toggle" id="mobileNavToggle" onclick="toggleMobileNav()"
-        aria-label="Toggle navigation menu">
-        <span class="hamburger-bar"></span>
-        <span class="hamburger-bar"></span>
-        <span class="hamburger-bar"></span>
-      </button>
-    </div>
-
-    <!-- Mobile Slide-Down Drawer -->
-    <div class="mobile-nav-drawer" id="mobileNavDrawer">
-      <ul class="mobile-nav-links">
-        <li><a href="#showroom" onclick="closeMobileNav()">Showroom Fleet</a></li>
-        <li><a href="#services" onclick="closeMobileNav()">We Sell, Buy & Swap</a></li>
-        <li><a href="#contact" onclick="closeMobileNav()">Showroom Contact</a></li>
-      </ul>
-
-      <div class="mobile-nav-actions" id="mobileNavAuthArea">
-        <button onclick="closeMobileNav(); openAuthModal('login')" class="btn btn-secondary" style="width:100%;">Log
-          In</button>
-        <button onclick="closeMobileNav(); openAuthModal('register')" class="btn btn-primary" style="width:100%;">Create
-          Account</button>
-      </div>
-
-      <div class="mobile-nav-footer">
-        <span class="mobile-meta-loc">Somanya-Roundabout</span>
-        <a href="tel:0549255121" class="mobile-meta-tel">0549255121</a>
+      <!-- Compact Navigation & Action Buttons (Replaces 3-line menu with sleek buttons that fit the bar) -->
+      <div class="nav-actions top-compact-nav" id="navAuthArea" style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
+        <a href="#showroom" class="btn btn-secondary btn-sm nav-btn-compact btn-nav-showroom" style="padding: 5px 9px; font-size: 11.5px; font-weight: 600; border-radius: 6px; text-decoration: none;">Showroom</a>
+        <button type="button" onclick="openAuthModal('login')" class="btn btn-secondary btn-sm nav-btn-compact btn-nav-login" style="padding: 5px 9px; font-size: 11.5px; font-weight: 600; border-radius: 6px;">Sign In</button>
+        <button type="button" onclick="openAuthModal('register')" class="btn btn-primary btn-sm nav-btn-compact btn-nav-join" style="padding: 5px 10px; font-size: 11.5px; font-weight: 700; border-radius: 6px;">Join</button>
       </div>
     </div>
   </header>
@@ -483,25 +446,7 @@
         <button class="btn-close-modal" onclick="closeAuthModal()" aria-label="Close dialog" style="font-size: 20px; color: #94a3b8; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1; transition: all 0.15s;">&times;</button>
       </div>
 
-      <!-- Inline Real-Time Social Sign-In Sheet (No browser prompts) -->
-      <div id="modalInlineSocial" style="display: none; background: rgba(6, 21, 11, 0.95); border: 1px solid rgba(52, 211, 153, 0.35); border-radius: 10px; padding: 14px; margin-bottom: 14px; box-shadow: 0 8px 24px rgba(0,0,0,0.5);">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <span id="modalSocialIcon"></span>
-            <span id="modalSocialTitle" style="font-size: 13px; font-weight: 700; color: #ffffff;">Quick Google Login</span>
-          </div>
-          <button type="button" onclick="closeModalInlineSocial()" style="background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 18px; line-height: 1; padding: 0;">&times;</button>
-        </div>
-        <p style="font-size: 11.5px; color: #94a3b8; margin: 0 0 10px 0;">Sign in in 1-click using your email:</p>
-        <div style="display: flex; gap: 8px;">
-          <input type="email" id="modalSocialEmailInput" placeholder="name@gmail.com" style="flex: 1; padding: 8px 12px; background: #020704; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; color: #ffffff; font-size: 13px;" onkeydown="if(event.key==='Enter'){event.preventDefault(); submitModalInlineSocial();}">
-          <button type="button" id="modalSocialSubmitBtn" onclick="submitModalInlineSocial()" class="btn btn-primary" style="padding: 8px 14px; font-size: 12px; font-weight: 700; white-space: nowrap;">
-            Continue
-          </button>
-        </div>
-      </div>
-
-      <!-- 1-Click Social Sign-In Buttons -->
+      <!-- 1-Click Real-Time Social Sign-In Buttons -->
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px;">
         <button type="button" onclick="startSocialLogin('google')" class="btn-social" style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 9px 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.14); border-radius: 8px; color: #ffffff; font-size: 12.5px; font-weight: 600; cursor: pointer; transition: all 0.2s;">
           <svg width="16" height="16" viewBox="0 0 24 24">
@@ -739,7 +684,7 @@
 
   <script src="/static/js/three.min.js"></script>
   <script src="/static/js/car3d.js"></script>
-  <script src="/static/js/app.js?v=6.1"></script>
+  <script src="/static/js/app.js?v=6.2"></script>
   <script>
     function openSellSwapModal() {
       if (!currentUser) {

@@ -429,5 +429,19 @@ class BigLAutosTestCase(unittest.TestCase):
         })
         self.assertEqual(login_res.status_code, 200)
 
+    def test_oauth_popup_routes(self):
+        # Verify Google OAuth popup route returns 200 and branded HTML
+        google_res = self.client.get('/auth/google')
+        self.assertEqual(google_res.status_code, 200)
+        self.assertIn(b'Sign in with Google', google_res.data)
+        self.assertIn(b'Choose an account', google_res.data)
+
+        # Verify Apple OAuth popup route returns 200 and branded HTML
+        apple_res = self.client.get('/auth/apple')
+        self.assertEqual(apple_res.status_code, 200)
+        self.assertIn(b'Sign in with Apple', apple_res.data)
+        self.assertIn(b'Apple ID', apple_res.data)
+        self.assertIn(b'Continue with Password', apple_res.data)
+
 if __name__ == '__main__':
     unittest.main()

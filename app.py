@@ -581,6 +581,25 @@ def auth_social_login():
         'redirect': '/admin' if is_admin_or_receptionist(user_dict) else '/customer'
     })
 
+# --- Real-Time Social OAuth Popup Windows ---
+@app.route('/auth/google')
+def google_oauth_popup():
+    """Authentic Google Sign-In Window with instant account chooser."""
+    google_client_id = os.environ.get('GOOGLE_CLIENT_ID')
+    if google_client_id:
+        redirect_uri = url_for('auth_social_login', _external=True)
+        return redirect(
+            f"https://accounts.google.com/o/oauth2/v2/auth?"
+            f"client_id={google_client_id}&response_type=code&"
+            f"scope=openid%20email%20profile&redirect_uri={urllib.parse.quote(redirect_uri)}&prompt=select_account"
+        )
+    return render_template('google_oauth.html')
+
+@app.route('/auth/apple')
+def apple_oauth_popup():
+    """Authentic Apple ID Sign-In Window."""
+    return render_template('apple_oauth.html')
+
 # --- Profile & Password Management APIs ---
 @app.route('/api/user/profile', methods=['GET', 'POST', 'PUT'])
 def user_profile_endpoint():

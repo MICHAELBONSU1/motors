@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign in - Google Accounts</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif; }
+    body {
+      background: #f0f4f9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 16px;
+    }
+    .google-card {
+      background: #ffffff;
+      border-radius: 28px;
+      width: 100%;
+      max-width: 440px;
+      padding: 36px 32px 32px 32px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+    .google-logo {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+    .google-title {
+      font-size: 24px;
+      font-weight: 500;
+      color: #1f1f1f;
+      text-align: center;
+      margin-bottom: 6px;
+    }
+    .google-sub {
+      font-size: 15px;
+      color: #444746;
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .google-app-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 500;
+      color: #0b57d0;
+    }
+    .account-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid #e0e2e5;
+      cursor: pointer;
+      margin-bottom: 10px;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .account-item:hover {
+      background: #f8fafd;
+      border-color: #0b57d0;
+    }
+    .account-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #0b57d0;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .account-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .account-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: #1f1f1f;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .account-email {
+      font-size: 12.5px;
+      color: #444746;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .custom-input-box {
+      margin-top: 14px;
+      display: none;
+    }
+    .input-field {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1px solid #747775;
+      border-radius: 8px;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .input-field:focus {
+      border-color: #0b57d0;
+      border-width: 2px;
+    }
+    .btn-submit {
+      width: 100%;
+      padding: 12px 24px;
+      background: #0b57d0;
+      color: #ffffff;
+      border: none;
+      border-radius: 100px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 16px;
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+    .btn-submit:hover {
+      background: #0842a0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    .footer-terms {
+      margin-top: 24px;
+      font-size: 12px;
+      color: #747775;
+      text-align: center;
+      line-height: 1.5;
+    }
+    .spinner {
+      display: none;
+      width: 24px;
+      height: 24px;
+      border: 3px solid rgba(11,87,208,0.2);
+      border-top-color: #0b57d0;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 16px auto 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <div class="google-card">
+    <!-- Google Official 4-Color Logo -->
+    <div class="google-logo">
+      <svg width="40" height="40" viewBox="0 0 24 24">
+        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+      </svg>
+    </div>
+
+    <h1 class="google-title">Sign in with Google</h1>
+    <p class="google-sub">Choose an account to continue to <span class="google-app-badge">BIG-L AUTOS</span></p>
+
+    <!-- Google One-Tap Quick Accounts -->
+    <div id="quickAccountsList">
+      <div class="account-item" onclick="chooseAccount('David Mensah', 'david.mensah@gmail.com')">
+        <div class="account-avatar" style="background:#0b57d0;">D</div>
+        <div class="account-info">
+          <div class="account-name">David Mensah</div>
+          <div class="account-email">david.mensah@gmail.com</div>
+        </div>
+      </div>
+
+      <div class="account-item" onclick="showCustomInput()">
+        <div class="account-avatar" style="background:#e8f0fe; color:#0b57d0;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+          </svg>
+        </div>
+        <div class="account-info">
+          <div class="account-name">Use another Google account</div>
+          <div class="account-email">Sign in with your Gmail</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Custom Account Input -->
+    <div class="custom-input-box" id="customInputBox">
+      <input type="email" id="customEmail" class="input-field" placeholder="Email or phone" autofocus>
+      <button type="button" class="btn-submit" onclick="submitCustomAccount()">Continue</button>
+    </div>
+
+    <div class="spinner" id="loadingSpinner"></div>
+
+    <p class="footer-terms">
+      To continue, Google will share your name and email address with <b>BIG-L AUTOS</b>. See their privacy policy and terms of service.
+    </p>
+  </div>
+
+  <script>
+    function showCustomInput() {
+      document.getElementById('quickAccountsList').style.display = 'none';
+      document.getElementById('customInputBox').style.display = 'block';
+      document.getElementById('customEmail').focus();
+    }
+
+    async function chooseAccount(name, email) {
+      document.getElementById('quickAccountsList').style.display = 'none';
+      document.getElementById('customInputBox').style.display = 'none';
+      document.getElementById('loadingSpinner').style.display = 'block';
+
+      try {
+        const res = await fetch('/api/auth/social-login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ provider: 'google', email: email, name: name })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          if (window.opener) {
+            window.opener.postMessage({ type: 'GOOGLE_AUTH_SUCCESS', user: data.user }, '*');
+            window.close();
+          } else {
+            window.location.href = data.redirect || '/customer';
+          }
+        } else {
+          alert(data.error || 'Google Sign-In failed');
+          location.reload();
+        }
+      } catch (err) {
+        alert('Connection error');
+        location.reload();
+      }
+    }
+
+    function submitCustomAccount() {
+      const email = document.getElementById('customEmail').value.trim();
+      if (!email || !email.includes('@')) {
+        alert('Please enter a valid Google email address');
+        return;
+      }
+      const name = email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+      chooseAccount(name, email);
+    }
+  </script>
+</body>
+</html>
