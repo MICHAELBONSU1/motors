@@ -1,11 +1,24 @@
+import os
 import unittest
 import json
 import io
 import time
+
+TEST_DB_PATH = os.path.join(os.path.dirname(__file__), 'test_isolated_db.sqlite')
+os.environ['DATABASE_PATH'] = TEST_DB_PATH
+
 from app import app
 from database import init_db, get_db
 
 class BigLAutosTestCase(unittest.TestCase):
+    @classmethod
+    def tearDownClass(cls):
+        try:
+            if os.path.exists(TEST_DB_PATH):
+                os.remove(TEST_DB_PATH)
+        except Exception:
+            pass
+
     def setUp(self):
         app.config['TESTING'] = True
         app.config['SECRET_KEY'] = 'test-secret-key'
@@ -434,14 +447,14 @@ class BigLAutosTestCase(unittest.TestCase):
         google_res = self.client.get('/auth/google')
         self.assertEqual(google_res.status_code, 200)
         self.assertIn(b'Sign in with Google', google_res.data)
-        self.assertIn(b'Choose an account', google_res.data)
+        self.assertIn(b'Continue with Google', google_res.data)
 
         # Verify Apple OAuth popup route returns 200 and branded HTML
         apple_res = self.client.get('/auth/apple')
         self.assertEqual(apple_res.status_code, 200)
         self.assertIn(b'Sign in with Apple', apple_res.data)
         self.assertIn(b'Apple ID', apple_res.data)
-        self.assertIn(b'Continue with Password', apple_res.data)
+        self.assertIn(b'Continue with Apple', apple_res.data)
 
 if __name__ == '__main__':
     unittest.main()

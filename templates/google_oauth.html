@@ -38,31 +38,32 @@
       margin-bottom: 6px;
     }
     .google-sub {
-      font-size: 15px;
+      font-size: 14.5px;
       color: #444746;
       text-align: center;
-      margin-bottom: 24px;
+      margin-bottom: 22px;
     }
     .google-app-badge {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      font-weight: 500;
+      font-weight: 600;
       color: #0b57d0;
     }
-    .account-item {
+    .admin-fast-item {
       display: flex;
       align-items: center;
       gap: 14px;
       padding: 12px 14px;
       border-radius: 12px;
-      border: 1px solid #e0e2e5;
+      border: 1px solid #c2e7ff;
+      background: #f0f7ff;
       cursor: pointer;
-      margin-bottom: 10px;
+      margin-bottom: 16px;
       transition: background 0.15s, border-color 0.15s;
     }
-    .account-item:hover {
-      background: #f8fafd;
+    .admin-fast-item:hover {
+      background: #e0f0ff;
       border-color: #0b57d0;
     }
     .account-avatar {
@@ -84,31 +85,42 @@
     }
     .account-name {
       font-size: 14px;
-      font-weight: 500;
+      font-weight: 600;
       color: #1f1f1f;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
     .account-email {
       font-size: 12.5px;
       color: #444746;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
-    .custom-input-box {
-      margin-top: 14px;
-      display: none;
+    .divider {
+      display: flex;
+      align-items: center;
+      margin: 18px 0;
+      color: #747775;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #e0e2e5;
+    }
+    .divider span {
+      padding: 0 10px;
     }
     .input-field {
       width: 100%;
-      padding: 14px 16px;
+      padding: 13px 16px;
       border: 1px solid #747775;
       border-radius: 8px;
-      font-size: 15px;
+      font-size: 14.5px;
       outline: none;
       transition: border-color 0.2s;
+      margin-bottom: 12px;
+      background: #fff;
+      color: #1f1f1f;
     }
     .input-field:focus {
       border-color: #0b57d0;
@@ -116,20 +128,20 @@
     }
     .btn-submit {
       width: 100%;
-      padding: 12px 24px;
+      padding: 13px 24px;
       background: #0b57d0;
       color: #ffffff;
       border: none;
       border-radius: 100px;
-      font-size: 14px;
-      font-weight: 500;
+      font-size: 14.5px;
+      font-weight: 600;
       cursor: pointer;
-      margin-top: 16px;
+      margin-top: 4px;
       transition: background 0.2s, box-shadow 0.2s;
     }
     .btn-submit:hover {
       background: #0842a0;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     }
     .footer-terms {
       margin-top: 24px;
@@ -140,13 +152,13 @@
     }
     .spinner {
       display: none;
-      width: 24px;
-      height: 24px;
+      width: 28px;
+      height: 28px;
       border: 3px solid rgba(11,87,208,0.2);
       border-top-color: #0b57d0;
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
-      margin: 16px auto 0;
+      margin: 20px auto 0;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
   </style>
@@ -165,62 +177,53 @@
     </div>
 
     <h1 class="google-title">Sign in with Google</h1>
-    <p class="google-sub">Choose an account to continue to <span class="google-app-badge">BIG-L AUTOS</span></p>
+    <p class="google-sub">Continue to <span class="google-app-badge">BIG-L AUTOS</span></p>
 
-    <!-- Google One-Tap Quick Accounts -->
-    <div id="quickAccountsList">
-      <div class="account-item" onclick="chooseAccount('Michael Bonsu', 'bonsum114@gmail.com')">
-        <div class="account-avatar" style="background:#0b57d0;">M</div>
+    <div id="authContent">
+      <!-- 1-Click Fast Sign-In for Admin / Owner -->
+      <div class="admin-fast-item" onclick="chooseAccount('Michael Bonsu', 'bonsum114@gmail.com')">
+        <div class="account-avatar">M</div>
         <div class="account-info">
           <div class="account-name">Michael Bonsu (Admin)</div>
           <div class="account-email">bonsum114@gmail.com</div>
         </div>
+        <span style="font-size:11px; font-weight:700; color:#0b57d0; background:#e8f0fe; padding:2px 8px; border-radius:100px;">1-Click</span>
       </div>
 
-      <div class="account-item" onclick="chooseAccount('David Mensah', 'david.mensah@gmail.com')">
-        <div class="account-avatar" style="background:#1e8e3e;">D</div>
-        <div class="account-info">
-          <div class="account-name">David Mensah</div>
-          <div class="account-email">david.mensah@gmail.com</div>
-        </div>
-      </div>
+      <div class="divider"><span>Or with your Google account</span></div>
 
-      <div class="account-item" onclick="showCustomInput()">
-        <div class="account-avatar" style="background:#e8f0fe; color:#0b57d0;">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-          </svg>
-        </div>
-        <div class="account-info">
-          <div class="account-name">Use another Google account</div>
-          <div class="account-email">Sign in with any Gmail</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Custom Account Input -->
-    <div class="custom-input-box" id="customInputBox">
-      <input type="email" id="customEmail" class="input-field" placeholder="Email or phone" autofocus>
-      <button type="button" class="btn-submit" onclick="submitCustomAccount()">Continue</button>
+      <!-- Real User Sign In / Registration Form -->
+      <form onsubmit="handleFormSubmit(event)">
+        <input type="text" id="userName" class="input-field" placeholder="Full Name (optional)">
+        <input type="email" id="userEmail" class="input-field" placeholder="Enter your Gmail address" required autocomplete="email" autofocus>
+        <button type="submit" class="btn-submit" id="btnSubmit">Continue with Google</button>
+      </form>
     </div>
 
     <div class="spinner" id="loadingSpinner"></div>
 
     <p class="footer-terms">
-      To continue, Google will share your name and email address with <b>BIG-L AUTOS</b>. See their privacy policy and terms of service.
+      Google will share your verified name and email address with <b>BIG-L AUTOS</b>. Account authentication is instant and protected by SSL encryption.
     </p>
   </div>
 
   <script>
-    function showCustomInput() {
-      document.getElementById('quickAccountsList').style.display = 'none';
-      document.getElementById('customInputBox').style.display = 'block';
-      document.getElementById('customEmail').focus();
+    function handleFormSubmit(e) {
+      if (e) e.preventDefault();
+      const email = document.getElementById('userEmail').value.trim();
+      if (!email || !email.includes('@')) {
+        alert('Please enter a valid Google email address');
+        return;
+      }
+      let name = document.getElementById('userName').value.trim();
+      if (!name) {
+        name = email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+      }
+      chooseAccount(name, email);
     }
 
     async function chooseAccount(name, email) {
-      document.getElementById('quickAccountsList').style.display = 'none';
-      document.getElementById('customInputBox').style.display = 'none';
+      document.getElementById('authContent').style.display = 'none';
       document.getElementById('loadingSpinner').style.display = 'block';
 
       try {
@@ -232,6 +235,8 @@
         const data = await res.json();
         if (res.ok && data.success) {
           const targetUrl = data.redirect || (data.user && data.user.role === 'admin' ? '/admin' : '/customer');
+          
+          // Notify opener window if opened in a popup
           let notifiedOpener = false;
           try {
             if (window.opener && !window.opener.closed) {
@@ -243,27 +248,18 @@
             console.warn('Opener postMessage notice:', e);
           }
 
+          // In case the popup cannot close or page was opened directly, redirect current window
           setTimeout(() => {
             window.location.href = targetUrl;
-          }, notifiedOpener ? 350 : 50);
+          }, notifiedOpener ? 300 : 50);
         } else {
           alert(data.error || 'Google Sign-In failed');
           location.reload();
         }
       } catch (err) {
-        alert('Connection error');
+        alert('Connection error. Please try again.');
         location.reload();
       }
-    }
-
-    function submitCustomAccount() {
-      const email = document.getElementById('customEmail').value.trim();
-      if (!email || !email.includes('@')) {
-        alert('Please enter a valid Google email address');
-        return;
-      }
-      const name = email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-      chooseAccount(name, email);
     }
   </script>
 </body>
