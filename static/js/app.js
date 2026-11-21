@@ -651,6 +651,15 @@ async function handleRegister(e) {
       }
     } else {
       showToast(data.error || 'Registration failed', 'info');
+      if (data.already_exists || (data.error && data.error.toLowerCase().includes('already'))) {
+        setTimeout(() => {
+          switchAuthTab('login');
+          const loginEmail = document.getElementById('loginEmail');
+          if (loginEmail) loginEmail.value = email;
+          const loginPassword = document.getElementById('loginPassword');
+          if (loginPassword) loginPassword.focus();
+        }, 600);
+      }
     }
   } catch (err) {
     console.error('Registration error:', err);
@@ -1502,8 +1511,11 @@ async function loadChatMessages(chatId, isBackgroundPoll = false) {
 
 function messageRowHtml(m) {
   const isSentByMe = currentUser && m.sender_id === currentUser.id;
-  const initial = m.sender_name ? m.sender_name[0].toUpperCase() : (isSentByMe ? 'U' : 'S');
-  const senderDisplay = isSentByMe ? 'You' : (m.sender_name || 'Seller');
+  let senderDisplay = isSentByMe ? 'You' : (m.sender_name || 'Support');
+  if (!isSentByMe && (m.sender_role === 'admin' || m.sender_role === 'support' || m.sender_id === 1 || (senderDisplay && senderDisplay.toLowerCase().includes('admin')))) {
+    senderDisplay = 'Dealership Support';
+  }
+  const initial = isSentByMe ? 'U' : (senderDisplay.toLowerCase().includes('support') ? 'S' : (senderDisplay[0] || 'S').toUpperCase());
   return `
     <div class="message-row ${isSentByMe ? 'sent' : 'received'}" data-msg-id="${m.id}">
       <div class="msg-avatar ${isSentByMe ? 'customer-avatar' : 'receptionist-avatar'}">${initial}</div>
@@ -1536,8 +1548,14 @@ function renderChatWindowFrame(chat) {
   if (!chatWindow) return;
 
   const isSelling = chat.chat_type === 'selling';
-  const otherName = chat.other_party_name || (chat.is_user_seller ? chat.seller_name : 'Larry (Head Dealer)');
-  const otherRole = chat.other_party_role || (chat.is_user_seller ? 'Seller' : 'Dealership');
+  let otherName = chat.other_party_name || (chat.is_user_seller ? chat.seller_name : 'Dealership Support');
+  let otherRole = chat.other_party_role || (chat.is_user_seller ? 'Seller' : 'Support');
+  if (otherName.toLowerCase().includes('admin') || otherName.toLowerCase().includes('dealer')) {
+    otherName = 'Dealership Support';
+  }
+  if (otherRole.toLowerCase().includes('admin') || otherRole.toLowerCase().includes('dealer')) {
+    otherRole = 'Support';
+  }
 
   const chipsHtml = isSelling
     ? `

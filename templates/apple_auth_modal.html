@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign in with Apple ID</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif; }
+    body {
+      background: #000000;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 16px;
+    }
+    .apple-card {
+      background: #1c1c1e;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 420px;
+      padding: 36px 32px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+      text-align: center;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .apple-logo {
+      margin-bottom: 20px;
+    }
+    .apple-title {
+      font-size: 24px;
+      font-weight: 600;
+      color: #ffffff;
+      margin-bottom: 8px;
+    }
+    .apple-sub {
+      font-size: 14.5px;
+      color: #8e8e93;
+      margin-bottom: 28px;
+    }
+    .apple-sub b {
+      color: #ffffff;
+    }
+    .input-field {
+      width: 100%;
+      padding: 14px 16px;
+      background: #2c2c2e;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 12px;
+      color: #ffffff;
+      font-size: 15px;
+      outline: none;
+      margin-bottom: 14px;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .input-field:focus {
+      border-color: #0a84ff;
+      background: #3a3a3c;
+    }
+    .input-field::placeholder {
+      color: #8e8e93;
+    }
+    .btn-apple-continue {
+      width: 100%;
+      padding: 14px;
+      background: #ffffff;
+      color: #000000;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 6px;
+      transition: background 0.2s;
+    }
+    .btn-apple-continue:hover {
+      background: #f2f2f7;
+    }
+    .apple-cancel {
+      display: inline-block;
+      margin-top: 24px;
+      color: #0a84ff;
+      font-size: 14px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .spinner {
+      display: none;
+      width: 24px;
+      height: 24px;
+      border: 3px solid rgba(255,255,255,0.2);
+      border-top-color: #ffffff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 16px auto 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <div class="apple-card">
+    <div class="apple-logo">
+      <svg width="42" height="42" viewBox="0 0 170 170" fill="#ffffff">
+        <path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.69-3.04-7.67-7.81-11.96-14.31-7.2-10.84-12.87-23.77-17-38.79-4.13-15.02-6.2-28.79-6.2-41.3 0-14.64 3.49-26.68 10.46-36.12 6.98-9.44 15.69-14.28 26.13-14.52 4.9 0 10.37 1.34 16.42 4.02 6.05 2.68 10.22 4.08 12.51 4.2 2.07-.12 6.25-1.52 12.54-4.2 6.29-2.68 11.53-3.9 15.72-3.66 11.83.6 21.6 4.96 29.31 13.08-10.46 6.31-15.57 15.2-15.33 26.66.24 8.92 3.69 16.29 10.34 22.12 6.66 5.83 14.59 9.17 23.79 10.02-2.18 6.75-4.8 13.3-7.85 19.64zM119.22 33.15c0-7.39 2.67-14.16 8.01-20.31 5.34-6.15 11.83-9.97 19.47-11.46.24 1.08.36 2.05.36 2.9 0 7.39-2.79 14.28-8.37 20.67-5.58 6.39-12.28 10.15-20.1 11.28-.48-.96-.72-2.18-.72-3.67z"/>
+      </svg>
+    </div>
+
+    <h1 class="apple-title">Sign in with Apple</h1>
+    <p class="apple-sub">Continue to <b>BIG-L AUTOS</b> with your Apple ID</p>
+
+    <div id="authContent">
+      <!-- Standard Apple ID Sign-In Form (no pre-filled or pre-saved accounts) -->
+      <form onsubmit="handleAppleSubmit(event)">
+        <input type="text" id="appleName" class="input-field" placeholder="Full Name (optional)">
+        <input type="email" id="appleEmail" class="input-field" placeholder="Enter your Apple ID / iCloud email" required autocomplete="email" autofocus>
+        <button type="submit" class="btn-apple-continue">
+          <svg width="18" height="18" viewBox="0 0 170 170" fill="#000000">
+            <path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.69-3.04-7.67-7.81-11.96-14.31-7.2-10.84-12.87-23.77-17-38.79-4.13-15.02-6.2-28.79-6.2-41.3 0-14.64 3.49-26.68 10.46-36.12 6.98-9.44 15.69-14.28 26.13-14.52 4.9 0 10.37 1.34 16.42 4.02 6.05 2.68 10.22 4.08 12.51 4.2 2.07-.12 6.25-1.52 12.54-4.2 6.29-2.68 11.53-3.9 15.72-3.66 11.83.6 21.6 4.96 29.31 13.08-10.46 6.31-15.57 15.2-15.33 26.66.24 8.92 3.69 16.29 10.34 22.12 6.66 5.83 14.59 9.17 23.79 10.02-2.18 6.75-4.8 13.3-7.85 19.64zM119.22 33.15c0-7.39 2.67-14.16 8.01-20.31 5.34-6.15 11.83-9.97 19.47-11.46.24 1.08.36 2.05.36 2.9 0 7.39-2.79 14.28-8.37 20.67-5.58 6.39-12.28 10.15-20.1 11.28-.48-.96-.72-2.18-.72-3.67z"/>
+          </svg>
+          Continue with Apple
+        </button>
+      </form>
+    </div>
+
+    <div class="spinner" id="loadingSpinner"></div>
+
+    <a class="apple-cancel" onclick="try{window.close();}catch(e){window.location.href='/';}">Cancel</a>
+  </div>
+
+  <script>
+    function handleAppleSubmit(e) {
+      if (e) e.preventDefault();
+      const email = document.getElementById('appleEmail').value.trim();
+      if (!email || !email.includes('@')) {
+        alert('Please enter a valid Apple ID email address');
+        return;
+      }
+      let name = document.getElementById('appleName').value.trim();
+      if (!name) {
+        name = email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+      }
+      executeAppleAuth(name, email);
+    }
+
+    async function executeAppleAuth(name, email) {
+      document.getElementById('authContent').style.display = 'none';
+      document.getElementById('loadingSpinner').style.display = 'block';
+
+      try {
+        const res = await fetch('/api/auth/social-login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            provider: 'apple',
+            email: email,
+            name: name
+          })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          const targetUrl = data.redirect || (data.user && data.user.role === 'admin' ? '/admin' : '/customer');
+          let notifiedOpener = false;
+          try {
+            if (window.opener && !window.opener.closed) {
+              window.opener.postMessage({ type: 'APPLE_AUTH_SUCCESS', user: data.user }, '*');
+              notifiedOpener = true;
+              try { window.close(); } catch (e) {}
+            }
+          } catch (e) {
+            console.warn('Opener notice:', e);
+          }
+          setTimeout(() => {
+            window.location.href = targetUrl;
+          }, notifiedOpener ? 300 : 50);
+        } else {
+          alert(data.error || 'Apple Sign-In failed');
+          location.reload();
+        }
+      } catch (err) {
+        alert('Connection error. Please try again.');
+        location.reload();
+      }
+    }
+  </script>
+</body>
+</html>

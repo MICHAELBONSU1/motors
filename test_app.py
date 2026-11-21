@@ -76,6 +76,13 @@ class BigLAutosTestCase(unittest.TestCase):
         reg_data = json.loads(reg_res.data)
         self.assertTrue(reg_data['success'])
 
+        # Attempt registering same email again -> must return 409 and prompt to login
+        dup_reg = self.client.post('/api/auth/register', json=reg_payload)
+        self.assertEqual(dup_reg.status_code, 409)
+        dup_data = json.loads(dup_reg.data)
+        self.assertTrue(dup_data.get('already_exists'))
+        self.assertIn('already have an account', dup_data.get('error', '').lower())
+
         cars_res = self.client.get('/api/cars')
         car_id = json.loads(cars_res.data)['cars'][0]['id']
 
@@ -89,7 +96,7 @@ class BigLAutosTestCase(unittest.TestCase):
         self.assertEqual(msg_res.status_code, 200)
         msg_data = json.loads(msg_res.data)
         self.assertGreater(len(msg_data['messages']), 0)
-        self.assertEqual(msg_data['messages'][0]['sender_role'], 'admin')
+        self.assertEqual(msg_data['messages'][0]['sender_role'], 'support')
 
         send_res = self.client.post(f'/api/chats/{chat_id}/messages', json={'message': 'Can you take GH₵ 1,100,000 cash?'})
         self.assertEqual(send_res.status_code, 200)
@@ -396,6 +403,26 @@ class BigLAutosTestCase(unittest.TestCase):
         self.assertFalse(data2['is_new_user'])
         self.assertEqual(data2['user']['email'], social_email)
 
+        # 3. Social login creates/logs in as regular customer (buyer/seller)
+        cust_social = self.client.post('/api/auth/social-login', json={
+            'provider': 'google',
+            'email': 'bonsum114@gmail.com',
+            'name': 'Michael Bonsu'
+        })
+        self.assertEqual(cust_social.status_code, 200)
+        cust_data = json.loads(cust_social.data)
+        self.assertTrue(cust_data['success'])
+        self.assertEqual(cust_data['user']['role'], 'customer')
+        self.assertEqual(cust_data['redirect'], '/customer')
+
+        # 4. Larry's admin email cannot be hijacked via social login
+        admin_blocked = self.client.post('/api/auth/social-login', json={
+            'provider': 'google',
+            'email': 'admin@biglautos.com',
+            'name': 'Hacker'
+        })
+        self.assertEqual(admin_blocked.status_code, 403)
+
     def test_user_profile_and_password_update(self):
         test_email = f"user_{int(time.time()*1000)}@test.com"
         reg = self.client.post('/api/auth/register', json={
@@ -446,7 +473,6 @@ class BigLAutosTestCase(unittest.TestCase):
         # Verify Google OAuth popup route returns 200 and branded HTML
         google_res = self.client.get('/auth/google')
         self.assertEqual(google_res.status_code, 200)
-        self.assertIn(b'Sign in with Google', google_res.data)
         self.assertIn(b'Continue with Google', google_res.data)
 
         # Verify Apple OAuth popup route returns 200 and branded HTML

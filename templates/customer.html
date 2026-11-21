@@ -26,15 +26,18 @@
         <div class="logo-symbol" style="width: 36px; height: 38px;">
           <svg viewBox="0 -24 105 128" width="34" height="40" style="overflow: visible;">
             <!-- Big Bold Christmas Red Santa Cap (December Edition) -->
-            <path d="M 14 12 C 20 -12 34 -24 50 -24 C 68 -24 82 -12 90 6 C 94 16 88 20 82 16 C 76 10 68 0 54 -4 C 40 -8 26 4 14 12 Z" fill="#dc2626"/>
-            <path d="M 24 6 C 34 -14 48 -20 62 -18 C 74 -12 82 -2 86 10 C 80 8 72 2 60 0 C 46 -2 32 4 24 6 Z" fill="#ef4444" opacity="0.85"/>
-            <circle cx="90" cy="18" r="8.5" fill="#ffffff" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.4))"/>
-            <path d="M 12 18 C 16 6 38 0 60 2 C 70 8 68 18 56 16 C 40 14 26 16 12 18 Z" fill="#ffffff"/>
-            <circle cx="16" cy="14" r="5.5" fill="#ffffff"/>
-            <circle cx="27" cy="10" r="5.5" fill="#ffffff"/>
-            <circle cx="40" cy="8" r="5.5" fill="#ffffff"/>
-            <circle cx="53" cy="9" r="5.5" fill="#ffffff"/>
-            <circle cx="64" cy="13" r="5.5" fill="#ffffff"/>
+            <path
+              d="M 14 12 C 20 -12 34 -24 50 -24 C 68 -24 82 -12 90 6 C 94 16 88 20 82 16 C 76 10 68 0 54 -4 C 40 -8 26 4 14 12 Z"
+              fill="#dc2626" />
+            <path d="M 24 6 C 34 -14 48 -20 62 -18 C 74 -12 82 -2 86 10 C 80 8 72 2 60 0 C 46 -2 32 4 24 6 Z"
+              fill="#ef4444" opacity="0.85" />
+            <circle cx="90" cy="18" r="8.5" fill="#ffffff" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.4))" />
+            <path d="M 12 18 C 16 6 38 0 60 2 C 70 8 68 18 56 16 C 40 14 26 16 12 18 Z" fill="#ffffff" />
+            <circle cx="16" cy="14" r="5.5" fill="#ffffff" />
+            <circle cx="27" cy="10" r="5.5" fill="#ffffff" />
+            <circle cx="40" cy="8" r="5.5" fill="#ffffff" />
+            <circle cx="53" cy="9" r="5.5" fill="#ffffff" />
+            <circle cx="64" cy="13" r="5.5" fill="#ffffff" />
 
             <circle cx="50" cy="50" r="44" stroke="#ffffff" stroke-width="2.5" fill="none" opacity="0.9" />
             <path d="M 28 26 L 28 72 L 72 72" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round"
@@ -52,10 +55,15 @@
       </a>
 
       <div class="nav-actions customer-nav-actions" style="display: flex; align-items: center; gap: 8px;">
-        <button type="button" id="btnEnableCustNotifications" onclick="enableUserNotifications()" class="btn btn-secondary btn-sm" style="display:none; font-size:11px; padding:5px 9px;" title="Enable background message alerts">Enable Alerts</button>
-        <a href="/" class="btn btn-secondary btn-sm" style="padding: 6px 11px; font-size: 12px; font-weight: 600; white-space: nowrap;">Showroom</a>
+        <button type="button" id="btnEnableCustNotifications" onclick="enableUserNotifications()"
+          class="btn btn-secondary btn-sm" style="display:none; font-size:11px; padding:5px 9px;"
+          title="Enable background message alerts">Enable Alerts</button>
+        <a href="/" class="btn btn-secondary btn-sm"
+          style="padding: 6px 11px; font-size: 12px; font-weight: 600; white-space: nowrap;">Showroom</a>
         <div id="navAuthArea">
-          <button onclick="handleLogout()" class="btn btn-sm" style="background: rgba(239, 68, 68, 0.16); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 6px; cursor: pointer; flex-shrink: 0; white-space: nowrap;">Log Out</button>
+          <button onclick="handleLogout()" class="btn btn-sm"
+            style="background: rgba(239, 68, 68, 0.16); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 6px; cursor: pointer; flex-shrink: 0; white-space: nowrap;">Log
+            Out</button>
         </div>
       </div>
     </div>
@@ -69,19 +77,24 @@
       <aside id="customerSidebar">
         <div class="sidebar-card">
           <!-- Profile Badge with Instant Logout Button -->
-          <div class="user-profile-badge" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 16px; border-bottom: 1px solid var(--border-dark); margin-bottom: 16px;">
+          <div class="user-profile-badge"
+            style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 16px; border-bottom: 1px solid var(--border-dark); margin-bottom: 16px;">
             <div style="display: flex; align-items: center; gap: 12px; min-width: 0;">
               <div class="avatar-initials" style="flex-shrink: 0;">
                 {{ user.name[0] if user else 'U' }}
               </div>
               <div style="min-width: 0;">
-                <h3 style="font-size: 15px; font-weight: 750; color: var(--white); margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" id="customerWelcomeName">
+                <h3
+                  style="font-size: 15px; font-weight: 750; color: var(--white); margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
+                  id="customerWelcomeName">
                   {{ user.name if user else 'Customer' }}
                 </h3>
-                <p style="font-size: 11.5px; color: var(--mint); margin: 2px 0 0 0; font-weight: 600;">Verified Account</p>
+                <p style="font-size: 11.5px; color: var(--mint); margin: 2px 0 0 0; font-weight: 600;">Verified Account
+                </p>
               </div>
             </div>
-            <button type="button" onclick="handleLogout()" class="btn btn-sm" style="background: rgba(239, 68, 68, 0.12); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); font-size: 11.5px; font-weight: 700; padding: 5px 11px; border-radius: 6px; cursor: pointer; flex-shrink: 0; white-space: nowrap;">
+            <button type="button" onclick="handleLogout()" class="btn btn-sm"
+              style="background: rgba(239, 68, 68, 0.12); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); font-size: 11.5px; font-weight: 700; padding: 5px 11px; border-radius: 6px; cursor: pointer; flex-shrink: 0; white-space: nowrap;">
               Log Out
             </button>
           </div>
@@ -120,8 +133,10 @@
             </div>
           </div>
 
-          <div style="margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--border-dark); font-size: 11px; color: var(--gray-500); text-align: center;">
-            <a href="/terms" target="_blank" style="color: var(--gray-400); text-decoration: none;">Terms &amp; Conditions</a> &bull;
+          <div
+            style="margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--border-dark); font-size: 11px; color: var(--gray-500); text-align: center;">
+            <a href="/terms" target="_blank" style="color: var(--gray-400); text-decoration: none;">Terms &amp;
+              Conditions</a> &bull;
             <a href="/privacy" target="_blank" style="color: var(--gray-400); text-decoration: none;">Privacy Policy</a>
           </div>
         </div>
@@ -211,81 +226,118 @@
             </div>
           </div>
         </div>
-      
+
         <!-- Tab 3: Post My Car (Profile-Based Approval) -->
         <div id="customerMyListingsTab" style="display:none;">
 
           <!-- State A: Not Requested or Revoked (Full Step-by-Step Guide) -->
-          <div id="sellerNotApprovedCard" style="display:none; background:var(--bg-card); border:1px solid var(--border-dark); border-radius:var(--radius-md); padding:32px 28px; box-shadow:var(--shadow-sm); margin-bottom:24px;">
-            <div style="display:inline-block; font-size:11px; font-weight:800; letter-spacing:1px; color:var(--mint); text-transform:uppercase; background:rgba(0,242,150,0.1); padding:4px 10px; border-radius:4px; margin-bottom:12px;">HOW TO POST CARS ON BIG-L AUTOS</div>
-            <h3 style="font-family:var(--font-heading); font-size:22px; font-weight:800; color:var(--white); margin-bottom:10px;">Post Your Vehicles in the Showroom</h3>
+          <div id="sellerNotApprovedCard"
+            style="display:none; background:var(--bg-card); border:1px solid var(--border-dark); border-radius:var(--radius-md); padding:32px 28px; box-shadow:var(--shadow-sm); margin-bottom:24px;">
+            <div
+              style="display:inline-block; font-size:11px; font-weight:800; letter-spacing:1px; color:var(--mint); text-transform:uppercase; background:rgba(0,242,150,0.1); padding:4px 10px; border-radius:4px; margin-bottom:12px;">
+              HOW TO POST CARS ON BIG-L AUTOS</div>
+            <h3
+              style="font-family:var(--font-heading); font-size:22px; font-weight:800; color:var(--white); margin-bottom:10px;">
+              Post Your Vehicles in the Showroom</h3>
             <p style="font-size:14px; color:var(--gray-300); max-width:620px; line-height:1.6; margin-bottom:24px;">
-              Showcase your cars to thousands of verified buyers across Ghana. To maintain high vehicle quality and verified seller listings, posting access is granted via a monthly subscription paid to Larry.
+              Showcase your cars to thousands of verified buyers across Ghana. To maintain high vehicle quality and
+              verified seller listings, posting access is granted via a monthly subscription paid to Larry.
             </p>
 
             <!-- Pricing Box -->
-            <div style="background:linear-gradient(135deg, rgba(0,242,150,0.1) 0%, rgba(15,23,42,0.6) 100%); border:1px solid rgba(0,242,150,0.3); border-radius:var(--radius-sm); padding:18px 22px; margin-bottom:24px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+            <div
+              style="background:linear-gradient(135deg, rgba(0,242,150,0.1) 0%, rgba(15,23,42,0.6) 100%); border:1px solid rgba(0,242,150,0.3); border-radius:var(--radius-sm); padding:18px 22px; margin-bottom:24px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
               <div>
                 <div style="font-size:12px; font-weight:700; color:var(--gray-400); text-transform:uppercase; letter-spacing:0.5px;">Seller Posting Fee</div>
                 <div style="font-size:26px; font-weight:900; color:var(--white); margin-top:2px;">GH₵ 50 <span style="font-size:13px; font-weight:600; color:var(--gray-400);">/ month</span></div>
-                <div style="font-size:12.5px; color:var(--gray-300); margin-top:4px;">Paid directly to <strong style="color:var(--white);">Larry (Head Dealer &amp; Admin)</strong> via Mobile Money / Telecel Cash</div>
+                <div style="font-size:12.5px; color:var(--gray-300); margin-top:4px;">Paid directly to <strong style="color:var(--white);">Dealership Support</strong> via Mobile Money / Telecel Cash</div>
               </div>
-              <div style="background:rgba(0,0,0,0.4); padding:10px 16px; border-radius:6px; border:1px solid rgba(255,255,255,0.08); text-align:right;">
-                <div style="font-size:11px; color:var(--gray-400); text-transform:uppercase; font-weight:700;">MoMo / Call Line</div>
-                <a href="tel:0549255121" style="font-size:16px; font-weight:800; color:var(--mint); text-decoration:none;">0549255121</a>
-                <div style="font-size:11px; color:var(--gray-400);">Larry (BIG-L Autos)</div>
+              <div
+                style="background:rgba(0,0,0,0.4); padding:10px 16px; border-radius:6px; border:1px solid rgba(255,255,255,0.08); text-align:right;">
+                <div style="font-size:11px; color:var(--gray-400); text-transform:uppercase; font-weight:700;">MoMo /
+                  Call Line</div>
+                <a href="tel:0549255121"
+                  style="font-size:16px; font-weight:800; color:var(--mint); text-decoration:none;">0549255121</a>
+                <div style="font-size:11px; color:var(--gray-400);">Support (BIG-L Autos)</div>
               </div>
             </div>
 
             <!-- Steps 1, 2, 3 -->
-            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:16px; margin-bottom:28px; text-align:left;">
-              <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-dark); border-radius:8px; padding:18px;">
-                <div style="width:28px; height:28px; border-radius:50%; background:var(--mint); color:#000; font-weight:900; font-size:13px; display:flex; align-items:center; justify-content:center; margin-bottom:10px;">1</div>
-                <h4 style="font-size:14.5px; font-weight:750; color:var(--white); margin-bottom:6px;">Pay GH₵ 50 to Larry</h4>
+            <div
+              style="display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:16px; margin-bottom:28px; text-align:left;">
+              <div
+                style="background:rgba(255,255,255,0.03); border:1px solid var(--border-dark); border-radius:8px; padding:18px;">
+                <div
+                  style="width:28px; height:28px; border-radius:50%; background:var(--mint); color:#000; font-weight:900; font-size:13px; display:flex; align-items:center; justify-content:center; margin-bottom:10px;">
+                  1</div>
+                <h4 style="font-size:14.5px; font-weight:750; color:var(--white); margin-bottom:6px;">Pay GH₵ 50 to
+                  Larry</h4>
                 <p style="font-size:12.5px; color:var(--gray-400); line-height:1.5; margin:0;">
-                  Send your GH₵ 50 monthly subscription via Mobile Money to <strong>0549255121</strong> (Larry). Use your registered full name as reference.
+                  Send your GH₵ 50 monthly subscription via Mobile Money to <strong>0549255121</strong> (Larry). Use
+                  your registered full name as reference.
                 </p>
               </div>
 
-              <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-dark); border-radius:8px; padding:18px;">
-                <div style="width:28px; height:28px; border-radius:50%; background:var(--mint); color:#000; font-weight:900; font-size:13px; display:flex; align-items:center; justify-content:center; margin-bottom:10px;">2</div>
-                <h4 style="font-size:14.5px; font-weight:750; color:var(--white); margin-bottom:6px;">Request Posting Access</h4>
+              <div
+                style="background:rgba(255,255,255,0.03); border:1px solid var(--border-dark); border-radius:8px; padding:18px;">
+                <div
+                  style="width:28px; height:28px; border-radius:50%; background:var(--mint); color:#000; font-weight:900; font-size:13px; display:flex; align-items:center; justify-content:center; margin-bottom:10px;">
+                  2</div>
+                <h4 style="font-size:14.5px; font-weight:750; color:var(--white); margin-bottom:6px;">Request Posting
+                  Access</h4>
                 <p style="font-size:12.5px; color:var(--gray-400); line-height:1.5; margin:0;">
-                  Tap the button below to notify Larry. Larry will verify your GH₵ 50 payment and approve your account right away.
+                  Tap the button below to notify Larry. Larry will verify your GH₵ 50 payment and approve your account
+                  right away.
                 </p>
               </div>
 
-              <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-dark); border-radius:8px; padding:18px;">
-                <div style="width:28px; height:28px; border-radius:50%; background:var(--mint); color:#000; font-weight:900; font-size:13px; display:flex; align-items:center; justify-content:center; margin-bottom:10px;">3</div>
-                <h4 style="font-size:14.5px; font-weight:750; color:var(--white); margin-bottom:6px;">Post &amp; Sell Directly</h4>
+              <div
+                style="background:rgba(255,255,255,0.03); border:1px solid var(--border-dark); border-radius:8px; padding:18px;">
+                <div
+                  style="width:28px; height:28px; border-radius:50%; background:var(--mint); color:#000; font-weight:900; font-size:13px; display:flex; align-items:center; justify-content:center; margin-bottom:10px;">
+                  3</div>
+                <h4 style="font-size:14.5px; font-weight:750; color:var(--white); margin-bottom:6px;">Post &amp; Sell
+                  Directly</h4>
                 <p style="font-size:12.5px; color:var(--gray-400); line-height:1.5; margin:0;">
-                  Upload up to 5 photos per vehicle, set your price, and receive direct buyer inquiries and calls straight from the showroom!
+                  Upload up to 5 photos per vehicle, set your price, and receive direct buyer inquiries and calls
+                  straight from the showroom!
                 </p>
               </div>
             </div>
 
             <div style="text-align:center;">
-              <button onclick="requestSellerPostingAccess()" id="requestSellerBtn" class="btn btn-primary" style="padding:12px 30px; font-weight:800; font-size:14px; border-radius:6px; box-shadow:0 4px 14px rgba(0,242,150,0.25);">
+              <button onclick="requestSellerPostingAccess()" id="requestSellerBtn" class="btn btn-primary"
+                style="padding:12px 30px; font-weight:800; font-size:14px; border-radius:6px; box-shadow:0 4px 14px rgba(0,242,150,0.25);">
                 Request Seller Posting Access (GH₵ 50 / Mo)
               </button>
               <p style="font-size:12px; color:var(--gray-400); margin-top:10px;">
-                Already paid GH₵ 50 to Larry? Click above, or call <a href="tel:0549255121" style="color:var(--mint); text-decoration:none; font-weight:700;">0549255121</a> for instant activation.
+                Already paid GH₵ 50 to Larry? Click above, or call <a href="tel:0549255121"
+                  style="color:var(--mint); text-decoration:none; font-weight:700;">0549255121</a> for instant
+                activation.
               </p>
             </div>
           </div>
 
           <!-- State B: Pending Review (Verification with Larry) -->
-          <div id="sellerPendingCard" style="display:none; background:var(--bg-card); border:1px solid rgba(245,158,11,0.4); border-radius:var(--radius-md); padding:30px 24px; box-shadow:var(--shadow-sm); text-align:center; margin-bottom:24px;">
-            <div style="display:inline-block; font-size:11px; font-weight:800; letter-spacing:1px; color:#f59e0b; text-transform:uppercase; background:rgba(245,158,11,0.12); padding:4px 10px; border-radius:4px; margin-bottom:12px;">VERIFICATION IN PROGRESS</div>
-            <h3 style="font-family:var(--font-heading); font-size:20px; font-weight:800; color:#f59e0b; margin-bottom:8px;">Larry is Verifying Your GH₵ 50 Payment</h3>
+          <div id="sellerPendingCard"
+            style="display:none; background:var(--bg-card); border:1px solid rgba(245,158,11,0.4); border-radius:var(--radius-md); padding:30px 24px; box-shadow:var(--shadow-sm); text-align:center; margin-bottom:24px;">
+            <div
+              style="display:inline-block; font-size:11px; font-weight:800; letter-spacing:1px; color:#f59e0b; text-transform:uppercase; background:rgba(245,158,11,0.12); padding:4px 10px; border-radius:4px; margin-bottom:12px;">
+              VERIFICATION IN PROGRESS</div>
+            <h3
+              style="font-family:var(--font-heading); font-size:20px; font-weight:800; color:#f59e0b; margin-bottom:8px;">
+              Larry is Verifying Your GH₵ 50 Payment</h3>
             <p style="font-size:14px; color:var(--gray-300); max-width:540px; margin:0 auto 18px; line-height:1.6;">
-              Your seller request has been submitted to Larry. Once your GH₵ 50 monthly subscription is confirmed on <strong>0549255121</strong>, your showroom posting access will be unlocked instantly.
+              Your seller request has been submitted to Larry. Once your GH₵ 50 monthly subscription is confirmed on
+              <strong>0549255121</strong>, your showroom posting access will be unlocked instantly.
             </p>
             <div style="display:flex; justify-content:center; gap:12px; flex-wrap:wrap; margin-top:16px;">
-              <a href="tel:0549255121" class="btn btn-secondary" style="font-size:13px; font-weight:700; padding:9px 18px; color:var(--white); border-color:rgba(245,158,11,0.5);">
+              <a href="tel:0549255121" class="btn btn-secondary"
+                style="font-size:13px; font-weight:700; padding:9px 18px; color:var(--white); border-color:rgba(245,158,11,0.5);">
                 Call Larry: 0549255121
               </a>
-              <button onclick="refreshSellerSection()" class="btn btn-primary" style="font-size:13px; font-weight:700; padding:9px 18px;">
+              <button onclick="refreshSellerSection()" class="btn btn-primary"
+                style="font-size:13px; font-weight:700; padding:9px 18px;">
                 Check Approval Status
               </button>
             </div>
@@ -294,41 +346,60 @@
           <!-- State C: Approved Seller (Can Post Directly!) -->
           <div id="sellerApprovedSection" style="display:none;">
             <!-- Verified Banner -->
-            <div style="background:rgba(34,197,94,0.08); border:1px solid rgba(34,197,94,0.3); border-radius:var(--radius-sm); padding:14px 18px; margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+            <div
+              style="background:rgba(34,197,94,0.08); border:1px solid rgba(34,197,94,0.3); border-radius:var(--radius-sm); padding:14px 18px; margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
               <div>
-                <span style="font-weight:800; color:var(--mint); font-size:13px;">Approved Showroom Seller • Active Subscription</span>
-                <p style="font-size:12px; color:var(--gray-text); margin-top:2px;">Your GH₵ 50/month posting access is active with Larry. Cars you post appear directly in the showroom for all buyers.</p>
+                <span style="font-weight:800; color:var(--mint); font-size:13px;">Approved Showroom Seller • Active
+                  Subscription</span>
+                <p style="font-size:12px; color:var(--gray-text); margin-top:2px;">Your GH₵ 50/month posting access is
+                  active with Larry. Cars you post appear directly in the showroom for all buyers.</p>
               </div>
-              <span style="font-size:11px; font-weight:700; color:#22c55e; background:rgba(34,197,94,0.15); padding:4px 10px; border-radius:100px;">Direct Publishing Active</span>
+              <span
+                style="font-size:11px; font-weight:700; color:#22c55e; background:rgba(34,197,94,0.15); padding:4px 10px; border-radius:100px;">Direct
+                Publishing Active</span>
             </div>
 
             <!-- Car Posting Form (Submits directly to Showroom) -->
-            <div style="background:var(--bg-card); border:1px solid var(--border-dark); border-radius:var(--radius-md); padding:24px; box-shadow:var(--shadow-sm); margin-bottom:24px;">
+            <div
+              style="background:var(--bg-card); border:1px solid var(--border-dark); border-radius:var(--radius-md); padding:24px; box-shadow:var(--shadow-sm); margin-bottom:24px;">
               <div style="margin-bottom:16px; padding-bottom:14px; border-bottom:1px solid var(--border-dark);">
-                <h3 style="font-family:var(--font-heading); font-size:18px; font-weight:800; color:var(--white);">Publish Vehicle to Showroom</h3>
-                <p style="font-size:13px; color:var(--gray-text); margin-top:2px;">Fill in the vehicle specifications. It will be published live to the BIG-L Autos inventory instantly.</p>
+                <h3 style="font-family:var(--font-heading); font-size:18px; font-weight:800; color:var(--white);">
+                  Publish Vehicle to Showroom</h3>
+                <p style="font-size:13px; color:var(--gray-text); margin-top:2px;">Fill in the vehicle specifications.
+                  It will be published live to the BIG-L Autos inventory instantly.</p>
               </div>
 
               <form id="directPostCarForm" enctype="multipart/form-data">
                 <!-- Image Photos (Up to 5) -->
-                <div class="form-group" style="background:rgba(0,0,0,0.3); padding:14px; border-radius:var(--radius-sm); border:1px dashed var(--border-dark);">
+                <div class="form-group"
+                  style="background:rgba(0,0,0,0.3); padding:14px; border-radius:var(--radius-sm); border:1px dashed var(--border-dark);">
                   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                    <label class="form-label" style="font-weight:700; margin:0;">Vehicle Photos (Up to 5 Pictures)</label>
-                    <span id="directPhotoBadge" style="font-size:11px; font-weight:700; color:var(--mint); background:rgba(34,197,94,0.15); padding:2px 8px; border-radius:100px;">0 / 5 Selected</span>
+                    <label class="form-label" style="font-weight:700; margin:0;">Vehicle Photos (Up to 5
+                      Pictures)</label>
+                    <span id="directPhotoBadge"
+                      style="font-size:11px; font-weight:700; color:var(--mint); background:rgba(34,197,94,0.15); padding:2px 8px; border-radius:100px;">0
+                      / 5 Selected</span>
                   </div>
-                  <p style="font-size:12px; color:var(--gray-text); margin-bottom:8px;">Upload up to 5 photos (Slot 1 is your cover photo).</p>
-                  <input type="file" id="directCarImgFiles" name="image_files" accept="image/*" multiple class="form-input" style="background:rgba(0,0,0,0.5); margin-bottom:6px;">
-                  <div style="text-align:center; font-size:11.5px; color:var(--gray-text); margin:4px 0;">— OR paste Image URLs (one per line) —</div>
-                  <textarea id="directCarImgUrls" name="image_urls" class="form-textarea" rows="2" style="font-size:12px; background:rgba(0,0,0,0.5);" placeholder="https://..."></textarea>
+                  <p style="font-size:12px; color:var(--gray-text); margin-bottom:8px;">Upload up to 5 photos (Slot 1 is
+                    your cover photo).</p>
+                  <input type="file" id="directCarImgFiles" name="image_files" accept="image/*" multiple
+                    class="form-input" style="background:rgba(0,0,0,0.5); margin-bottom:6px;">
+                  <div style="text-align:center; font-size:11.5px; color:var(--gray-text); margin:4px 0;">— OR paste
+                    Image URLs (one per line) —</div>
+                  <textarea id="directCarImgUrls" name="image_urls" class="form-textarea" rows="2"
+                    style="font-size:12px; background:rgba(0,0,0,0.5);" placeholder="https://..."></textarea>
                   <div id="directImgPreviewWrap" style="display:none; margin-top:10px;">
-                    <div style="font-size:11px; font-weight:700; color:var(--mint); margin-bottom:6px;">Selected Photos:</div>
-                    <div id="directPhotoSlotsGrid" style="display:grid; grid-template-columns:repeat(5, 1fr); gap:6px;"></div>
+                    <div style="font-size:11px; font-weight:700; color:var(--mint); margin-bottom:6px;">Selected Photos:
+                    </div>
+                    <div id="directPhotoSlotsGrid" style="display:grid; grid-template-columns:repeat(5, 1fr); gap:6px;">
+                    </div>
                   </div>
                 </div>
 
                 <div class="form-group">
                   <label class="form-label">Full Listing Title</label>
-                  <input type="text" name="title" class="form-input" placeholder="e.g. 2020 Honda Accord Sport" required>
+                  <input type="text" name="title" class="form-input" placeholder="e.g. 2020 Honda Accord Sport"
+                    required>
                 </div>
 
                 <div class="form-row">
@@ -345,7 +416,8 @@
                 <div class="form-row">
                   <div class="form-group">
                     <label class="form-label">Year</label>
-                    <input type="number" name="year" class="form-input" placeholder="2020" min="1990" max="2027" required>
+                    <input type="number" name="year" class="form-input" placeholder="2020" min="1990" max="2027"
+                      required>
                   </div>
                   <div class="form-group">
                     <label class="form-label">Asking Price (GH&#8373;)</label>
@@ -406,23 +478,29 @@
 
                 <div class="form-group">
                   <label class="form-label">Key Features (comma-separated)</label>
-                  <input type="text" name="features" class="form-input" placeholder="e.g. Sunroof, Leather Seats, Reverse Camera">
+                  <input type="text" name="features" class="form-input"
+                    placeholder="e.g. Sunroof, Leather Seats, Reverse Camera">
                 </div>
 
                 <div class="form-group">
                   <label class="form-label">Description</label>
-                  <textarea name="description" class="form-textarea" rows="3" placeholder="Describe condition, maintenance history..."></textarea>
+                  <textarea name="description" class="form-textarea" rows="3"
+                    placeholder="Describe condition, maintenance history..."></textarea>
                 </div>
 
-                <button type="submit" class="btn btn-primary" style="width:100%; padding:14px; font-weight:800; font-size:15px;">
+                <button type="submit" class="btn btn-primary"
+                  style="width:100%; padding:14px; font-weight:800; font-size:15px;">
                   Publish Directly to Showroom
                 </button>
               </form>
             </div>
 
             <!-- Published Vehicles by this Seller -->
-            <div style="background:var(--bg-card); border:1px solid var(--border-dark); border-radius:var(--radius-md); padding:24px; box-shadow:var(--shadow-sm);">
-              <h3 style="font-family:var(--font-heading); font-size:16px; font-weight:750; color:var(--white); margin-bottom:14px;">Your Showroom Vehicles</h3>
+            <div
+              style="background:var(--bg-card); border:1px solid var(--border-dark); border-radius:var(--radius-md); padding:24px; box-shadow:var(--shadow-sm);">
+              <h3
+                style="font-family:var(--font-heading); font-size:16px; font-weight:750; color:var(--white); margin-bottom:14px;">
+                Your Showroom Vehicles</h3>
               <div id="myShowroomCarsList"><!-- Populated by JS --></div>
             </div>
           </div>
@@ -433,68 +511,88 @@
         <div id="customerProfileTab" style="display:none;">
           <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:24px;">
             <!-- Profile Details Card -->
-            <div style="background:var(--bg-card); border:1px solid var(--border-dark); border-radius:var(--radius-md); padding:24px; box-shadow:var(--shadow-sm);">
+            <div
+              style="background:var(--bg-card); border:1px solid var(--border-dark); border-radius:var(--radius-md); padding:24px; box-shadow:var(--shadow-sm);">
               <div style="border-bottom:1px solid var(--border-dark); padding-bottom:14px; margin-bottom:18px;">
-                <h3 style="font-family:var(--font-heading); font-size:18px; font-weight:800; color:var(--white); margin:0;">Edit Profile Information</h3>
-                <p style="font-size:13px; color:var(--gray-text); margin:4px 0 0 0;">Update your display name, contact phone number, and email address.</p>
+                <h3
+                  style="font-family:var(--font-heading); font-size:18px; font-weight:800; color:var(--white); margin:0;">
+                  Edit Profile Information</h3>
+                <p style="font-size:13px; color:var(--gray-text); margin:4px 0 0 0;">Update your display name, contact
+                  phone number, and email address.</p>
               </div>
 
               <form onsubmit="handleUpdateProfile(event)" id="userProfileForm">
                 <div class="form-group" style="margin-bottom:16px;">
                   <label class="form-label">Full Name</label>
-                  <input type="text" id="profileName" class="form-input" value="{{ user.name if user else '' }}" required placeholder="e.g. David Mensah">
+                  <input type="text" id="profileName" class="form-input" value="{{ user.name if user else '' }}"
+                    required placeholder="e.g. David Mensah">
                 </div>
 
                 <div class="form-group" style="margin-bottom:16px;">
                   <label class="form-label">Phone Number (WhatsApp / Calls)</label>
-                  <input type="tel" id="profilePhone" class="form-input" value="{{ user.phone if user else '' }}" placeholder="e.g. 0549255121">
-                  <p class="form-helper" style="font-size:11.5px; color:var(--gray-text); margin-top:4px;">Buyers and Larry use this phone number to reach you directly.</p>
+                  <input type="tel" id="profilePhone" class="form-input" value="{{ user.phone if user else '' }}"
+                    placeholder="e.g. 0549255121">
+                  <p class="form-helper" style="font-size:11.5px; color:var(--gray-text); margin-top:4px;">Buyers and
+                    Larry use this phone number to reach you directly.</p>
                 </div>
 
                 <div class="form-group" style="margin-bottom:20px;">
                   <label class="form-label">Email Address</label>
-                  <input type="email" id="profileEmail" class="form-input" value="{{ user.email if user else '' }}" required placeholder="you@example.com">
+                  <input type="email" id="profileEmail" class="form-input" value="{{ user.email if user else '' }}"
+                    required placeholder="you@example.com">
                 </div>
 
-                <button type="submit" id="btnSaveProfile" class="btn btn-primary" style="padding:10px 22px; font-weight:700; font-size:13px; border-radius:6px;">
+                <button type="submit" id="btnSaveProfile" class="btn btn-primary"
+                  style="padding:10px 22px; font-weight:700; font-size:13px; border-radius:6px;">
                   Save Profile Changes
                 </button>
               </form>
             </div>
 
             <!-- Change Password Card -->
-            <div style="background:var(--bg-card); border:1px solid var(--border-dark); border-radius:var(--radius-md); padding:24px; box-shadow:var(--shadow-sm);">
+            <div
+              style="background:var(--bg-card); border:1px solid var(--border-dark); border-radius:var(--radius-md); padding:24px; box-shadow:var(--shadow-sm);">
               <div style="border-bottom:1px solid var(--border-dark); padding-bottom:14px; margin-bottom:18px;">
-                <h3 style="font-family:var(--font-heading); font-size:18px; font-weight:800; color:var(--white); margin:0;">Change Password</h3>
-                <p style="font-size:13px; color:var(--gray-text); margin:4px 0 0 0;">Ensure your account is protected with a secure password (min 6 characters).</p>
+                <h3
+                  style="font-family:var(--font-heading); font-size:18px; font-weight:800; color:var(--white); margin:0;">
+                  Change Password</h3>
+                <p style="font-size:13px; color:var(--gray-text); margin:4px 0 0 0;">Ensure your account is protected
+                  with a secure password (min 6 characters).</p>
               </div>
 
               <form onsubmit="handleChangePassword(event)" id="userPasswordForm">
                 <div class="form-group" style="margin-bottom:16px;">
                   <label class="form-label">Current Password</label>
                   <div class="input-wrap has-toggle" style="position:relative;">
-                    <input type="password" id="pwCurrent" class="form-input" placeholder="Enter current password" required style="padding-right:50px;">
-                    <button type="button" class="pw-toggle-btn" onclick="togglePasswordVisibility('pwCurrent', this)" style="position:absolute; right:8px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--mint); font-size:11px; cursor:pointer; padding:4px;">Show</button>
+                    <input type="password" id="pwCurrent" class="form-input" placeholder="Enter current password"
+                      required style="padding-right:50px;">
+                    <button type="button" class="pw-toggle-btn" onclick="togglePasswordVisibility('pwCurrent', this)"
+                      style="position:absolute; right:8px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--mint); font-size:11px; cursor:pointer; padding:4px;">Show</button>
                   </div>
                 </div>
 
                 <div class="form-group" style="margin-bottom:16px;">
                   <label class="form-label">New Password</label>
                   <div class="input-wrap has-toggle" style="position:relative;">
-                    <input type="password" id="pwNew" class="form-input" placeholder="At least 6 characters" minlength="6" required style="padding-right:50px;">
-                    <button type="button" class="pw-toggle-btn" onclick="togglePasswordVisibility('pwNew', this)" style="position:absolute; right:8px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--mint); font-size:11px; cursor:pointer; padding:4px;">Show</button>
+                    <input type="password" id="pwNew" class="form-input" placeholder="At least 6 characters"
+                      minlength="6" required style="padding-right:50px;">
+                    <button type="button" class="pw-toggle-btn" onclick="togglePasswordVisibility('pwNew', this)"
+                      style="position:absolute; right:8px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--mint); font-size:11px; cursor:pointer; padding:4px;">Show</button>
                   </div>
                 </div>
 
                 <div class="form-group" style="margin-bottom:20px;">
                   <label class="form-label">Confirm New Password</label>
                   <div class="input-wrap has-toggle" style="position:relative;">
-                    <input type="password" id="pwConfirm" class="form-input" placeholder="Re-type new password" minlength="6" required style="padding-right:50px;">
-                    <button type="button" class="pw-toggle-btn" onclick="togglePasswordVisibility('pwConfirm', this)" style="position:absolute; right:8px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--mint); font-size:11px; cursor:pointer; padding:4px;">Show</button>
+                    <input type="password" id="pwConfirm" class="form-input" placeholder="Re-type new password"
+                      minlength="6" required style="padding-right:50px;">
+                    <button type="button" class="pw-toggle-btn" onclick="togglePasswordVisibility('pwConfirm', this)"
+                      style="position:absolute; right:8px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--mint); font-size:11px; cursor:pointer; padding:4px;">Show</button>
                   </div>
                 </div>
 
-                <button type="submit" id="btnChangePassword" class="btn btn-secondary" style="padding:10px 22px; font-weight:700; font-size:13px; border-radius:6px; color:var(--white); border-color:var(--border-dark);">
+                <button type="submit" id="btnChangePassword" class="btn btn-secondary"
+                  style="padding:10px 22px; font-weight:700; font-size:13px; border-radius:6px; color:var(--white); border-color:var(--border-dark);">
                   Update Password
                 </button>
               </form>
@@ -507,6 +605,7 @@
   </div>
 
   <script src="/static/js/app.js?v=6.5"></script>
+  <script src="/static/js/app.js?v=6.6"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       initCustomerDashboard();
@@ -516,18 +615,18 @@
       if (typeof closeMobileChatView === 'function') {
         closeMobileChatView();
       }
-      const chatsTab      = document.getElementById('customerChatsTab');
-      const swapTab       = document.getElementById('customerSwapTab');
+      const chatsTab = document.getElementById('customerChatsTab');
+      const swapTab = document.getElementById('customerSwapTab');
       const myListingsTab = document.getElementById('customerMyListingsTab');
-      const profileTab    = document.getElementById('customerProfileTab');
-      const navChats      = document.getElementById('navItemChats');
-      const navSwap       = document.getElementById('navItemSwap');
-      const navMy         = document.getElementById('navItemMyListings');
-      const navProfile    = document.getElementById('navItemProfile');
+      const profileTab = document.getElementById('customerProfileTab');
+      const navChats = document.getElementById('navItemChats');
+      const navSwap = document.getElementById('navItemSwap');
+      const navMy = document.getElementById('navItemMyListings');
+      const navProfile = document.getElementById('navItemProfile');
 
-      chatsTab.style.display      = tab === 'chats'       ? 'block' : 'none';
-      swapTab.style.display       = tab === 'swap'        ? 'block' : 'none';
-      myListingsTab.style.display = tab === 'mylistings'  ? 'block' : 'none';
+      chatsTab.style.display = tab === 'chats' ? 'block' : 'none';
+      swapTab.style.display = tab === 'swap' ? 'block' : 'none';
+      myListingsTab.style.display = tab === 'mylistings' ? 'block' : 'none';
       if (profileTab) profileTab.style.display = tab === 'profile' ? 'block' : 'none';
 
       // On mobile or narrow screens, hide inactive chat threads when using Sell/Swap, Post My Car, or Profile
@@ -537,7 +636,7 @@
       }
 
       navChats.classList.toggle('active', tab === 'chats');
-      navSwap.classList.toggle('active',  tab === 'swap');
+      navSwap.classList.toggle('active', tab === 'swap');
       if (navMy) navMy.classList.toggle('active', tab === 'mylistings');
       if (navProfile) navProfile.classList.toggle('active', tab === 'profile');
 

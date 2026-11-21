@@ -207,8 +207,8 @@ def init_db():
 
     conn.commit()
 
-    # Seed Admin / Receptionist if not exists
-    cursor.execute("SELECT * FROM users WHERE email = 'admin@biglautos.com'")
+    # Seed Admin / Receptionist if not exists - ONLY Larry is Admin
+    cursor.execute("SELECT * FROM users WHERE email = 'admin@biglautos.com' OR id = 1")
     admin = cursor.fetchone()
     if not admin:
         admin_pass = hash_password("admin123")
@@ -221,29 +221,7 @@ def init_db():
         if not admin['password_hash'].startswith('pbkdf2:') and not admin['password_hash'].startswith('scrypt:'):
             cursor.execute("UPDATE users SET password_hash = ? WHERE id = ?", (hash_password("admin123"), admin['id']))
         # Update name and phone to ensure Admin Larry is set with posting access
-        cursor.execute("UPDATE users SET name = 'Larry (Head Dealer & Admin)', phone = '0549255121', role = 'admin', can_post = 1, seller_status = 'approved' WHERE id = ?", (admin['id'],))
-
-    # Ensure all site owner emails always have admin role and posting privileges
-    cursor.execute("""
-    UPDATE users 
-    SET role = 'admin', can_post = 1, seller_status = 'approved'
-    WHERE email IN ('admin@biglautos.com', 'receptionist@biglautos.com', 'bonsum114@gmail.com', 'bonsum1141@gmail.com', 'michaelbonsu2000@icloud.com')
-       OR email LIKE 'bonsum114%'
-       OR email LIKE 'michaelbonsu%'
-    """)
-
-    # Purge any legacy demo/seed cars - strictly maintain ONLY vehicles posted by real users/dealers
-    cursor.execute("""
-    DELETE FROM cars 
-    WHERE title IN (
-        '2023 Mercedes-AMG GT R Coupe',
-        '2023 Mercedes-Benz C-Class C300 AMG Line',
-        '2022 Toyota Land Cruiser Prado TX-L',
-        '2021 BMW 5 Series 530i M Sport',
-        '2024 Lexus RX 350 F Sport',
-        '2023 Range Rover Velar R-Dynamic'
-    )
-    """)
+        cursor.execute("UPDATE users SET name = 'Larry (Head Dealer & Admin)', email = 'admin@biglautos.com', phone = '0549255121', role = 'admin', can_post = 1, seller_status = 'approved' WHERE id = ?", (admin['id'],))
 
     # Ensure all real cars in database have their images column backfilled with up to 5 photos
     cursor.execute("SELECT id, title, image_url, images FROM cars")

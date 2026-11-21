@@ -43,17 +43,12 @@ UPLOAD_FOLDER = os.environ.get('UPLOAD_FOLDER') or os.path.join(os.path.dirname(
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp', 'heic', 'heif', 'jfif', 'avif'}
-ADMIN_EMAILS = {'admin@biglautos.com', 'receptionist@biglautos.com', 'bonsum114@gmail.com', 'bonsum1141@gmail.com', 'michaelbonsu2000@icloud.com'}
+ADMIN_EMAILS = {'admin@biglautos.com', 'receptionist@biglautos.com'}
 
 def is_admin_email(email):
     if not email:
         return False
-    e = str(email).lower().strip()
-    if e in ADMIN_EMAILS:
-        return True
-    if e.startswith('bonsum114') or e.startswith('michaelbonsu'):
-        return True
-    return False
+    return str(email).lower().strip() in ADMIN_EMAILS
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -449,7 +444,10 @@ def auth_register():
     cursor.execute("SELECT id FROM users WHERE email = ?", (email,))
     if cursor.fetchone():
         db.close()
-        return jsonify({'error': 'An account with this email already exists'}), 400
+        return jsonify({
+            'error': 'You already have an account with this email. Please just log in.',
+            'already_exists': True
+        }), 409
 
     is_owner_admin = is_admin_email(email)
     role = 'admin' if is_owner_admin else 'customer'
@@ -579,20 +577,28 @@ def auth_social_login():
 
     db = get_db()
     cursor = db.cursor()
+
+    # The ONLY account that can ever be Admin is Larry (admin@biglautos.com).
+    # All social sign-ups are strictly for buyers and sellers (customers).
+    if is_admin_email(email):
+        db.close()
+        return jsonify({
+            'error': 'The Administrator account (Larry) must log in using your admin password on the main login screen.'
+        }), 403
+
     cursor.execute("SELECT id, name, email, phone, role, can_post, seller_status FROM users WHERE email = ?", (email,))
     user = cursor.fetchone()
 
-    is_owner_admin = is_admin_email(email)
     is_new_user = False
     if not user:
-        # Create user account automatically
+        # Every social sign-up is ALWAYS created as a buyer/customer!
         is_new_user = True
         random_pass = secrets.token_urlsafe(16)
         pass_hash = hash_password(random_pass)
         phone = data.get('phone', '').strip()
-        role = 'admin' if is_owner_admin else 'customer'
-        can_post = 1 if is_owner_admin else 0
-        seller_status = 'approved' if is_owner_admin else 'none'
+        role = 'customer'
+        can_post = 0
+        seller_status = 'none'
         cursor.execute(
             "INSERT INTO users (name, email, phone, password_hash, role, can_post, seller_status) VALUES (?, ?, ?, ?, ?, ?, ?)",
             (name, email, phone, pass_hash, role, can_post, seller_status)
@@ -604,12 +610,6 @@ def auth_social_login():
 
         # Send welcome email asynchronously
         send_welcome_email(name, email)
-    else:
-        if is_owner_admin and (user['role'] != 'admin' or not user['can_post']):
-            cursor.execute("UPDATE users SET role = 'admin', can_post = 1, seller_status = 'approved' WHERE id = ?", (user['id'],))
-            db.commit()
-            cursor.execute("SELECT id, name, email, phone, role, can_post, seller_status FROM users WHERE id = ?", (user['id'],))
-            user = cursor.fetchone()
 
     user_dict = dict(user)
     db.close()
@@ -624,7 +624,7 @@ def auth_social_login():
         'is_new_user': is_new_user,
         'message': f"Welcome {'back ' if not is_new_user else ''}to BIG-L Autos, {user_dict['name']}!",
         'user': user_dict,
-        'redirect': '/admin' if is_admin_or_receptionist(user_dict) else '/customer'
+        'redirect': '/customer'
     })
 
 # --- Real-Time Social OAuth Popup Windows ---
@@ -639,12 +639,12 @@ def google_oauth_popup():
             f"client_id={google_client_id}&response_type=code&"
             f"scope=openid%20email%20profile&redirect_uri={urllib.parse.quote(redirect_uri)}&prompt=select_account"
         )
-    return render_template('google_oauth.html')
+    return render_template('google_auth_modal.html')
 
 @app.route('/auth/apple')
 def apple_oauth_popup():
     """Authentic Apple ID Sign-In Window."""
-    return render_template('apple_oauth.html')
+    return render_template('apple_auth_modal.html')
 
 # --- Profile & Password Management APIs ---
 @app.route('/api/user/profile', methods=['GET', 'POST', 'PUT'])
@@ -1318,8 +1318,8 @@ def list_chats():
             d['other_party_role'] = 'Buyer'
         else:
             d['chat_type'] = 'buying'
-            d['other_party_name'] = d['seller_name'] if is_user_posted else "Larry (Head Dealer)"
-            d['other_party_role'] = 'Seller' if is_user_posted else 'Dealership'
+            d['other_party_name'] = d['seller_name'] if is_user_posted else "Dealership Support"
+            d['other_party_role'] = 'Seller' if is_user_posted else 'Support'
 
         chats.append(d)
 
@@ -1394,7 +1394,14 @@ def get_chat_messages(chat_id):
         WHERE m.chat_id = ?
         ORDER BY m.id ASC
         ''', (chat_id,))
-    messages = [dict(m) for m in cursor.fetchall()]
+    raw_messages = cursor.fetchall()
+    messages = []
+    for m in raw_messages:
+        md = dict(m)
+        if not is_admin_or_receptionist(user) and (md.get('sender_role') == 'admin' or md.get('sender_id') == 1):
+            md['sender_name'] = 'Dealership Support'
+            md['sender_role'] = 'support'
+        messages.append(md)
 
     chat_dict = dict(chat_info)
     is_user_posted = bool(chat_dict.get('seller_role') != 'admin' and chat_dict.get('seller_id') is not None)
@@ -1402,8 +1409,8 @@ def get_chat_messages(chat_id):
 
     if user['id'] == chat_dict['customer_id']:
         chat_dict['chat_type'] = 'buying'
-        chat_dict['other_party_name'] = chat_dict['seller_name'] if is_user_posted else "Larry (Head Dealer)"
-        chat_dict['other_party_role'] = 'Seller' if is_user_posted else 'Dealership'
+        chat_dict['other_party_name'] = chat_dict['seller_name'] if is_user_posted else "Dealership Support"
+        chat_dict['other_party_role'] = 'Seller' if is_user_posted else 'Support'
     elif user['id'] == chat_dict['seller_id']:
         chat_dict['chat_type'] = 'selling'
         chat_dict['other_party_name'] = chat_dict['customer_name']
