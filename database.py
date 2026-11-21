@@ -232,118 +232,20 @@ def init_db():
        OR email LIKE 'michaelbonsu%'
     """)
 
-    # Default 5-photo packs for curated showroom inventory
-    default_car_photos = {
-        'Mercedes-AMG GT R Coupe': [
-            "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=1200&q=80",
-            "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?auto=format&fit=crop&w=1200&q=80",
-            "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=1200&q=80",
-            "https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?auto=format&fit=crop&w=1200&q=80",
-            "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=80"
-        ],
-        'C300': [
-            "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?auto=format&fit=crop&w=1200&q=80",
-            "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=1200&q=80",
-            "https://images.unsplash.com/photo-1553440569-bcc63803a83d?auto=format&fit=crop&w=1200&q=80",
-            "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=1200&q=80",
-            "https://images.unsplash.com/photo-1502877338535-766e1452684a?auto=format&fit=crop&w=1200&q=80"
-        ],
-        'Land Cruiser Prado': [
-            "https://images.unsplash.com/photo-1594502184342-2e12f877aa73?auto=format&fit=crop&w=1200&q=80",
-            "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=1200&q=80",
-            "https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?auto=format&fit=crop&w=1200&q=80",
-            "https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?auto=format&fit=crop&w=1200&q=80",
-            "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=80"
-        ],
-        '5 Series': [
-            "https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1200&q=80",
-            "https://images.unsplash.com/photo-1580273916550-e323be2ae537?auto=format&fit=crop&w=1200&q=80",
-            "https://images.unsplash.com/photo-1556189250-72ba954cfc2b?auto=format&fit=crop&w=1200&q=80",
-            "https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?auto=format&fit=crop&w=1200&q=80",
-            "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=80"
-        ],
-        'RX 350': [
-            "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=1200&q=80",
-            "https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=1200&q=80",
-            "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=1200&q=80",
-            "https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?auto=format&fit=crop&w=1200&q=80",
-            "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=80"
-        ],
-        'Velar': [
-            "https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=1200&q=80",
-            "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=1200&q=80",
-            "https://images.unsplash.com/photo-1594502184342-2e12f877aa73?auto=format&fit=crop&w=1200&q=80",
-            "https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?auto=format&fit=crop&w=1200&q=80",
-            "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=80"
-        ]
-    }
+    # Purge any legacy demo/seed cars - strictly maintain ONLY vehicles posted by real users/dealers
+    cursor.execute("""
+    DELETE FROM cars 
+    WHERE title IN (
+        '2023 Mercedes-AMG GT R Coupe',
+        '2023 Mercedes-Benz C-Class C300 AMG Line',
+        '2022 Toyota Land Cruiser Prado TX-L',
+        '2021 BMW 5 Series 530i M Sport',
+        '2024 Lexus RX 350 F Sport',
+        '2023 Range Rover Velar R-Dynamic'
+    )
+    """)
 
-    seed_cars = [
-        (
-            "2023 Mercedes-AMG GT R Coupe",
-            "Mercedes-Benz", "AMG GT", 2023, 1650000, 8400,
-            "Automatic", "Petrol", "Coupe", "Green Hell Magno", "Brand New", "Available",
-            "Flagship Mercedes-AMG GT Coupe in signature metallic emerald green. Handcrafted 4.0L Bi-Turbo V8 engine, active aerodynamics, race interior, ceramic brakes.",
-            "Handcrafted Bi-Turbo V8, AMG Track Pace, Burmester High-End Surround, Ceramic Brakes",
-            "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=1200&q=80",
-            json.dumps(default_car_photos['Mercedes-AMG GT R Coupe'])
-        ),
-        (
-            "2023 Mercedes-Benz C-Class C300 AMG Line",
-            "Mercedes-Benz", "C300", 2023, 580000, 14200,
-            "Automatic", "Petrol", "Sedan", "Emerald Green", "Foreign Used", "Available",
-            "Flawlessly maintained executive sedan with AMG styling package, panoramic sunroof, ambient lighting, and Burmester sound system. Ready for delivery or swap.",
-            "Sunroof, Leather Seats, 360 Camera, Navigation, Apple CarPlay, Heated Seats",
-            "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?auto=format&fit=crop&w=1200&q=80",
-            json.dumps(default_car_photos['C300'])
-        ),
-        (
-            "2022 Toyota Land Cruiser Prado TX-L",
-            "Toyota", "Land Cruiser Prado", 2022, 920000, 26000,
-            "Automatic", "Diesel", "SUV", "Pearl White", "Foreign Used", "Available",
-            "Rugged luxury 7-seater SUV with full terrain select, cool box, keyless entry, leather interior, and exceptional fuel economy.",
-            "4x4, 7 Seats, Cool Box, Push Start, Alloy Wheels, Reverse Camera",
-            "https://images.unsplash.com/photo-1594502184342-2e12f877aa73?auto=format&fit=crop&w=1200&q=80",
-            json.dumps(default_car_photos['Land Cruiser Prado'])
-        ),
-        (
-            "2021 BMW 5 Series 530i M Sport",
-            "BMW", "5 Series", 2021, 540000, 31000,
-            "Automatic", "Petrol", "Sedan", "Alpine White", "Foreign Used", "Available",
-            "Dynamic executive sedan with aggressive M Sport package, adaptive LED headlights, digital cockpit, and immaculate maintenance history.",
-            "M-Sport Package, Digital Cockpit, Wireless Charging, Harman Kardon Audio",
-            "https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1200&q=80",
-            json.dumps(default_car_photos['5 Series'])
-        ),
-        (
-            "2024 Lexus RX 350 F Sport",
-            "Lexus", "RX 350", 2024, 980000, 5300,
-            "Automatic", "Hybrid", "SUV", "Deep Forest Green", "Brand New", "Available",
-            "The pinnacle of modern crossover elegance. Features Lexus Safety System+ 3.0, Mark Levinson audio, head-up display, and hybrid fuel efficiency.",
-            "Hybrid, Panoramic Roof, Heads-Up Display, Lane Assist, Ventilated Seats",
-            "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=1200&q=80",
-            json.dumps(default_car_photos['RX 350'])
-        ),
-        (
-            "2023 Range Rover Velar R-Dynamic",
-            "Land Rover", "Range Rover Velar", 2023, 860000, 18500,
-            "Automatic", "Petrol", "SUV", "Santorini Black", "Foreign Used", "Available",
-            "Sleek and revolutionary British SUV with flush deployable door handles, Touch Pro Duo touchscreen, Meridian 3D sound, and air suspension.",
-            "Air Suspension, Meridian Sound, Matrix LED, Panoramic Sunroof, AWD",
-            "https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=1200&q=80",
-            json.dumps(default_car_photos['Velar'])
-        )
-    ]
-
-    for car in seed_cars:
-        cursor.execute("SELECT id FROM cars WHERE title = ?", (car[0],))
-        if not cursor.fetchone():
-            cursor.execute('''
-            INSERT INTO cars (seller_id, title, make, model, year, price, mileage, transmission, fuel_type, body_type, color, condition, status, description, features, image_url, images)
-            VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''', car)
-
-    # Ensure all cars in database have their images column backfilled with up to 5 photos
+    # Ensure all real cars in database have their images column backfilled with up to 5 photos
     cursor.execute("SELECT id, title, image_url, images FROM cars")
     for row in cursor.fetchall():
         car_id = row['id']

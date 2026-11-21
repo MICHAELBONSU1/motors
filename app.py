@@ -403,6 +403,16 @@ def admin_dashboard():
         return redirect(url_for('home', open_auth='admin_login'))
     return render_template('admin.html', user=user)
 
+@app.route('/privacy')
+def privacy_page():
+    user = get_current_user()
+    return render_template('privacy.html', user=user)
+
+@app.route('/terms')
+def terms_page():
+    user = get_current_user()
+    return render_template('terms.html', user=user)
+
 # --- Authentication APIs ---
 @app.route('/api/auth/me', methods=['GET'])
 def auth_me():
@@ -1139,7 +1149,7 @@ def admin_seed_fleet():
 
     import database
     database.init_db()
-    return jsonify({'success': True, 'message': 'Showroom fleet verified and synchronized successfully!'})
+    return jsonify({'success': True, 'message': 'Database verified and optimized successfully!'})
 
 # --- Chat & Inquiries APIs ---
 @app.route('/api/inquiries/start', methods=['POST'])

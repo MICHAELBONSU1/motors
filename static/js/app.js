@@ -2139,7 +2139,7 @@ async function downloadDataBackup() {
 
 async function syncAdminFleet() {
   const btn = document.getElementById('btnSyncFleet');
-  if (btn) { btn.disabled = true; btn.textContent = 'Syncing Fleet...'; }
+  if (btn) { btn.disabled = true; btn.textContent = 'Verifying Database...'; }
   try {
     const res = await fetch('/api/admin/seed-fleet', {
       method: 'POST',
@@ -2147,18 +2147,18 @@ async function syncAdminFleet() {
     });
     const data = await res.json();
     if (res.ok && data.success) {
-      showToast(data.message || 'Showroom fleet verified and synchronized!', 'success');
+      showToast(data.message || 'Database verified and synchronized!', 'success');
       loadAdminCars();
       if (typeof loadAdminDataTable === 'function') loadAdminDataTable();
       loadAdminStats();
     } else {
-      showToast(data.error || 'Failed to sync fleet', 'info');
+      showToast(data.error || 'Failed to verify database', 'info');
     }
   } catch (err) {
     console.error('Sync fleet error:', err);
-    showToast('Network error syncing fleet', 'info');
+    showToast('Network error verifying database', 'info');
   } finally {
-    if (btn) { btn.disabled = false; btn.textContent = 'Sync Showroom Fleet'; }
+    if (btn) { btn.disabled = false; btn.textContent = 'Verify Database Integrity'; }
   }
 }
 
