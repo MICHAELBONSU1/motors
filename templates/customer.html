@@ -59,12 +59,9 @@
           class="btn btn-secondary btn-sm" style="display:none; font-size:11px; padding:5px 9px;"
           title="Enable background message alerts">Enable Alerts</button>
         <a href="/" class="btn btn-secondary btn-sm"
-          style="padding: 6px 11px; font-size: 12px; font-weight: 600; white-space: nowrap;">Showroom</a>
-        <div id="navAuthArea">
-          <button onclick="handleLogout()" class="btn btn-sm"
-            style="background: rgba(239, 68, 68, 0.16); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 6px; cursor: pointer; flex-shrink: 0; white-space: nowrap;">Log
-            Out</button>
-        </div>
+          style="padding: 6px 12px; font-size: 12px; font-weight: 600; white-space: nowrap;">Showroom</a>
+        <button type="button" onclick="handleLogout()" class="btn btn-sm"
+          style="background: rgba(239, 68, 68, 0.16); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 6px; cursor: pointer; flex-shrink: 0; white-space: nowrap;">Log Out</button>
       </div>
     </div>
   </header>
@@ -76,27 +73,21 @@
       <!-- Left Sidebar -->
       <aside id="customerSidebar">
         <div class="sidebar-card">
-          <!-- Profile Badge with Instant Logout Button -->
+          <!-- Profile Badge -->
           <div class="user-profile-badge"
-            style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 16px; border-bottom: 1px solid var(--border-dark); margin-bottom: 16px;">
-            <div style="display: flex; align-items: center; gap: 12px; min-width: 0;">
-              <div class="avatar-initials" style="flex-shrink: 0;">
-                {{ user.name[0] if user else 'U' }}
-              </div>
-              <div style="min-width: 0;">
-                <h3
-                  style="font-size: 15px; font-weight: 750; color: var(--white); margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
-                  id="customerWelcomeName">
-                  {{ user.name if user else 'Customer' }}
-                </h3>
-                <p style="font-size: 11.5px; color: var(--mint); margin: 2px 0 0 0; font-weight: 600;">Verified Account
-                </p>
-              </div>
+            style="display: flex; align-items: center; gap: 12px; padding-bottom: 16px; border-bottom: 1px solid var(--border-dark); margin-bottom: 16px;">
+            <div class="avatar-initials" style="flex-shrink: 0;">
+              {{ user.name[0] if user else 'U' }}
             </div>
-            <button type="button" onclick="handleLogout()" class="btn btn-sm"
-              style="background: rgba(239, 68, 68, 0.12); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); font-size: 11.5px; font-weight: 700; padding: 5px 11px; border-radius: 6px; cursor: pointer; flex-shrink: 0; white-space: nowrap;">
-              Log Out
-            </button>
+            <div style="min-width: 0;">
+              <h3
+                style="font-size: 15px; font-weight: 750; color: var(--white); margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
+                id="customerWelcomeName">
+                {{ user.name if user else 'Customer' }}
+              </h3>
+              <p style="font-size: 11.5px; color: var(--mint); margin: 2px 0 0 0; font-weight: 600;">Verified Account
+              </p>
+            </div>
           </div>
 
           <!-- Section Switcher -->
@@ -604,8 +595,7 @@
     </div>
   </div>
 
-  <script src="/static/js/app.js?v=6.5"></script>
-  <script src="/static/js/app.js?v=6.6"></script>
+  <script src="/static/js/app.js?v=6.7"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       initCustomerDashboard();

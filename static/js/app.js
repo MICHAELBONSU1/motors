@@ -535,25 +535,22 @@ function closeMobileNav() {
 
 // Update Nav UI based on auth state (Compact Navbar Buttons)
 function updateNavAuthUI() {
+  const isDashboardPage = window.location.pathname.startsWith('/customer') || window.location.pathname.startsWith('/admin');
+  if (isDashboardPage) {
+    // Dashboard pages have static, dedicated navbar buttons in their templates; do not inject duplicates
+    return;
+  }
+
   const authNav = document.getElementById('navAuthArea');
   if (!authNav) return;
 
   if (currentUser) {
     const isCustomer = currentUser.role === 'customer';
-    const isDashboardPage = window.location.pathname.startsWith('/customer') || window.location.pathname.startsWith('/admin');
-
-    if (isDashboardPage) {
-      authNav.innerHTML = `
-        <a href="/" class="nav-btn-compact btn-nav-showroom">Showroom</a>
-        <button onclick="handleLogout()" class="nav-btn-compact btn-nav-logout">Log Out</button>
-      `;
-    } else {
-      authNav.innerHTML = `
-        <a href="/#inventory" class="nav-btn-compact btn-nav-showroom">Showroom</a>
-        <a href="${isCustomer ? '/customer' : '/admin'}" class="nav-btn-compact btn-nav-dashboard">Dashboard</a>
-        <button onclick="handleLogout()" class="nav-btn-compact btn-nav-logout">Log Out</button>
-      `;
-    }
+    authNav.innerHTML = `
+      <a href="/#inventory" class="nav-btn-compact btn-nav-showroom">Showroom</a>
+      <a href="${isCustomer ? '/customer' : '/admin'}" class="nav-btn-compact btn-nav-dashboard">Dashboard</a>
+      <button onclick="handleLogout()" class="nav-btn-compact btn-nav-logout">Log Out</button>
+    `;
   } else {
     authNav.innerHTML = `
       <a href="/#inventory" class="nav-btn-compact btn-nav-showroom">Showroom</a>
