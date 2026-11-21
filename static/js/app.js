@@ -662,6 +662,14 @@ async function handleRegister(e) {
 function startSocialLogin(provider) {
   const isGoogle = provider === 'google';
   const url = isGoogle ? '/auth/google' : '/auth/apple';
+
+  // On mobile phones/tablets, direct page redirection guarantees 100% reliability with zero popup blocker interference
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  if (isMobile) {
+    window.location.href = url;
+    return;
+  }
+
   const windowName = isGoogle ? 'GoogleSignIn' : 'AppleSignIn';
   const width = 480;
   const height = 580;
@@ -669,12 +677,15 @@ function startSocialLogin(provider) {
   const top = Math.max(0, Math.round(window.screenY + (window.outerHeight - height) / 2));
   const features = `width=${width},height=${height},left=${left},top=${top},status=0,toolbar=0,menubar=0,location=1,resizable=1`;
 
-  const popup = window.open(url, windowName, features);
-  if (!popup || popup.closed || typeof popup.closed === 'undefined') {
-    // Popup was blocked by browser, redirect directly
+  try {
+    const popup = window.open(url, windowName, features);
+    if (!popup || popup.closed || typeof popup.closed === 'undefined') {
+      window.location.href = url;
+    } else {
+      try { popup.focus(); } catch (e) {}
+    }
+  } catch (err) {
     window.location.href = url;
-  } else {
-    try { popup.focus(); } catch (e) {}
   }
 }
 
@@ -1769,6 +1780,7 @@ async function initAdminPortal() {
   updateNotificationButtonState();
   loadAdminStats();
   loadAdminCars();
+  loadAdminDataTable();
   loadAdminChats();
   loadAdminSwapRequests();
   setupAddCarForm();
@@ -1826,6 +1838,9 @@ async function loadAdminCars() {
           </div>
         </div>
         <div class="admin-car-item-actions" style="display:flex; align-items:center; gap:8px;">
+          <button onclick="openEditCarModal(${c.id})" class="btn btn-primary btn-sm" style="font-size:11px; font-weight:700;">
+            Edit
+          </button>
           <button onclick="toggleCarStatus(${c.id}, '${c.status === 'Available' ? 'Sold' : 'Available'}')" class="btn btn-secondary btn-sm" style="font-size:11px;">
             Mark as ${c.status === 'Available' ? 'Sold' : 'Available'}
           </button>
@@ -1850,6 +1865,7 @@ async function toggleCarStatus(carId, newStatus) {
     if (res.ok) {
       showToast(`Car marked as ${newStatus}`);
       loadAdminCars();
+      if (typeof loadAdminDataTable === 'function') loadAdminDataTable();
       loadAdminStats();
     }
   } catch (err) {
@@ -1865,10 +1881,284 @@ async function deleteCarListing(carId) {
     if (res.ok) {
       showToast('Car listing removed');
       loadAdminCars();
+      if (typeof loadAdminDataTable === 'function') loadAdminDataTable();
       loadAdminStats();
     }
   } catch (err) {
     console.error('Delete error:', err);
+  }
+}
+
+/* ── Edit Vehicle & Data Controller Operations ── */
+async function openEditCarModal(carId) {
+  try {
+    const res = await fetch(`/api/cars/${carId}`);
+    if (!res.ok) {
+      showToast('Could not load vehicle details', 'info');
+      return;
+    }
+    const car = await res.json();
+
+    const idEl = document.getElementById('editCarId');
+    if (idEl) idEl.value = car.id || carId;
+    const titleEl = document.getElementById('editCarTitle');
+    if (titleEl) titleEl.value = car.title || '';
+    const makeEl = document.getElementById('editCarMake');
+    if (makeEl) makeEl.value = car.make || '';
+    const modelEl = document.getElementById('editCarModel');
+    if (modelEl) modelEl.value = car.model || '';
+    const yearEl = document.getElementById('editCarYear');
+    if (yearEl) yearEl.value = car.year || 2024;
+    const priceEl = document.getElementById('editCarPrice');
+    if (priceEl) priceEl.value = car.price || '';
+    const mileageEl = document.getElementById('editCarMileage');
+    if (mileageEl) mileageEl.value = car.mileage || 0;
+    const transEl = document.getElementById('editCarTransmission');
+    if (transEl) transEl.value = car.transmission || 'Automatic';
+    const fuelEl = document.getElementById('editCarFuel');
+    if (fuelEl) fuelEl.value = car.fuel_type || 'Petrol';
+    const bodyEl = document.getElementById('editCarBody');
+    if (bodyEl) bodyEl.value = car.body_type || 'Sedan';
+    const colorEl = document.getElementById('editCarColor');
+    if (colorEl) colorEl.value = car.color || '';
+    const condEl = document.getElementById('editCarCondition');
+    if (condEl) condEl.value = car.condition || 'Foreign Used';
+    const statusEl = document.getElementById('editCarStatus');
+    if (statusEl) statusEl.value = car.status || 'Available';
+    const featEl = document.getElementById('editCarFeatures');
+    if (featEl) featEl.value = car.features || '';
+    const descEl = document.getElementById('editCarDescription');
+    if (descEl) descEl.value = car.description || '';
+
+    // Clear file inputs
+    const fileInput = document.getElementById('editCarImageFiles');
+    if (fileInput) fileInput.value = '';
+
+    // Pre-populate image URLs if available
+    const urlsText = document.getElementById('editCarImageUrls');
+    const images = Array.isArray(car.images) && car.images.length > 0 ? car.images : (car.image_url ? [car.image_url] : []);
+    if (urlsText) urlsText.value = images.join('\n');
+
+    // Render current photo slots preview
+    const grid = document.getElementById('editCarPhotoSlotsGrid');
+    if (grid) {
+      if (images.length === 0) {
+        grid.innerHTML = '<div style="grid-column:1/-1; color:var(--gray-text); font-size:12px; padding:10px 0;">No photos currently assigned.</div>';
+      } else {
+        grid.innerHTML = images.map((img, idx) => `
+          <div style="position:relative; border-radius:6px; overflow:hidden; border:1px solid rgba(255,255,255,0.15); height:60px; background:#000;">
+            <img src="${img}" style="width:100%; height:100%; object-fit:cover;" alt="Photo ${idx + 1}" onerror="this.src='/static/img/placeholder-car.svg'">
+            <span style="position:absolute; bottom:2px; left:2px; background:rgba(0,0,0,0.7); color:#fff; font-size:9px; padding:1px 4px; border-radius:3px;">#${idx + 1}</span>
+          </div>
+        `).join('');
+      }
+    }
+
+    openModal('editCarModal');
+  } catch (err) {
+    console.error('Error opening edit car modal:', err);
+    showToast('Failed to load vehicle for editing', 'info');
+  }
+}
+
+async function handleEditCarSubmit(e) {
+  if (e && e.preventDefault) e.preventDefault();
+  const carId = document.getElementById('editCarId')?.value;
+  if (!carId) return;
+
+  const btn = document.getElementById('btnSaveEditCar');
+  if (btn) { btn.disabled = true; btn.textContent = 'Saving Changes...'; }
+
+  try {
+    const formEl = document.getElementById('editCarForm');
+    const formData = new FormData(formEl);
+
+    const res = await fetch(`/api/cars/${carId}`, {
+      method: 'POST',
+      body: formData
+    });
+
+    const data = await res.json();
+    if (res.ok && data.success) {
+      showToast('Vehicle updated successfully!', 'success');
+      closeModal('editCarModal');
+      loadAdminCars();
+      if (typeof loadAdminDataTable === 'function') loadAdminDataTable();
+      loadAdminStats();
+    } else {
+      showToast(data.error || 'Failed to update vehicle', 'info');
+    }
+  } catch (err) {
+    console.error('Save car edit error:', err);
+    showToast('Network error updating vehicle', 'info');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Save Vehicle Changes'; }
+  }
+}
+
+async function loadAdminDataTable() {
+  const tbody = document.getElementById('adminDataTableBody');
+  if (!tbody) return;
+
+  try {
+    const res = await fetch('/api/cars');
+    const data = await res.json();
+    const cars = data.cars || [];
+
+    if (!cars.length) {
+      tbody.innerHTML = '<tr><td colspan="7" style="padding:28px; text-align:center; color:var(--gray-text);">No vehicles in inventory database.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = cars.map(c => {
+      let statusPill = '';
+      if (c.status === 'Available') {
+        statusPill = '<span style="color:#22c55e; font-weight:700; background:rgba(34,197,94,0.1); border:1px solid rgba(34,197,94,0.25); padding:3px 8px; border-radius:100px; font-size:11px;">Available</span>';
+      } else if (c.status === 'Reserved') {
+        statusPill = '<span style="color:#f59e0b; font-weight:700; background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.25); padding:3px 8px; border-radius:100px; font-size:11px;">Reserved</span>';
+      } else {
+        statusPill = '<span style="color:#94a3b8; font-weight:700; background:rgba(148,163,184,0.1); border:1px solid rgba(148,163,184,0.25); padding:3px 8px; border-radius:100px; font-size:11px;">Sold</span>';
+      }
+
+      const sellerLabel = c.seller_name ? `${escapeHtml(c.seller_name)}` : 'BIG-L Showroom';
+
+      return `
+        <tr style="border-bottom:1px solid var(--border-dark);">
+          <td style="padding:14px; font-weight:700; color:var(--gray-400); font-size:12px;">#${c.id}</td>
+          <td style="padding:14px;">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <img src="${c.image_url || '/static/img/placeholder-car.svg'}" style="width:48px; height:48px; border-radius:6px; object-fit:cover; border:1px solid rgba(255,255,255,0.1);" alt="${escapeHtml(c.title)}">
+              <div>
+                <div style="font-weight:750; color:var(--white); font-size:13.5px;">${escapeHtml(c.title)}</div>
+                <div style="font-size:11px; color:var(--gray-text); margin-top:2px;">${escapeHtml(c.make || '')} ${escapeHtml(c.model || '')} • ${escapeHtml(c.condition || 'Used')} • ${escapeHtml(c.transmission || 'Auto')}</div>
+              </div>
+            </div>
+          </td>
+          <td style="padding:14px; font-weight:800; color:var(--mint); font-size:13.5px;">
+            ${formatMoney(c.price)}
+          </td>
+          <td style="padding:14px; font-size:12.5px; color:var(--gray-300);">
+            <div style="font-weight:600; color:var(--white);">${c.year}</div>
+            <div style="font-size:11px; color:var(--gray-text);">${(c.mileage || 0).toLocaleString()} km</div>
+          </td>
+          <td style="padding:14px; font-size:12.5px; color:var(--gray-text);">
+            <div style="color:var(--white); font-weight:600;">${sellerLabel}</div>
+            <div style="font-size:11px;">${escapeHtml(c.seller_phone || 'Larry Direct')}</div>
+          </td>
+          <td style="padding:14px;">
+            ${statusPill}
+          </td>
+          <td style="padding:14px; text-align:right;">
+            <div style="display:inline-flex; align-items:center; gap:6px; justify-content:flex-end;">
+              <button onclick="openEditCarModal(${c.id})" class="btn btn-primary btn-sm" style="font-size:11.5px; padding:5px 9px; font-weight:700;">Edit</button>
+              <button onclick="toggleCarStatus(${c.id}, '${c.status === 'Available' ? 'Sold' : 'Available'}')" class="btn btn-secondary btn-sm" style="font-size:11.5px; padding:5px 9px;" title="Toggle between Available and Sold">
+                ${c.status === 'Available' ? 'Mark Sold' : 'Mark Available'}
+              </button>
+              <button onclick="deleteCarListing(${c.id})" class="btn btn-sm" style="background:#450a0a; color:#f87171; border:1px solid #991b1b; font-weight:700; font-size:11.5px; padding:5px 9px;">Delete</button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  } catch (err) {
+    console.error('Error loading admin data table:', err);
+    tbody.innerHTML = '<tr><td colspan="7" style="padding:20px; text-align:center; color:#ef4444;">Failed to load fleet data table.</td></tr>';
+  }
+}
+
+async function exportShowroomCSV() {
+  try {
+    const res = await fetch('/api/cars');
+    const data = await res.json();
+    const cars = data.cars || [];
+
+    if (!cars.length) {
+      showToast('No vehicles available to export', 'info');
+      return;
+    }
+
+    const headers = ['ID', 'Title', 'Make', 'Model', 'Year', 'Price_GHC', 'Mileage_km', 'Transmission', 'Fuel', 'Condition', 'Status', 'Seller', 'Image_URL'];
+    const rows = cars.map(c => [
+      c.id,
+      `"${(c.title || '').replace(/"/g, '""')}"`,
+      `"${(c.make || '').replace(/"/g, '""')}"`,
+      `"${(c.model || '').replace(/"/g, '""')}"`,
+      c.year,
+      c.price,
+      c.mileage || 0,
+      `"${c.transmission || ''}"`,
+      `"${c.fuel_type || ''}"`,
+      `"${c.condition || ''}"`,
+      `"${c.status || ''}"`,
+      `"${(c.seller_name || 'BIG-L Showroom').replace(/"/g, '""')}"`,
+      `"${(c.image_url || '').replace(/"/g, '""')}"`
+    ]);
+
+    const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\r\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `big_l_autos_showroom_${new Date().toISOString().substring(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    showToast('Showroom CSV export downloaded!', 'success');
+  } catch (err) {
+    console.error('CSV export error:', err);
+    showToast('Failed to export CSV', 'info');
+  }
+}
+
+async function downloadDataBackup() {
+  try {
+    showToast('Generating complete JSON database backup...', 'info');
+    const res = await fetch('/api/admin/export-data');
+    if (!res.ok) {
+      showToast('Export failed. Admin credentials required.', 'info');
+      return;
+    }
+    const data = await res.json();
+    const jsonStr = JSON.stringify(data, null, 2);
+    const blob = new Blob([jsonStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `big_l_autos_backup_${new Date().toISOString().substring(0, 10)}.json`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    showToast('Full JSON backup downloaded!', 'success');
+  } catch (err) {
+    console.error('Data backup download error:', err);
+    showToast('Failed to download database backup', 'info');
+  }
+}
+
+async function syncAdminFleet() {
+  const btn = document.getElementById('btnSyncFleet');
+  if (btn) { btn.disabled = true; btn.textContent = 'Syncing Fleet...'; }
+  try {
+    const res = await fetch('/api/admin/seed-fleet', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      showToast(data.message || 'Showroom fleet verified and synchronized!', 'success');
+      loadAdminCars();
+      if (typeof loadAdminDataTable === 'function') loadAdminDataTable();
+      loadAdminStats();
+    } else {
+      showToast(data.error || 'Failed to sync fleet', 'info');
+    }
+  } catch (err) {
+    console.error('Sync fleet error:', err);
+    showToast('Network error syncing fleet', 'info');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Sync Showroom Fleet'; }
   }
 }
 

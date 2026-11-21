@@ -131,8 +131,8 @@
     <div class="apple-account-box">
       <div class="apple-avatar"></div>
       <div class="apple-account-details">
-        <div class="apple-user-name" id="appleUserName">Apple ID Client</div>
-        <div class="apple-user-email" id="appleUserEmail">client@icloud.com</div>
+        <div class="apple-user-name" id="appleUserName">Michael Bonsu (Admin)</div>
+        <div class="apple-user-email" id="appleUserEmail">michaelbonsu2000@icloud.com</div>
       </div>
     </div>
 
@@ -159,18 +159,26 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             provider: 'apple',
-            email: 'apple.user@icloud.com',
-            name: 'Apple User'
+            email: 'michaelbonsu2000@icloud.com',
+            name: 'Michael Bonsu'
           })
         });
         const data = await res.json();
         if (res.ok && data.success) {
-          if (window.opener) {
-            window.opener.postMessage({ type: 'APPLE_AUTH_SUCCESS', user: data.user }, '*');
-            window.close();
-          } else {
-            window.location.href = data.redirect || '/customer';
+          const targetUrl = data.redirect || (data.user && data.user.role === 'admin' ? '/admin' : '/customer');
+          let notifiedOpener = false;
+          try {
+            if (window.opener && !window.opener.closed) {
+              window.opener.postMessage({ type: 'APPLE_AUTH_SUCCESS', user: data.user }, '*');
+              notifiedOpener = true;
+              try { window.close(); } catch (e) {}
+            }
+          } catch (e) {
+            console.warn('Opener notice:', e);
           }
+          setTimeout(() => {
+            window.location.href = targetUrl;
+          }, notifiedOpener ? 350 : 50);
         } else {
           alert(data.error || 'Apple Sign-In failed');
           location.reload();

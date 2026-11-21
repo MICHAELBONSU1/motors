@@ -189,7 +189,7 @@
   <!-- Toast Notification Container -->
   <div id="toastContainer" class="toast-container"></div>
 
-  <script src="/static/js/app.js?v=6.3"></script>
+  <script src="/static/js/app.js?v=6.4"></script>
   <script>
     // Extract inquiry car id from URL if present
     const urlParams = new URLSearchParams(window.location.search);
@@ -293,18 +293,28 @@
     function startPageSocialLogin(provider) {
       const isGoogle = provider === 'google';
       const url = isGoogle ? '/auth/google' : '/auth/apple';
+
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      if (isMobile) {
+        window.location.href = url;
+        return;
+      }
+
       const width = 480;
       const height = 580;
       const left = window.screenX + Math.max(0, (window.outerWidth - width) / 2);
       const top = window.screenY + Math.max(0, (window.outerHeight - height) / 2);
 
-      const popup = window.open(
-        url,
-        isGoogle ? 'GoogleSignIn' : 'AppleSignIn',
-        `width=${width},height=${height},left=${left},top=${top},status=no,toolbar=no,menubar=no`
-      );
-
-      if (!popup || popup.closed || typeof popup.closed === 'undefined') {
+      try {
+        const popup = window.open(
+          url,
+          isGoogle ? 'GoogleSignIn' : 'AppleSignIn',
+          `width=${width},height=${height},left=${left},top=${top},status=no,toolbar=no,menubar=no`
+        );
+        if (!popup || popup.closed || typeof popup.closed === 'undefined') {
+          window.location.href = url;
+        }
+      } catch (e) {
         window.location.href = url;
       }
     }

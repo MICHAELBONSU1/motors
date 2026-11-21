@@ -108,11 +108,10 @@
     </div>
 
     <!-- Navigation Tabs for Admin Sections (No icons) -->
-    <div class="tab-switch responsive-tabs" style="max-width:680px; margin-bottom:24px;">
-      <button class="tab-btn active" id="adminTabInquiriesBtn" onclick="switchAdminTab('inquiries')">Customer Inquiries
-        Desk</button>
-      <button class="tab-btn" id="adminTabInventoryBtn" onclick="switchAdminTab('inventory')">Inventory
-        Management</button>
+    <div class="tab-switch responsive-tabs" style="max-width:820px; margin-bottom:24px;">
+      <button class="tab-btn active" id="adminTabInquiriesBtn" onclick="switchAdminTab('inquiries')">Customer Inquiries Desk</button>
+      <button class="tab-btn" id="adminTabInventoryBtn" onclick="switchAdminTab('inventory')">Inventory Management</button>
+      <button class="tab-btn" id="adminTabDataBtn" onclick="switchAdminTab('data')">Data Control</button>
       <button class="tab-btn" id="adminTabSwapBtn" onclick="switchAdminTab('swap')">Sell and Swap Reviews</button>
       <button class="tab-btn" id="adminTabSellersBtn" onclick="switchAdminTab('sellers')" style="position:relative;">
         Account Management
@@ -170,6 +169,56 @@
 
         <div id="adminCarsList">
           <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 2.5: Data Control & System Governance -->
+    <div id="adminDataView" style="display:none;">
+      <div style="background:var(--bg-card); border:1px solid var(--border-dark); border-radius:var(--radius-md); padding:24px; box-shadow:var(--shadow-sm); margin-bottom:24px;">
+        <div class="admin-section-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
+          <div>
+            <h3 style="font-family:var(--font-heading); font-size:18px; font-weight:800; color:var(--white); margin:0 0 4px 0;">Showroom Data Control &amp; System Backups</h3>
+            <p style="font-size:13px; color:var(--gray-text); margin:0;">Real-time management of vehicle inventory, database exports, fleet synchronization, and individual car controls.</p>
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+            <button onclick="exportShowroomCSV()" class="btn btn-secondary btn-sm" style="font-weight:700; padding:7px 12px; font-size:12px;" title="Export vehicle inventory into CSV spreadsheet">
+              Export Showroom CSV
+            </button>
+            <button onclick="downloadDataBackup()" class="btn btn-secondary btn-sm" style="font-weight:700; padding:7px 12px; font-size:12px;" title="Download complete database JSON backup">
+              Download JSON Backup
+            </button>
+            <button onclick="syncAdminFleet()" id="btnSyncFleet" class="btn btn-primary btn-sm" style="font-weight:700; padding:7px 12px; font-size:12px;" title="Synchronize auto-generated showroom fleet without affecting posted vehicles">
+              Sync Showroom Fleet
+            </button>
+          </div>
+        </div>
+
+        <div style="background:rgba(0,242,150,0.06); border:1px solid rgba(0,242,150,0.2); border-radius:6px; padding:12px 16px; margin-bottom:20px; font-size:12.5px; color:var(--gray-300); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+          <span>
+            <strong style="color:var(--mint);">Data Integrity Active:</strong> All customer-posted and admin vehicles are protected. You can edit any car's specifications, price, photos, or status at any time using the <strong>Edit Vehicle</strong> action below.
+          </span>
+          <span style="color:#94a3b8; font-size:11.5px; font-weight:600;">Real-Time Data Controller</span>
+        </div>
+
+        <!-- Live Data Table of Showroom Fleet -->
+        <div class="responsive-table-wrapper" style="overflow-x:auto; -webkit-overflow-scrolling:touch;">
+          <table style="width:100%; min-width:840px; border-collapse:collapse; text-align:left; font-size:13px;">
+            <thead>
+              <tr style="background:rgba(0,0,0,0.3); border-bottom:1px solid var(--border-dark); color:var(--gray-text); font-weight:700;">
+                <th style="padding:12px 14px; width:60px;">ID</th>
+                <th style="padding:12px 14px;">Vehicle Listing</th>
+                <th style="padding:12px 14px;">Asking Price</th>
+                <th style="padding:12px 14px;">Year &amp; Mileage</th>
+                <th style="padding:12px 14px;">Seller / Owner</th>
+                <th style="padding:12px 14px;">Showroom Status</th>
+                <th style="padding:12px 14px; text-align:right;">Control Actions</th>
+              </tr>
+            </thead>
+            <tbody id="adminDataTableBody">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -443,11 +492,153 @@
     </div>
   </div>
 
-  <script src="/static/js/app.js?v=6.3"></script>
+  <!-- Modal: Edit Vehicle & Data Controller -->
+  <div class="modal-overlay" id="editCarModal">
+    <div class="modal-content" style="max-width: 680px;">
+      <div class="modal-header">
+        <div class="modal-title">
+          <h3>Edit Vehicle Specifications</h3>
+          <p>Update vehicle details, asking price, condition, or photos in real-time</p>
+        </div>
+        <button class="btn-close-modal" onclick="closeModal('editCarModal')">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <form id="editCarForm" onsubmit="handleEditCarSubmit(event)" enctype="multipart/form-data">
+          <input type="hidden" id="editCarId" name="car_id">
+
+          <!-- Current Photo Gallery & Uploads -->
+          <div class="form-group" style="background:rgba(0,0,0,0.35); padding:16px; border-radius:var(--radius-sm); border:1px dashed var(--border-dark);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <label class="form-label" style="font-weight:700; margin:0;">Vehicle Photos</label>
+              <span id="editCarPhotoBadge" style="font-size:11px; font-weight:700; color:var(--mint); background:rgba(34,197,94,0.15); padding:2px 8px; border-radius:100px;">Current Gallery</span>
+            </div>
+            
+            <div id="editCarPhotoSlotsGrid" style="display:grid; grid-template-columns:repeat(5, 1fr); gap:8px; margin-bottom:12px;">
+              <!-- Populated by JS -->
+            </div>
+
+            <p style="font-size:12px; color:var(--gray-text); margin-bottom:8px;">To replace or add photos, select new image files or paste updated image URLs below:</p>
+            <input type="file" id="editCarImageFiles" name="image_files" accept="image/*" multiple class="form-input" style="background:rgba(0,0,0,0.5); margin-bottom:8px;">
+            <textarea id="editCarImageUrls" name="image_urls" class="form-textarea" rows="2" style="font-size:12px; background:rgba(0,0,0,0.5);" placeholder="Paste replacement image URLs (one per line)..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Full Listing Title</label>
+            <input type="text" id="editCarTitle" name="title" class="form-input" required>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Make</label>
+              <input type="text" id="editCarMake" name="make" class="form-input" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Model</label>
+              <input type="text" id="editCarModel" name="model" class="form-input" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Year</label>
+              <input type="number" id="editCarYear" name="year" class="form-input" required min="1990" max="2027">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Asking Price (GH₵)</label>
+              <input type="number" id="editCarPrice" name="price" class="form-input" required step="0.01">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Current Mileage (km)</label>
+              <input type="number" id="editCarMileage" name="mileage" class="form-input">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Transmission</label>
+              <select id="editCarTransmission" name="transmission" class="form-select">
+                <option value="Automatic">Automatic</option>
+                <option value="Manual">Manual</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Fuel Type</label>
+              <select id="editCarFuel" name="fuel_type" class="form-select">
+                <option value="Petrol">Petrol</option>
+                <option value="Diesel">Diesel</option>
+                <option value="Hybrid">Hybrid</option>
+                <option value="Electric">Electric</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Body Style</label>
+              <select id="editCarBody" name="body_type" class="form-select">
+                <option value="Coupe">Coupe</option>
+                <option value="Sedan">Sedan</option>
+                <option value="SUV">SUV</option>
+                <option value="Hatchback">Hatchback</option>
+                <option value="Truck">Truck</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Exterior Color</label>
+              <input type="text" id="editCarColor" name="color" class="form-input">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Vehicle Condition</label>
+              <select id="editCarCondition" name="condition" class="form-select">
+                <option value="Brand New">Brand New</option>
+                <option value="Foreign Used">Foreign Used</option>
+                <option value="Local Used">Local Used</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Showroom Availability Status</label>
+            <select id="editCarStatus" name="status" class="form-select">
+              <option value="Available">Available (Visible in Showroom)</option>
+              <option value="Reserved">Reserved (On Hold for Buyer)</option>
+              <option value="Sold">Sold (Marked as Completed Deal)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Key Features (comma-separated)</label>
+            <input type="text" id="editCarFeatures" name="features" class="form-input">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Detailed Vehicle Description</label>
+            <textarea id="editCarDescription" name="description" class="form-textarea" rows="3"></textarea>
+          </div>
+
+          <div style="display:flex; gap:12px; margin-top:20px;">
+            <button type="button" onclick="closeModal('editCarModal')" class="btn btn-secondary" style="flex:1; padding:13px; font-weight:700;">
+              Cancel
+            </button>
+            <button type="submit" id="btnSaveEditCar" class="btn btn-primary" style="flex:2; padding:13px; font-weight:800;">
+              Save Vehicle Changes
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/js/app.js?v=6.4"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       initAdminPortal();
       loadAdminSellers();
+      if (typeof loadAdminDataTable === 'function') loadAdminDataTable();
     });
 
     function switchAdminTab(view) {
@@ -456,29 +647,34 @@
       }
       const inq = document.getElementById('adminInquiriesView');
       const inv = document.getElementById('adminInventoryView');
+      const dat = document.getElementById('adminDataView');
       const swp = document.getElementById('adminSwapView');
       const slr = document.getElementById('adminSellersView');
       const prf = document.getElementById('adminProfileView');
 
       const btnInq = document.getElementById('adminTabInquiriesBtn');
       const btnInv = document.getElementById('adminTabInventoryBtn');
+      const btnDat = document.getElementById('adminTabDataBtn');
       const btnSwp = document.getElementById('adminTabSwapBtn');
       const btnSlr = document.getElementById('adminTabSellersBtn');
       const btnPrf = document.getElementById('adminTabProfileBtn');
 
       inq.style.display = view === 'inquiries' ? 'block' : 'none';
       inv.style.display = view === 'inventory' ? 'block' : 'none';
+      if (dat) dat.style.display = view === 'data' ? 'block' : 'none';
       swp.style.display = view === 'swap'      ? 'block' : 'none';
       if (slr) slr.style.display = view === 'sellers' ? 'block' : 'none';
       if (prf) prf.style.display = view === 'profile' ? 'block' : 'none';
 
       btnInq.classList.toggle('active', view === 'inquiries');
       btnInv.classList.toggle('active', view === 'inventory');
+      if (btnDat) btnDat.classList.toggle('active', view === 'data');
       btnSwp.classList.toggle('active', view === 'swap');
       if (btnSlr) btnSlr.classList.toggle('active', view === 'sellers');
       if (btnPrf) btnPrf.classList.toggle('active', view === 'profile');
 
       if (view === 'sellers') loadAdminSellers();
+      if (view === 'data' && typeof loadAdminDataTable === 'function') loadAdminDataTable();
     }
 
     async function handleAdminUpdateProfile(e) {

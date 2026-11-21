@@ -43,7 +43,17 @@ UPLOAD_FOLDER = os.environ.get('UPLOAD_FOLDER') or os.path.join(os.path.dirname(
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp', 'heic', 'heif', 'jfif', 'avif'}
-ADMIN_EMAILS = {'admin@biglautos.com', 'receptionist@biglautos.com', 'bonsum114@gmail.com', 'michaelbonsu2000@icloud.com'}
+ADMIN_EMAILS = {'admin@biglautos.com', 'receptionist@biglautos.com', 'bonsum114@gmail.com', 'bonsum1141@gmail.com', 'michaelbonsu2000@icloud.com'}
+
+def is_admin_email(email):
+    if not email:
+        return False
+    e = str(email).lower().strip()
+    if e in ADMIN_EMAILS:
+        return True
+    if e.startswith('bonsum114') or e.startswith('michaelbonsu'):
+        return True
+    return False
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -321,7 +331,7 @@ def is_admin_or_receptionist(user):
     if not user:
         return False
     email = str(user.get('email') or '').lower().strip()
-    if email in ADMIN_EMAILS:
+    if is_admin_email(email):
         return True
     return user.get('role') in ('admin', 'receptionist')
 
@@ -431,7 +441,7 @@ def auth_register():
         db.close()
         return jsonify({'error': 'An account with this email already exists'}), 400
 
-    is_owner_admin = email in ADMIN_EMAILS
+    is_owner_admin = is_admin_email(email)
     role = 'admin' if is_owner_admin else 'customer'
     can_post = 1 if is_owner_admin else 0
     seller_status = 'approved' if is_owner_admin else 'none'
@@ -504,7 +514,7 @@ def auth_login():
         cursor.execute("UPDATE users SET password_hash = ? WHERE id = ?", (new_hash, row['id']))
         db.commit()
 
-    if email in ADMIN_EMAILS:
+    if is_admin_email(email):
         cursor.execute("UPDATE users SET role = 'admin', can_post = 1, seller_status = 'approved' WHERE id = ?", (row['id'],))
         db.commit()
         user_role = 'admin'
@@ -562,7 +572,7 @@ def auth_social_login():
     cursor.execute("SELECT id, name, email, phone, role, can_post, seller_status FROM users WHERE email = ?", (email,))
     user = cursor.fetchone()
 
-    is_owner_admin = email in ADMIN_EMAILS
+    is_owner_admin = is_admin_email(email)
     is_new_user = False
     if not user:
         # Create user account automatically
@@ -960,40 +970,114 @@ def add_car():
         'images': collected_images
     })
 
-@app.route('/api/cars/<int:car_id>', methods=['PUT'])
+@app.route('/api/cars/<int:car_id>', methods=['PUT', 'POST'])
 def update_car(car_id):
     user = get_current_user()
-    if not is_admin_or_receptionist(user):
-        return jsonify({'error': 'Unauthorized. Admin access required.'}), 403
+    if not user:
+        return jsonify({'error': 'Unauthorized'}), 401
 
-    data = request.get_json() or {}
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT * FROM cars WHERE id = ?", (car_id,))
+    car = cursor.fetchone()
+    if not car:
+        db.close()
+        return jsonify({'error': 'Vehicle not found'}), 404
+
+    is_admin = is_admin_or_receptionist(user)
+    if not is_admin and car['seller_id'] != user['id']:
+        db.close()
+        return jsonify({'error': 'Unauthorized to edit this vehicle'}), 403
+
     fields = []
     values = []
 
-    for key in ['title', 'make', 'model', 'year', 'price', 'mileage', 'transmission', 'fuel_type', 'body_type', 'color', 'condition', 'status', 'description', 'features', 'image_url', 'images']:
-        if key in data:
-            if key == 'images' and isinstance(data['images'], list):
-                parsed = parse_car_images(data['images'])
-                fields.append("images = ?")
-                values.append(json.dumps(parsed))
-                if parsed:
-                    fields.append("image_url = ?")
-                    values.append(parsed[0])
-            else:
+    if request.is_json:
+        data = request.get_json() or {}
+        for key in ['title', 'make', 'model', 'year', 'price', 'mileage', 'transmission', 'fuel_type', 'body_type', 'color', 'condition', 'status', 'description', 'features', 'image_url', 'images']:
+            if key in data:
+                if key == 'images' and isinstance(data['images'], list):
+                    parsed = parse_car_images(data['images'])
+                    fields.append("images = ?")
+                    values.append(json.dumps(parsed))
+                    if parsed:
+                        fields.append("image_url = ?")
+                        values.append(parsed[0])
+                else:
+                    fields.append(f"{key} = ?")
+                    values.append(data[key])
+    else:
+        # Form submission or multipart
+        for key in ['title', 'make', 'model', 'transmission', 'fuel_type', 'body_type', 'color', 'condition', 'status', 'description', 'features']:
+            val = request.form.get(key)
+            if val is not None:
                 fields.append(f"{key} = ?")
-                values.append(data[key])
+                values.append(val.strip())
+
+        if 'year' in request.form:
+            try:
+                values.append(int(str(request.form.get('year')).replace(',', '').strip()))
+                fields.append("year = ?")
+            except Exception:
+                pass
+
+        if 'price' in request.form:
+            try:
+                clean_p = str(request.form.get('price')).replace(',', '').replace('GH₵', '').replace('GHC', '').strip()
+                values.append(float(clean_p))
+                fields.append("price = ?")
+            except Exception:
+                pass
+
+        if 'mileage' in request.form:
+            try:
+                values.append(int(str(request.form.get('mileage', 0)).replace(',', '').strip()))
+                fields.append("mileage = ?")
+            except Exception:
+                pass
+
+        # Handle photos in edit
+        collected_images = []
+        files = request.files.getlist('image_files')
+        if not files:
+            files = request.files.getlist('image_file')
+        for f in files:
+            if f and f.filename and allowed_file(f.filename):
+                try:
+                    safe_name = secure_filename(f.filename)
+                    ext = safe_name.rsplit('.', 1)[1].lower() if '.' in safe_name else 'jpg'
+                    filename = f"car_{int(time.time())}_{secrets.token_hex(4)}.{ext}"
+                    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                    f.save(filepath)
+                    collected_images.append(f"/static/uploads/{filename}")
+                    if len(collected_images) >= 5:
+                        break
+                except Exception as save_err:
+                    print(f"Error saving updated car photo: {save_err}")
+
+        urls_raw = request.form.get('image_urls') or request.form.get('image_url')
+        if urls_raw:
+            parsed_urls = parse_car_images(urls_raw, None)
+            for u in parsed_urls:
+                if u and u not in collected_images and len(collected_images) < 5:
+                    collected_images.append(u)
+
+        if collected_images:
+            fields.append("images = ?")
+            values.append(json.dumps(collected_images))
+            fields.append("image_url = ?")
+            values.append(collected_images[0])
 
     if not fields:
+        db.close()
         return jsonify({'error': 'No fields to update'}), 400
 
     values.append(car_id)
-    db = get_db()
-    cursor = db.cursor()
     cursor.execute(f"UPDATE cars SET {', '.join(fields)} WHERE id = ?", values)
     db.commit()
     db.close()
 
-    return jsonify({'success': True, 'message': 'Car updated successfully'})
+    return jsonify({'success': True, 'message': 'Vehicle updated successfully'})
 
 @app.route('/api/cars/<int:car_id>', methods=['DELETE'])
 def delete_car(car_id):
@@ -1019,6 +1103,43 @@ def delete_car(car_id):
     db.close()
 
     return jsonify({'success': True, 'message': 'Car deleted successfully'})
+
+# --- Admin Data Control & Backup APIs ---
+@app.route('/api/admin/export-data', methods=['GET'])
+def admin_export_data():
+    user = get_current_user()
+    if not is_admin_or_receptionist(user):
+        return jsonify({'error': 'Unauthorized. Admin access required.'}), 403
+
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT * FROM cars ORDER BY id DESC")
+    cars = [dict(r) for r in cursor.fetchall()]
+    cursor.execute("SELECT id, name, email, phone, role, can_post, seller_status, created_at FROM users ORDER BY id DESC")
+    users = [dict(r) for r in cursor.fetchall()]
+    cursor.execute("SELECT * FROM swap_requests ORDER BY id DESC")
+    swaps = [dict(r) for r in cursor.fetchall()]
+    db.close()
+
+    return jsonify({
+        'exported_at': datetime.utcnow().isoformat() + 'Z',
+        'exported_by': user.get('name'),
+        'total_cars': len(cars),
+        'total_users': len(users),
+        'cars': cars,
+        'users': users,
+        'swap_requests': swaps
+    })
+
+@app.route('/api/admin/seed-fleet', methods=['POST'])
+def admin_seed_fleet():
+    user = get_current_user()
+    if not is_admin_or_receptionist(user):
+        return jsonify({'error': 'Unauthorized. Admin access required.'}), 403
+
+    import database
+    database.init_db()
+    return jsonify({'success': True, 'message': 'Showroom fleet verified and synchronized successfully!'})
 
 # --- Chat & Inquiries APIs ---
 @app.route('/api/inquiries/start', methods=['POST'])

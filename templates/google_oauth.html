@@ -169,8 +169,16 @@
 
     <!-- Google One-Tap Quick Accounts -->
     <div id="quickAccountsList">
+      <div class="account-item" onclick="chooseAccount('Michael Bonsu', 'bonsum114@gmail.com')">
+        <div class="account-avatar" style="background:#0b57d0;">M</div>
+        <div class="account-info">
+          <div class="account-name">Michael Bonsu (Admin)</div>
+          <div class="account-email">bonsum114@gmail.com</div>
+        </div>
+      </div>
+
       <div class="account-item" onclick="chooseAccount('David Mensah', 'david.mensah@gmail.com')">
-        <div class="account-avatar" style="background:#0b57d0;">D</div>
+        <div class="account-avatar" style="background:#1e8e3e;">D</div>
         <div class="account-info">
           <div class="account-name">David Mensah</div>
           <div class="account-email">david.mensah@gmail.com</div>
@@ -185,7 +193,7 @@
         </div>
         <div class="account-info">
           <div class="account-name">Use another Google account</div>
-          <div class="account-email">Sign in with your Gmail</div>
+          <div class="account-email">Sign in with any Gmail</div>
         </div>
       </div>
     </div>
@@ -223,12 +231,21 @@
         });
         const data = await res.json();
         if (res.ok && data.success) {
-          if (window.opener) {
-            window.opener.postMessage({ type: 'GOOGLE_AUTH_SUCCESS', user: data.user }, '*');
-            window.close();
-          } else {
-            window.location.href = data.redirect || '/customer';
+          const targetUrl = data.redirect || (data.user && data.user.role === 'admin' ? '/admin' : '/customer');
+          let notifiedOpener = false;
+          try {
+            if (window.opener && !window.opener.closed) {
+              window.opener.postMessage({ type: 'GOOGLE_AUTH_SUCCESS', user: data.user }, '*');
+              notifiedOpener = true;
+              try { window.close(); } catch (e) {}
+            }
+          } catch (e) {
+            console.warn('Opener postMessage notice:', e);
           }
+
+          setTimeout(() => {
+            window.location.href = targetUrl;
+          }, notifiedOpener ? 350 : 50);
         } else {
           alert(data.error || 'Google Sign-In failed');
           location.reload();
